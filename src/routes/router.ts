@@ -8,10 +8,10 @@ import {
   TrucksPage,
   UsersPage
 } from "@/pages"
-import { createRoute, createRouter } from "@tanstack/react-router"
+import { createRoute, createRouter, type RouteComponent } from "@tanstack/react-router"
 import { Route as rootRoute } from "./__root"
 
-const r = (path: string, component: any) =>
+const r = (path: string, component: RouteComponent) =>
   createRoute({
     path,
     getParentRoute: () => rootRoute,

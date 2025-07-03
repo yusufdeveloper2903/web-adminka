@@ -9,10 +9,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
-  SidebarHeader
+  SidebarHeader,
+  SidebarTrigger
 } from "@/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Car,
   Route as RouteIcon,
@@ -23,9 +22,8 @@ import {
   Truck,
   User,
   Users,
-  ChevronUp,
   Moon,
-  RotateCcw
+  LogOut
 } from "lucide-react"
 
 const menuItems = {
@@ -79,26 +77,31 @@ const AppSidebar = () => {
   const location = useLocation()
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white">GL</div>
-          <span className="text-lg font-bold">GL MILER</span>
+    <Sidebar collapsible="icon" className="border-r border-slate-700 bg-[#0A2540]">
+      {/* Header with GL MILER and toggle button */}
+      <SidebarHeader className="border-b border-slate-700 p-0">
+        <div className="flex items-center justify-between px-4 py-3">
+          <span className="text-lg font-bold text-white">GL MILER</span>
+          <SidebarTrigger className="h-6 w-6 text-white hover:bg-slate-600 hover:text-white" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-2">
-            <RouteIcon className="h-4 w-4" />
-            GENERAL
+      <SidebarContent className="px-3 py-4">
+        {/* General Section */}
+        <SidebarGroup className="mb-6">
+          <SidebarGroupLabel className="mb-2 px-2 text-xs font-medium tracking-wider text-gray-400 uppercase">
+            General
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {menuItems.general.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <Link key={item.url} to={item.url} search={{}}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                    className="text-gray-300 hover:bg-sky-700 hover:text-white data-[active=true]:bg-sky-700 data-[active=true]:text-white"
+                  >
+                    <Link to={item.url} search={{}}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -109,16 +112,20 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Settings Section */}
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            SETTINGS
+          <SidebarGroupLabel className="mb-2 px-2 text-xs font-medium tracking-wider text-gray-400 uppercase">
+            Settings
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {menuItems.settings.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.url}
+                    className="text-gray-300 hover:bg-sky-700 hover:text-white data-[active=true]:bg-sky-700 data-[active=true]:text-white"
+                  >
                     <Link to={item.url} search={{}}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -131,42 +138,27 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
+      {/* Footer with account and action buttons */}
+      <SidebarFooter className="border-t border-slate-700 p-3">
+        <SidebarMenu className="space-y-2">
+          {/* Account Button */}
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/avatars/walter-white.jpg" alt="Walter White" />
-                    <AvatarFallback className="rounded-lg">WW</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Walter White</span>
-                    <span className="truncate text-xs">walter@example.com</span>
-                  </div>
-                  <ChevronUp className="ml-auto size-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="right"
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuItem>
-                  <Moon className="mr-2 h-4 w-4" />
-                  Dark Mode
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Refresh
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton className="h-10 bg-white text-black hover:bg-gray-100">
+              <User className="h-4 w-4" />
+              <span className="font-medium">Walter White</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Action Buttons Row */}
+          <SidebarMenuItem>
+            <div className="flex gap-2">
+              <SidebarMenuButton className="flex-1 text-white hover:bg-slate-600">
+                <Moon className="h-4 w-4" />
+              </SidebarMenuButton>
+              <SidebarMenuButton className="flex-1 text-white hover:bg-slate-600">
+                <LogOut className="h-4 w-4" />
+              </SidebarMenuButton>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
