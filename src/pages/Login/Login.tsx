@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { EyeIcon, EyeOffIcon, MailIcon } from "lucide-react"
 
-function Login() {
+const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -82,6 +82,4 @@ function Login() {
   )
 }
 
-export const Route = createFileRoute("/login")({
-  component: Login
-})
+export default Login

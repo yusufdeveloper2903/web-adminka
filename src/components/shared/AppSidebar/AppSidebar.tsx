@@ -98,7 +98,7 @@ const AppSidebar = () => {
               {menuItems.general.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <Link to={item.url}>
+                    <Link key={item.url} to={item.url} search={{}}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
@@ -119,7 +119,7 @@ const AppSidebar = () => {
               {menuItems.settings.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={location.pathname === item.url}>
-                    <Link to={item.url}>
+                    <Link to={item.url} search={{}}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </Link>
