@@ -1,0 +1,8 @@
+export { default as TripsPage } from "./Trips"
+export { default as ReportsPage } from "./Reports"
+export { default as TrucksPage } from "./Trucks"
+export { default as ProfilePage } from "./Profile"
+export { default as RoutesPage } from "./Routes"
+export { default as CompaniesPage } from "./Companies"
+export { default as UsersPage } from "./Users"
+export { default as SystemPage } from "./System"
