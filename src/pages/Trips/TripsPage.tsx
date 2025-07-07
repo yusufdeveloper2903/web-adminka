@@ -254,7 +254,7 @@ const TripsPage = () => {
   })
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-full flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -262,11 +262,11 @@ const TripsPage = () => {
           <p className="text-muted-foreground">Total Trips {trips.length}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => refetch()} variant="blue-outline" size="sm">
+          <Button onClick={() => refetch()} variant="outline" size="sm">
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Button variant="blue-primary">
+          <Button variant="default">
             <Plus className="mr-2 h-4 w-4" />
             New Trip
           </Button>
@@ -286,20 +286,20 @@ const TripsPage = () => {
                 className="pl-10"
               />
             </div>
-            <Button variant="blue-outline">Load</Button>
+            <Button variant="outline">Load</Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Table */}
-      <Card>
+      <Card className="flex flex-1 flex-col">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Trip List</span>
             <Badge variant="outline">Total: {filteredTrips.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 overflow-y-auto">
           <div className="rounded-md border">
             <Table>
               <TableHeader>

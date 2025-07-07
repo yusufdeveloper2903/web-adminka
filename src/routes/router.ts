@@ -19,12 +19,12 @@ const r = (path: string, component: RouteComponent) =>
   })
 
 const routeTree = rootRoute.addChildren([
+  r("trips", TripsPage),
   r("companies", CompaniesPage),
   r("profile", ProfilePage),
   r("trucks", TrucksPage),
   r("users", UsersPage),
   r("system", SystemPage),
-  r("trips", TripsPage),
   r("routes", RoutesPage),
   r("reports", ReportsPage)
 ])
