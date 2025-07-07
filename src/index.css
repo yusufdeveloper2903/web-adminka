@@ -40,7 +40,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.35 0.12 250);
+  --sidebar: #0e416c;
   --sidebar-foreground: oklch(1 0 0);
   --sidebar-primary: oklch(0.4 0.15 250);
   --sidebar-primary-foreground: oklch(1 0 0);
@@ -63,6 +63,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  @apply bg-background text-foreground;
 }
 
 #root {
@@ -186,4 +187,22 @@ button:focus-visible {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/*
+  Definitive fix for sidebar collapse.
+  This directly targets the sidebar elements and overrides their width
+  based on the parent's [data-collapsible="icon"] state.
+*/
+[data-slot="sidebar-gap"],
+[data-slot="sidebar-container"] {
+  /* Default expanded width */
+  width: var(--sidebar-width);
+  transition: width 0.2s ease-in-out;
+}
+
+.group[data-collapsible="icon"] > [data-slot="sidebar-gap"],
+.group[data-collapsible="icon"] > [data-slot="sidebar-container"] {
+  /* Collapsed width */
+  width: var(--sidebar-width-icon) !important;
 }

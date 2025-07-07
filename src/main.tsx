@@ -1,13 +1,9 @@
-import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
-import { RouterProvider } from "@tanstack/react-router"
 import "./index.css"
 
 // Import the router instance
 import { router } from "@/routes/router"
-import { queryClient } from "@/constants"
-import { QueryClientProvider } from "@tanstack/react-query"
-import { SidebarProvider } from "./components/ui"
+import App from "./App"
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -19,13 +15,5 @@ declare module "@tanstack/react-router" {
 const rootElement = document.getElementById("root")!
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
-  root.render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <SidebarProvider>
-          <RouterProvider router={router} />
-        </SidebarProvider>
-      </QueryClientProvider>
-    </StrictMode>
-  )
+  root.render(<App />)
 }
