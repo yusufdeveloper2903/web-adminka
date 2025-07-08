@@ -1,6 +1,13 @@
 import { type SortingState } from "@tanstack/react-table"
 import { type Trip } from "../hooks/useTripsColumns"
 
+export type TripAPIResponse = {
+  data: Trip[]
+  meta: {
+    totalRowCount: number
+  }
+}
+
 const allTrips: Trip[] = Array.from({ length: 1000 }).map((_, i) => ({
   id: `#${i + 1}`,
   truck: `Volvo FH ${500 + (i % 10)}`,
