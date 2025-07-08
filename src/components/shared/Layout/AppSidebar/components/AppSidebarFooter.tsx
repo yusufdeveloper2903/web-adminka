@@ -47,12 +47,15 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
 
       {/* Action Buttons Row */}
       <SidebarMenuItem>
-        <div className={cn("flex gap-2", !isOpen && "flex-col")}>
+        <div className={cn("flex w-2/5 gap-2", !isOpen && "flex-col")}>
           <FooterButton
             isOpen={isOpen}
             tooltipText={theme === "light" ? "Switch to Dark" : "Switch to Light"}
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className={cn("!bg-transparent text-white hover:!bg-slate-600", !isOpen && "justify-center")}
+            className={cn(
+              "flex cursor-pointer items-center justify-center !bg-transparent text-white hover:!bg-slate-600",
+              !isOpen && "justify-center"
+            )}
           >
             {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           </FooterButton>
@@ -62,7 +65,10 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
               <FooterButton
                 isOpen={isOpen}
                 tooltipText="Log Out"
-                className={cn("!bg-transparent text-white hover:!bg-slate-600", !isOpen && "justify-center")}
+                className={cn(
+                  "flex cursor-pointer items-center justify-center !bg-transparent text-white hover:!bg-slate-600",
+                  !isOpen && "justify-center"
+                )}
               >
                 <LogOut className="h-4 w-4" />
               </FooterButton>
