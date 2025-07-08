@@ -18,4 +18,5 @@ const useTripsInfiniteQuery = (sorting: SortingState) => {
     placeholderData: keepPreviousData
   })
 }
+
 export default useTripsInfiniteQuery

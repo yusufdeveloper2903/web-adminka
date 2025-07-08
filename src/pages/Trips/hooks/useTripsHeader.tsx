@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useHeaderStore } from "@/store/header-store"
-import { Plus, RefreshCw, Loader2 } from "lucide-react"
+import { Plus, RefreshCw, Loader2, ArrowUpToLine } from "lucide-react"
 
 interface UseTripsHeaderParams {
   isLoading: boolean
@@ -18,7 +18,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
 
   useEffect(() => {
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
-    const refreshIcon = !isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />
+    const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
 
     setConfig({
       title: "Trips",

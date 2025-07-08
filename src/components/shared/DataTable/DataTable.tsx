@@ -11,6 +11,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Table as ShadcnTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Loader2 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -71,54 +72,62 @@ function DataTable<TData, TValue>({
     virtualItems.length > 0 ? rowVirtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end ?? 0) : 0
 
   return (
-    <div className="flex grow flex-col">
-      <div
-        ref={tableContainerRef}
-        onScroll={handleScroll}
-        className="relative h-full w-full overflow-auto rounded-md border"
-      >
-        <ShadcnTable style={{ display: "grid" }}>
-          <TableHeader className="bg-card sticky top-0 z-10 grid shadow-sm">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="flex w-full">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="flex items-center" style={{ width: header.getSize() }}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody
-            style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              position: "relative",
-              width: "100%"
-            }}
-          >
-            {paddingTop > 0 && <tr style={{ height: `${paddingTop}px` }} />}
-            {virtualItems.map((virtualItem) => {
-              const row = rows[virtualItem.index]
-              return (
-                <TableRow
-                  key={row.id}
-                  data-index={virtualItem.index}
-                  className="absolute flex w-full"
-                  style={{ transform: `translateY(${virtualItem.start}px)` }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="flex items-center" style={{ width: cell.column.getSize() }}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+    <div className="flex h-full flex-col">
+      {/* Table Container */}
+      <div className="flex flex-1 flex-col overflow-hidden rounded-md border">
+        {/* Sticky Header */}
+        <div className="bg-card sticky top-0 z-10 w-full">
+          <ShadcnTable>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="flex w-full">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="flex items-center" style={{ width: header.getSize() }}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              )
-            })}
-            {paddingBottom > 0 && <tr style={{ height: `${paddingBottom}px` }} />}
-          </TableBody>
-        </ShadcnTable>
+              ))}
+            </TableHeader>
+          </ShadcnTable>
+        </div>
+
+        {/* Scrollable Body */}
+        <div ref={tableContainerRef} onScroll={handleScroll} className="flex-1 overflow-auto">
+          <ShadcnTable>
+            <TableBody
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                position: "relative",
+                width: "100%"
+              }}
+            >
+              {paddingTop > 0 && <tr style={{ height: `${paddingTop}px` }} />}
+              {virtualItems.map((virtualItem) => {
+                const row = rows[virtualItem.index]
+                return (
+                  <TableRow
+                    key={row.id}
+                    data-index={virtualItem.index}
+                    className="absolute flex w-full"
+                    style={{ transform: `translateY(${virtualItem.start}px)` }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="flex items-center" style={{ width: cell.column.getSize() }}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })}
+              {paddingBottom > 0 && <tr style={{ height: `${paddingBottom}px` }} />}
+            </TableBody>
+          </ShadcnTable>
+        </div>
       </div>
-      <div className="text-muted-foreground py-2 text-center text-sm">
+
+      {/* Footer - Outside of scroll area */}
+      <div className="text-muted-foreground shrink-0 py-2 text-center text-sm">
         {isFetching ? (
           <span className="flex items-center justify-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading more...

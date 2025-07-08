@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react"
-import { useTripsHeader } from "./hooks"
+import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { DataTable } from "@/components/shared"
+import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
-import { useTripsInfiniteQuery } from "@/hooks/queries"
 
 const TripsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([])
