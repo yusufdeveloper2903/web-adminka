@@ -10,7 +10,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Table as ShadcnTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowDownIcon, ArrowUpIcon, Loader2 } from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon, Loader2 } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -85,10 +85,10 @@ function DataTable<TData, TValue>({
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
+                      <TableHead key={header.id} colSpan={header.colSpan} style={{ width: header.getSize() }}>
                         {header.isPlaceholder ? null : (
                           <div
-                            className={header.column.getCanSort() ? "cursor-pointer select-none" : ""}
+                            className={header.column.getCanSort() ? "flex cursor-pointer items-center select-none" : ""}
                             onClick={header.column.getToggleSortingHandler()}
                             title={
                               header.column.getCanSort()
@@ -101,10 +101,15 @@ function DataTable<TData, TValue>({
                             }
                           >
                             {flexRender(header.column.columnDef.header, header.getContext())}
-                            {{
-                              asc: <ArrowUpIcon className="ml-2 h-4 w-4" />,
-                              desc: <ArrowDownIcon className="ml-2 h-4 w-4" />
-                            }[header.column.getIsSorted() as string] ?? null}
+                            {header.column.getCanSort() ? (
+                              header.column.getIsSorted() === "asc" ? (
+                                <ArrowUpIcon className="animate-in fade-in ml-2 h-4 w-4" />
+                              ) : header.column.getIsSorted() === "desc" ? (
+                                <ArrowDownIcon className="animate-in fade-in ml-2 h-4 w-4" />
+                              ) : (
+                                <ChevronsUpDownIcon className="animate-in fade-in ml-2 h-4 w-4 opacity-50" />
+                              )
+                            ) : null}
                           </div>
                         )}
                       </TableHead>

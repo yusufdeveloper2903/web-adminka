@@ -1,2 +1,2 @@
 export { default as Layout } from "./Layout/Layout"
-export { default as DataTable, DataTableColumnHeader } from "./DataTable"
+export { default as DataTable } from "./DataTable"
