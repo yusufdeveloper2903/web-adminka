@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect } from "react"
 import {
   flexRender,
   getCoreRowModel,
@@ -10,7 +10,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 
 import { Table as ShadcnTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Loader2 } from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon, Loader2 } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -39,8 +39,7 @@ function DataTable<TData, TValue>({
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualSorting: true
+    getSortedRowModel: getSortedRowModel()
   })
 
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -80,15 +79,37 @@ function DataTable<TData, TValue>({
     <div className="flex h-full flex-col">
       <div className="flex flex-1 flex-col overflow-hidden rounded-md border">
         <div className="bg-card sticky top-0 z-10 w-full">
-          <ShadcnTable>
+          <ShadcnTable className="w-full table-fixed">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="flex w-full">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="flex items-center p-4" style={{ width: header.getSize() }}>
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  ))}
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            className={header.column.getCanSort() ? "cursor-pointer select-none" : ""}
+                            onClick={header.column.getToggleSortingHandler()}
+                            title={
+                              header.column.getCanSort()
+                                ? header.column.getNextSortingOrder() === "asc"
+                                  ? "Sort ascending"
+                                  : header.column.getNextSortingOrder() === "desc"
+                                    ? "Sort descending"
+                                    : "Clear sort"
+                                : undefined
+                            }
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: <ArrowUpIcon className="ml-2 h-4 w-4" />,
+                              desc: <ArrowDownIcon className="ml-2 h-4 w-4" />
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </div>
+                        )}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
@@ -96,7 +117,7 @@ function DataTable<TData, TValue>({
         </div>
 
         <div ref={tableContainerRef} className="flex-1 overflow-auto">
-          <ShadcnTable>
+          <ShadcnTable className="w-full table-fixed">
             <TableBody
               style={{
                 height: `${rowVirtualizer.getTotalSize()}px`,

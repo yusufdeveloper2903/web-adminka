@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, Map, Printer } from "lucide-react"
-import { DataTableColumnHeader } from "@/components/shared/DataTable/DataTableColumnHeader"
 
 export type Trip = {
   id: string
@@ -18,23 +17,25 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
   return [
     {
       accessorKey: "id",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="ID" />
+      header: "ID",
+      cell: (info) => info.getValue()
     },
     {
       accessorKey: "truck",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Truck" />
+      header: "Truck",
+      enableSorting: false
     },
     {
       accessorKey: "trailer",
-      header: "Trailer" // Bu saralanmaydi (non-sortable)
+      header: "Trailer"
     },
     {
       accessorKey: "driver",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Driver" />
+      header: "Driver"
     },
     {
       accessorKey: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+      header: "Status",
       cell: ({ row }) => {
         const variant: "secondary" | "outline" | "default" =
           row.original.status === "Delivered"
@@ -59,7 +60,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     },
     {
       id: "actions",
-      header: () => <div className="text-right">Actions</div>,
+      header: "Actions",
       cell: ({ row }) => {
         const trip = row.original
         return (
