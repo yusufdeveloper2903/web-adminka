@@ -5,6 +5,7 @@ export type TripAPIResponse = {
   data: Trip[]
   meta: {
     totalRowCount: number
+    nextOffset: number | undefined
   }
 }
 
@@ -47,10 +48,13 @@ export const fetchTrips = async ({ pageParam = 0, sorting = [] }: { pageParam?: 
   // API javobini imitatsiya qilish
   await new Promise((r) => setTimeout(r, 500))
 
+  const nextOffset = start + data.length < allTrips.length ? pageParam + 1 : undefined
+
   return {
     data,
     meta: {
-      totalRowCount: allTrips.length
+      totalRowCount: allTrips.length,
+      nextOffset
     }
   }
 }

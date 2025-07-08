@@ -9,8 +9,7 @@ import type { TripAPIResponse } from "./api"
 const TripsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([])
 
-  // Data Fetching
-  const { data, fetchNextPage, isFetching, isLoading, refetch } = useTripsInfiniteQuery(sorting)
+  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
 
   // Memoized data
   const flatData = useMemo(() => data?.pages?.flatMap((page: TripAPIResponse) => page.data) ?? [], [data])
@@ -31,9 +30,10 @@ const TripsPage = () => {
       columns={columns}
       data={flatData}
       isLoading={isLoading}
-      isFetching={isFetching}
+      isFetching={isFetchingNextPage}
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
+      hasNextPage={!!hasNextPage}
     />
   )
 }
