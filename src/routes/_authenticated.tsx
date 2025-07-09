@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router"
 
-export const Route = createRootRoute({
+export const AuthRoute = createRootRoute({
   component: () => <Outlet />
 })

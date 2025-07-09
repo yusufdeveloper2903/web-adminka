@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault()
     // Bu yerda authentication logic bo'ladi
     // Hozircha dashboard ga yo'naltiraman
-    navigate({ to: "/dashboard" })
+    navigate({ to: "/trips" })
   }
 
   return (
