@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react"
+import { Button } from "@/components/ui"
+import { useDrawerStore } from "@/store/drawer-store"
 import { useHeaderStore } from "@/store/header-store"
-import { Plus, RefreshCw, Loader2, ArrowUpToLine } from "lucide-react"
+import { Loader2, Plus, RefreshCw, RouteIcon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { NewRouteForm, RouteSettingsPopover } from "../components"
 
 interface UseTripsHeaderParams {
   isLoading: boolean
@@ -9,7 +12,8 @@ interface UseTripsHeaderParams {
 }
 
 const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderParams) => {
-  const { setConfig, resetConfig } = useHeaderStore()
+  const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // State for each filter
   const [unitFilter, setUnitFilter] = useState<string | undefined>()
@@ -20,7 +24,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
     const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
 
-    setConfig({
+    setHeaderConfig({
       title: "Trips",
       metadata: `Total: ${totalDBRowCount} trips`,
       actions: [
@@ -28,7 +32,25 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           id: "add_trip",
           label: "Add Trip",
           icon: addTripIcon,
-          onClick: () => console.log("Add new trip")
+          onClick: () =>
+            setDrawerConfig({
+              title: "New route: Practical, 53' Trailer, Miles",
+              content: <NewRouteForm />,
+              headerActions: [
+                {
+                  id: "route-icon",
+                  node: (
+                    <Button variant="ghost">
+                      <RouteIcon className="size-6" />
+                    </Button>
+                  )
+                },
+                {
+                  id: "route-settings",
+                  node: <RouteSettingsPopover />
+                }
+              ]
+            })
         },
         {
           id: "refresh_trips",
@@ -73,9 +95,19 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     })
 
     return () => {
-      resetConfig()
+      resetHeaderConfig()
     }
-  }, [setConfig, resetConfig, isLoading, refetch, totalDBRowCount, unitFilter, driverFilter, loadFilter])
+  }, [
+    setHeaderConfig,
+    resetHeaderConfig,
+    setDrawerConfig,
+    isLoading,
+    refetch,
+    totalDBRowCount,
+    unitFilter,
+    driverFilter,
+    loadFilter
+  ])
 
   return { unitFilter, driverFilter, loadFilter }
 }

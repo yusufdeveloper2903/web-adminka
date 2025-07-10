@@ -5,6 +5,7 @@ import { DataTable } from "@/components/shared"
 import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
+import { ResizableMapContent } from "./components"
 
 const TripsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -26,15 +27,16 @@ const TripsPage = () => {
   const columns = useTripsColumns()
 
   return (
-    <DataTable
-      columns={columns}
-      data={flatData}
-      isLoading={isLoading}
-      isFetching={isFetchingNextPage}
-      fetchNextPage={fetchNextPage}
-      totalDBRowCount={totalDBRowCount}
-      hasNextPage={!!hasNextPage}
-    />
+    <ResizableMapContent />
+    // <DataTable
+    //   columns={columns}
+    //   data={flatData}
+    //   isLoading={isLoading}
+    //   isFetching={isFetchingNextPage}
+    //   fetchNextPage={fetchNextPage}
+    //   totalDBRowCount={totalDBRowCount}
+    //   hasNextPage={!!hasNextPage}
+    // />
   )
 }
 

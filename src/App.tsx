@@ -10,7 +10,6 @@ import "./index.css"
 
 const App = () => {
   const { isOpen, toggleSidebar } = useSidebarStore()
-  console.log(router.routesByPath)
 
   return (
     <StrictMode>
