@@ -1,30 +1,30 @@
 import type { ReactNode } from "react"
 import { create } from "zustand"
 
-// Konfiguratsiya turlari
-export type HeaderAction = {
-  id: string
-  label?: ReactNode
-  onClick: () => void
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
-  disabled?: boolean
-  icon?: ReactNode
-}
-
-export type HeaderFilter = {
+interface HeaderFilter {
   id: string
   placeholder: string
+  value: string | undefined
   options: { value: string; label: string }[]
-  value?: string
   onValueChange: (value: string) => void
 }
 
-type HeaderState = {
+interface HeaderAction {
+  id: string
+  label?: string
+  icon?: ReactNode
+  onClick: () => void
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  disabled?: boolean
+}
+
+interface HeaderState {
   title: string
   metadata: ReactNode | null
   actions: HeaderAction[]
   filters: HeaderFilter[]
-  setConfig: (config: Partial<Omit<HeaderState, "setConfig">>) => void
+  viewSwitcher?: ReactNode
+  setConfig: (config: Partial<Omit<HeaderState, "setConfig" | "resetConfig">>) => void
   resetConfig: () => void
 }
 
@@ -32,7 +32,8 @@ const initialState: Omit<HeaderState, "setConfig" | "resetConfig"> = {
   title: "",
   metadata: null,
   actions: [],
-  filters: []
+  filters: [],
+  viewSwitcher: null
 }
 
 export const useHeaderStore = create<HeaderState>((set) => ({

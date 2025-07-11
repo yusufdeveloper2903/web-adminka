@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui"
-import { useDrawerStore } from "@/store/drawer-store"
-import { useHeaderStore } from "@/store/header-store"
+import { useDrawerStore, useHeaderStore, useTripsViewStore } from "@/store"
 import { Loader2, Plus, RefreshCw, RouteIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface UseTripsHeaderParams {
   isLoading: boolean
@@ -14,6 +14,7 @@ interface UseTripsHeaderParams {
 const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
+  const { view, setView } = useTripsViewStore()
 
   // State for each filter
   const [unitFilter, setUnitFilter] = useState<string | undefined>()
@@ -40,7 +41,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
                 {
                   id: "route-icon",
                   node: (
-                    <Button variant="ghost">
+                    <Button variant="ghost" onClick={() => setView("map")}>
                       <RouteIcon className="size-6" />
                     </Button>
                   )
@@ -91,7 +92,15 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           ],
           onValueChange: setLoadFilter
         }
-      ]
+      ],
+      viewSwitcher: (
+        <Tabs value={view} onValueChange={(value) => setView(value as "table" | "map")}>
+          <TabsList>
+            <TabsTrigger value="table">Table</TabsTrigger>
+            <TabsTrigger value="map">Map</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      )
     })
 
     return () => {
@@ -106,7 +115,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     totalDBRowCount,
     unitFilter,
     driverFilter,
-    loadFilter
+    loadFilter,
+    view,
+    setView
   ])
 
   return { unitFilter, driverFilter, loadFilter }
