@@ -1,60 +1,40 @@
-import { useRef } from "react"
 import { ResizablePanel, ResizablePanelGroup, ResizableHandle } from "@/components/ui/resizable"
-import { MapComponent, type MapComponentRef } from "@/components/shared"
+import { MapComponent } from "@/components/shared" // MapComponent'ni import qilamiz
 
 const ResizableMapContent = () => {
-  // Har bir xarita uchun ref yaratish
-  const mapRef1 = useRef<MapComponentRef>(null)
-  // const mapRef2 = useRef<MapComponentRef>(null)
-  // const mapRef3 = useRef<MapComponentRef>(null)
-
-  // Panel o'lchami o'zgarganda chaqiriladigan funksiya
-  const handlePanelResize = () => {
-    // Barcha xaritalarni qayta o'lchamlash
-    setTimeout(() => {
-      mapRef1.current?.resize()
-      // mapRef2.current?.resize()
-      // mapRef3.current?.resize()
-    }, 50) // Kichik kechikish bilan
-  }
-
   return (
     <div className="h-screen w-screen p-4">
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="h-full w-full rounded-lg border"
-        onLayout={handlePanelResize} // Panel o'lchami o'zgarganda
-      >
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full rounded-lg border">
         {/* Chap panel */}
-        <ResizablePanel
-          defaultSize={100} // Bitta panel bo'lgani uchun to'liq egallasin
-          onResize={handlePanelResize} // Bu panel o'lchami o'zgarganda
-        >
-          <div className="h-full p-2">
-            <MapComponent ref={mapRef1} initialCenter={{ lat: 52.53, lng: 13.38 }} zoom={11} />
+        <ResizablePanel defaultSize={30}>
+          <div className="flex h-full items-center justify-center p-2">
+            {/* MapComponent endi ref yoki onResize prop'ini talab qilmaydi */}
+            <MapComponent initialCenter={{ lat: 52.53, lng: 13.38 }} zoom={11} isDark={false} />
           </div>
         </ResizablePanel>
 
-        {/* <ResizableHandle withHandle /> */}
+        <ResizableHandle withHandle />
 
         {/* O'ng panellar guruhi */}
-        {/* <ResizablePanel defaultSize={70} onResize={handlePanelResize}>
-          <ResizablePanelGroup direction="vertical" onLayout={handlePanelResize}>
-            <ResizablePanel defaultSize={50} onResize={handlePanelResize}>
-              <div className="h-full p-2">
-                <MapComponent ref={mapRef2} initialCenter={{ lat: 34.05, lng: -118.24 }} zoom={10} />
+        <ResizablePanel defaultSize={70}>
+          <ResizablePanelGroup direction="vertical">
+            {/* O'ng yuqori panel */}
+            <ResizablePanel defaultSize={50}>
+              <div className="flex h-full items-center justify-center p-2">
+                <MapComponent initialCenter={{ lat: 34.05, lng: -118.24 }} zoom={10} isDark={true} />
               </div>
             </ResizablePanel>
 
             <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={50} onResize={handlePanelResize}>
-              <div className="h-full p-2">
-                <MapComponent ref={mapRef3} initialCenter={{ lat: 41.88, lng: -87.62 }} zoom={9} />
+            {/* O'ng pastki panel */}
+            <ResizablePanel defaultSize={50}>
+              <div className="flex h-full items-center justify-center p-2">
+                <MapComponent initialCenter={{ lat: 41.88, lng: -87.62 }} zoom={9} isDark={false} />
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
-        </ResizablePanel> */}
+        </ResizablePanel>
       </ResizablePanelGroup>
     </div>
   )
