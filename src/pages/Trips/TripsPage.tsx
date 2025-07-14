@@ -5,11 +5,15 @@ import { DataTable } from "@/components/shared"
 import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
+import { ResizableMapContent } from "./components"
+import { useTripsViewStore } from "@/store"
+import { cn } from "@/lib/utils"
 
 const TripsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([])
 
   const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
+  const { view } = useTripsViewStore()
 
   // Memoized data
   const flatData = useMemo(() => data?.pages?.flatMap((page: TripAPIResponse) => page.data) ?? [], [data])
@@ -26,15 +30,35 @@ const TripsPage = () => {
   const columns = useTripsColumns()
 
   return (
-    <DataTable
-      columns={columns}
-      data={flatData}
-      isLoading={isLoading}
-      isFetching={isFetchingNextPage}
-      fetchNextPage={fetchNextPage}
-      totalDBRowCount={totalDBRowCount}
-      hasNextPage={!!hasNextPage}
-    />
+    <div className="relative h-full w-full">
+      {/* Table View */}
+      <div
+        className={cn(
+          "absolute inset-0 h-full w-full transition-opacity duration-300",
+          view !== "table" && "pointer-events-none opacity-0"
+        )}
+      >
+        <DataTable
+          columns={columns}
+          data={flatData}
+          isLoading={isLoading}
+          isFetching={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+          totalDBRowCount={totalDBRowCount}
+          hasNextPage={!!hasNextPage}
+        />
+      </div>
+
+      {/* Map View */}
+      <div
+        className={cn(
+          "absolute inset-0 h-full w-full transition-opacity duration-300",
+          view !== "map" && "pointer-events-none opacity-0"
+        )}
+      >
+        <ResizableMapContent isVisible={view === "map"} />
+      </div>
+    </div>
   )
 }
 

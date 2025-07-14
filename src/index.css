@@ -187,3 +187,7 @@ h1 {
   /* Collapsed width */
   width: var(--sidebar-width-icon) !important;
 }
+
+.custom-sheet-content > button {
+  @apply hidden;
+}

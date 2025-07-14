@@ -14,8 +14,6 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Bu yerda authentication logic bo'ladi
-    // Hozircha dashboard ga yo'naltiraman
     navigate({ to: "/trips" })
   }
 
