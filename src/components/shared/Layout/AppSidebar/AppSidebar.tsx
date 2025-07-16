@@ -21,6 +21,11 @@ const menuItems = {
       title: "Reports",
       url: "/reports",
       icon: BarChart3
+    },
+    {
+      title: "Trucks",
+      url: "/trucks",
+      icon: Truck
     }
   ],
   settings: [
@@ -34,11 +39,7 @@ const menuItems = {
       url: "/companies",
       icon: Building
     },
-    {
-      title: "Trucks",
-      url: "/trucks",
-      icon: Truck
-    },
+
     {
       title: "Profile",
       url: "/profile",

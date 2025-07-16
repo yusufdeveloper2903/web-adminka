@@ -10,7 +10,7 @@ import { useTripsViewStore } from "@/store"
 import { cn } from "@/lib/utils"
 
 const TripsPage = () => {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting] = useState<SortingState>([])
 
   const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
   const { view } = useTripsViewStore()
