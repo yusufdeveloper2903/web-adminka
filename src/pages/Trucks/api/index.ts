@@ -1,26 +1,30 @@
 import { type SortingState } from "@tanstack/react-table"
-import { type Trip } from "../hooks/useTripsColumns"
+import { type Trucks } from "../hooks/useTrucksColumns"
 
 export type TripAPIResponse = {
-  data: Trip[]
+  data: Trucks[]
   meta: {
     totalRowCount: number
     nextOffset: number | undefined
   }
 }
 
-const allTrips: Trip[] = Array.from({ length: 1000 }).map((_, i) => ({
+const allTrips: Trucks[] = Array.from({ length: 1000 }).map((_, i) => ({
   id: `${i + 1}`,
-  truck: `Volvo FH ${500 + (i % 10)}`,
-  trailer: "Krone Cool Liner",
+  unit: "450",
   driver: `Driver ${String.fromCharCode(65 + (i % 26))}`, // A, B, C...
-  status: i % 3 === 0 ? "Delivered" : i % 3 === 1 ? "In Transit" : "Pending",
-  origin: "Tashkent, Uzbekistan",
-  destination: "Almaty, Kazakhstan"
+  company: "Fatboy",
+  dispatcher: "Bob Hamilton",
+  license_plate: "P1224736",
+  samsara_vin: "3AKJHHF",
+  gle_vin: "3AKJHHF",
+  home_location: "603 Hill",
+  current_location: "Huntley, IL 60142",
+  updated: "10.22.2024 13:18"
 }))
 
 // Ma'lumotlarni sortirovka qilish uchun yordamchi funksiya
-function sortData(data: Trip[], sorting: SortingState) {
+function sortData(data: Trucks[], sorting: SortingState) {
   if (!sorting.length) {
     return data
   }
@@ -29,8 +33,8 @@ function sortData(data: Trip[], sorting: SortingState) {
   const { id, desc } = sort
 
   return [...data].sort((a, b) => {
-    const valA = a[id as keyof Trip]
-    const valB = b[id as keyof Trip]
+    const valA = a[id as keyof Trucks]
+    const valB = b[id as keyof Trucks]
 
     if (valA > valB) return desc ? -1 : 1
     if (valB > valA) return desc ? 1 : -1
@@ -38,7 +42,7 @@ function sortData(data: Trip[], sorting: SortingState) {
   })
 }
 
-export const fetchTrips = async ({ pageParam = 0, sorting = [] }: { pageParam?: number; sorting?: SortingState }) => {
+export const fetchTrucks = async ({ pageParam = 0, sorting = [] }: { pageParam?: number; sorting?: SortingState }) => {
   const fetchSize = 50
   const start = pageParam * fetchSize
 

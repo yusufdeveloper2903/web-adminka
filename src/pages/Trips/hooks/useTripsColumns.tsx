@@ -18,24 +18,38 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     {
       accessorKey: "id",
       header: "ID",
-      cell: (info) => info.getValue()
+      meta: {
+        className: "min-w-[60px] w-[8%]"
+      }
     },
     {
       accessorKey: "truck",
       header: "Truck",
-      enableSorting: false
+      enableSorting: false,
+      meta: {
+        className: "min-w-[120px] w-[12%]"
+      }
     },
     {
       accessorKey: "trailer",
-      header: "Trailer"
+      header: "Trailer",
+      meta: {
+        className: "min-w-[120px] w-[12%]"
+      }
     },
     {
       accessorKey: "driver",
-      header: "Driver"
+      header: "Driver",
+      meta: {
+        className: "min-w-[150px] w-[15%]"
+      }
     },
     {
       accessorKey: "status",
       header: "Status",
+      meta: {
+        className: "min-w-[100px] w-[10%]"
+      },
       cell: ({ row }) => {
         const variant: "secondary" | "outline" | "default" =
           row.original.status === "Delivered"
@@ -52,19 +66,28 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     },
     {
       accessorKey: "origin",
-      header: "Origin"
+      header: "Origin",
+      meta: {
+        className: "min-w-[180px] w-[18%]"
+      }
     },
     {
       accessorKey: "destination",
-      header: "Destination"
+      header: "Destination",
+      meta: {
+        className: "min-w-[180px] w-[18%]"
+      }
     },
     {
       id: "actions",
       header: "Actions",
+      meta: {
+        className: "min-w-[100px] w-[10%] text-center"
+      },
       cell: ({ row }) => {
         const trip = row.original
         return (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-center ">
             <Button variant="ghost" size="icon">
               <Edit className="h-4 w-4" />
             </Button>

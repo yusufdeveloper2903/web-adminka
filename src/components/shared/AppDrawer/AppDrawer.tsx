@@ -4,11 +4,33 @@ import { useDrawerStore } from "@/store/drawer-store"
 import { XIcon } from "lucide-react"
 
 const AppDrawer = () => {
-  const { isOpen, closeDrawer, title, content, headerActions } = useDrawerStore()
+  const { isOpen, closeDrawer, title, content, headerActions, width } = useDrawerStore()
+
+  //   // Kichik drawer
+  // width: "sm:max-w-sm"      // 384px
+
+  // // O'rta drawer
+  // width: "sm:max-w-md"      // 448px
+  // width: "sm:max-w-lg"      // 512px
+  // width: "sm:max-w-xl"      // 576px
+  // width: "sm:max-w-2xl"     // 672px (default)
+
+  // // Katta drawer
+  // width: "sm:max-w-3xl"     // 768px
+  // width: "sm:max-w-4xl"     // 896px
+  // width: "sm:max-w-5xl"     // 1024px
+  // width: "sm:max-w-6xl"     // 1152px
+  // width: "sm:max-w-7xl"     // 1280px
+
+  // // Full width
+  // width: "sm:max-w-full"
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeDrawer()}>
-      <SheetContent className="custom-sheet-content w-full overflow-y-auto p-4 sm:max-w-2xl">
+      <SheetContent 
+        className={`custom-sheet-content w-full overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
+        side="right"
+      >
         <SheetHeader className="p-0">
           {title && (
             <SheetTitle className="flex items-center justify-between">
