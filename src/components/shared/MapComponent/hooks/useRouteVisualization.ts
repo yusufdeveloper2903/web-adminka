@@ -7,13 +7,13 @@ import { useHereRouting } from "./useHereRouting"
 import type { TripStopCreateDto } from "@/types"
 
 export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
-  const { currentRoute, routeStops, isRouteVisible } = useRouteStore()
+  const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute } = useRouteStore()
   const routeGroupRef = useRef<H.map.Group | null>(null)
 
-  // Use HERE routing API - Vue proyektingizdan ilhomlangan
+  // Use HERE routing API - inspired by Vue project
   const { calculateRoute, drawRoutes, removeRouteObjects } = useHereRouting(mapInstance)
 
-  // Create marker icon based on stop type - Vue proyektingizdan ilhomlangan
+  // Create marker icon based on stop type - inspired by Vue project
   const createMarkerIcon = useCallback((stopType: string, index: number) => {
     const color =
       stopType === "PICKUP"
@@ -46,7 +46,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     `
   }, [])
 
-  // Check if coordinates are valid - Vue proyektingizdan ilhomlangan
+  // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
     return (
       lat !== undefined &&
@@ -67,7 +67,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     return routeStops.filter((stop) => isValidCoordinate(stop.latitude, stop.longitude))
   }, [routeStops, isValidCoordinate])
 
-  // Add markers to route group - Vue proyektingizdan ilhomlangan
+  // Add markers to route group - inspired by Vue project
   const addMarkersToRoute = useCallback(
     (routeGroup: H.map.Group, map: H.Map) => {
       const validStops = getValidStops()
@@ -104,7 +104,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     [getValidStops, createMarkerIcon, createInfoBubbleContent]
   )
 
-  // Add route line to route group - Vue proyektingizdan ilhomlangan
+  // Add route line to route group - inspired by Vue project
   const addRouteLineToRoute = useCallback(
     (routeGroup: H.map.Group) => {
       try {
@@ -115,7 +115,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
 
           validStops.forEach((stop) => {
             try {
-              // Vue proyektingizda pushPoint(lat, lng) formatida ishlatilgan
+              // Vue project used pushPoint(lat, lng) format
               lineString.pushPoint(stop.latitude, stop.longitude)
             } catch (error) {
               console.warn(`Error adding point to lineString: ${stop.latitude},${stop.longitude}`, error)
@@ -125,7 +125,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
           if (lineString.getPointCount() > 1) {
             const routeLine = new H.map.Polyline(lineString, {
               style: {
-                strokeColor: "#4285F4", // Vue proyektingizdan olingan rang
+                strokeColor: "#4285F4", // Color taken from Vue project
                 lineWidth: 5,
                 lineTailCap: "round",
                 lineHeadCap: "round"
@@ -142,7 +142,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     [getValidStops]
   )
 
-  // Fit map to show all stops - Vue proyektingizdan ilhomlangan
+  // Fit map to show all stops - inspired by Vue project
   const fitMapToRoute = useCallback((routeGroup: H.map.Group, map: H.Map) => {
     try {
       const boundingBox = routeGroup.getBoundingBox()
@@ -153,14 +153,14 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
             padding: 50
           },
           true
-        ) // Vue proyektingizda true parametri ishlatilgan
+        ) // Vue project used true parameter
       }
     } catch (error) {
       console.warn("Error fitting map to route:", error)
     }
   }, [])
 
-  // Safely remove route group - Vue proyektingizdan ilhomlangan
+  // Safely remove route group - inspired by Vue project
   const safelyRemoveRouteGroup = useCallback(() => {
     if (routeGroupRef.current && mapInstance.current) {
       try {
@@ -172,30 +172,34 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     }
   }, [mapInstance])
 
-  // Main route visualization effect - Vue proyektingizdan ilhomlangan handleGo funksiyasi
+  // Main route visualization effect - inspired by Vue project's handleGo function
   useEffect(() => {
     const handleRouteVisualization = async () => {
       if (!mapInstance.current || !isRouteVisible) {
         removeRouteObjects()
+        setCalculatingRoute(false)
         return
       }
 
       const validStops = getValidStops()
       if (validStops.length < 2) {
         removeRouteObjects()
+        setCalculatingRoute(false)
         return
       }
 
       try {
+        // Start loading state
+        setCalculatingRoute(true)
         console.log("Calculating route for stops:", validStops)
 
-        // Calculate route using HERE API - Vue proyektingizdan ilhomlangan
+        // Calculate route using HERE API - inspired by Vue project
         const routes = await calculateRoute(validStops)
 
         if (routes && routes.length > 0) {
           console.log("Routes calculated successfully:", routes)
 
-          // Draw routes on map - Vue proyektingizdan ilhomlangan drawRoutes funksiyasi
+          // Draw routes on map - inspired by Vue project's drawRoutes function
           await drawRoutes(routes, validStops)
         } else {
           console.warn("No routes calculated, falling back to simple markers")
@@ -232,6 +236,9 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
         }
       } catch (error) {
         console.error("Route visualization error:", error)
+      } finally {
+        // Always stop loading state
+        setCalculatingRoute(false)
       }
     }
 

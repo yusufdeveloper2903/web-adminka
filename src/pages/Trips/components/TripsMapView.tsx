@@ -4,6 +4,8 @@ import { useTheme } from "next-themes"
 import { Maximize2, Minimize2 } from "lucide-react"
 import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { useRouteStore } from "@/store"
+import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 
 interface TripMapData {
@@ -25,6 +27,9 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
+  
+  // Get route calculation loading state
+  const { isCalculatingRoute } = useRouteStore()
 
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
@@ -62,18 +67,18 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   )
 
   const handleToggleExpand = (mapId: string) => {
-    // Faqat shu mapni transitioning qilish
+    // Only transition this specific map
     setTransitioningMaps((prev) => new Set([...prev, mapId]))
     setExpandedMap((prev) => (prev === mapId ? null : mapId))
 
-    // Transition tugagandan keyin loading yashirish
+    // Hide loading after transition completes
     setTimeout(() => {
       setTransitioningMaps((prev) => {
         const newSet = new Set(prev)
         newSet.delete(mapId)
         return newSet
       })
-    }, 350) // Transition duration + biroz qo'shimcha
+    }, 350) // Transition duration + small buffer
   }
 
   const handleZoomIn = (mapId: string) => {
@@ -86,17 +91,17 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
 
   // Simple resize after transition
   useEffect(() => {
-    // Darhol resize qilish
+    // Immediate resize
     Object.values(mapRefs.current).forEach((mapRef) => {
       mapRef?.resize()
     })
 
-    // Transition paytida ham resize qilish
+    // Also resize during transition
     const timeoutId = setTimeout(() => {
       Object.values(mapRefs.current).forEach((mapRef) => {
         mapRef?.resize()
       })
-    }, 50) // Juda tez
+    }, 50) // Very fast
 
     return () => clearTimeout(timeoutId)
   }, [expandedMap])
@@ -119,12 +124,12 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
             className={cn(
               "bg-card relative overflow-hidden rounded-lg border transition-all duration-300 ease-in-out",
               // Grid layout classes - fixed positions
-              trip.id === "here" && !expandedMap && "col-span-1 row-span-2", // Chap tomonda katta
-              trip.id === "samsara" && !expandedMap && "col-span-1 row-span-1", // O'ng yuqorida
-              trip.id === "gle" && !expandedMap && "col-span-1 row-span-1" // O'ng pastda
+              trip.id === "here" && !expandedMap && "col-span-1 row-span-2", // Left side large
+              trip.id === "samsara" && !expandedMap && "col-span-1 row-span-1", // Top right
+              trip.id === "gle" && !expandedMap && "col-span-1 row-span-1" // Bottom right
             )}
             style={{
-              // Oddiy visibility bilan yashirish
+              // Simple visibility hiding
               display: expandedMap && expandedMap !== trip.id ? "none" : "block"
             }}
           >
@@ -197,7 +202,10 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                   {expandedMap === trip.id ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </Button>
 
-                {/* Ultra-Strong Overlay - Qora iconni butunlay yashirish */}
+                {/* Route Loading Overlay - Professional loading indicator */}
+                <RouteLoadingOverlay isVisible={isCalculatingRoute} />
+
+                {/* Map Transition Overlay - Completely hide dark icon */}
                 {transitioningMaps.has(trip.id) && (
                   <div
                     className="absolute inset-0 z-50 flex items-center justify-center transition-all duration-300"

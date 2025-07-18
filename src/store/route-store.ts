@@ -5,15 +5,18 @@ interface RouteState {
   currentRoute: TripCreateDto | null
   routeStops: TripStopCreateDto[]
   isRouteVisible: boolean
+  isCalculatingRoute: boolean
   setRoute: (route: TripCreateDto) => void
   clearRoute: () => void
   toggleRouteVisibility: () => void
+  setCalculatingRoute: (isCalculating: boolean) => void
 }
 
 export const useRouteStore = create<RouteState>((set) => ({
   currentRoute: null,
   routeStops: [],
   isRouteVisible: false,
+  isCalculatingRoute: false,
   
   setRoute: (route) => set({ 
     currentRoute: route, 
@@ -24,10 +27,15 @@ export const useRouteStore = create<RouteState>((set) => ({
   clearRoute: () => set({ 
     currentRoute: null, 
     routeStops: [],
-    isRouteVisible: false 
+    isRouteVisible: false,
+    isCalculatingRoute: false
   }),
   
   toggleRouteVisibility: () => set((state) => ({ 
     isRouteVisible: !state.isRouteVisible 
-  }))
+  })),
+  
+  setCalculatingRoute: (isCalculating) => set({ 
+    isCalculatingRoute: isCalculating 
+  })
 }))

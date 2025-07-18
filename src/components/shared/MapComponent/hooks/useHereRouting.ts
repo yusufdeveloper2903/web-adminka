@@ -19,7 +19,7 @@ interface CalculatedRoute {
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
 
-  // Check if coordinates are valid - Vue proyektingizdan ilhomlangan
+  // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
     return (
       lat !== undefined &&
@@ -43,7 +43,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     [isValidCoordinate]
   )
 
-  // Calculate route using HERE Maps API - Vue proyektingizdan ilhomlangan
+  // Calculate route using HERE Maps API - inspired by Vue project
   const calculateRoute = useCallback(
     async (stops: TripStopCreateDto[]): Promise<CalculatedRoute[] | null> => {
       if (!mapInstance.current) return null
@@ -52,7 +52,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
       if (validStops.length < 2) return null
 
       try {
-        // Create HERE platform - Vue proyektingizdan ilhomlangan
+        // Create HERE platform - inspired by Vue project
         const platform = new H.service.Platform({
           apikey: import.meta.env.VITE_HERE_MAPS_API_KEY
         })
@@ -94,7 +94,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     [mapInstance, getValidStops]
   )
 
-  // Create marker icon - Vue proyektingizdan ilhomlangan
+  // Create marker icon - inspired by Vue project
   const createMarkerIcon = useCallback((stopType: string, index: number) => {
     const color =
       stopType === "PICKUP"
@@ -113,7 +113,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     )
   }, [])
 
-  // Draw routes on map - Vue proyektingizdan ilhomlangan
+  // Draw routes on map - inspired by Vue project
   const drawRoutes = useCallback(
     async (routes: CalculatedRoute[], stops: TripStopCreateDto[]): Promise<void> => {
       if (!mapInstance.current || !routes.length) return
@@ -131,13 +131,13 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         const group = new H.map.Group()
         let boundingBox: H.geo.Rect | null = null
 
-        // Draw route polylines - Vue proyektingizdan ilhomlangan
+        // Draw route polylines - inspired by Vue project
         routes.forEach((route, routeIndex) => {
           const routeLineStrings: H.geo.LineString[] = []
 
           route.sections.forEach((section) => {
             try {
-              // Vue proyektingizda H.geo.LineString.fromFlexiblePolyline ishlatilgan
+              // Vue project used H.geo.LineString.fromFlexiblePolyline
               const lineString = H.geo.LineString.fromFlexiblePolyline(section.polyline)
               routeLineStrings.push(lineString)
 
@@ -153,7 +153,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
             const routeMultiLineString = new H.geo.MultiLineString(routeLineStrings)
             const routeLine = new H.map.Polyline(routeMultiLineString, {
               style: {
-                strokeColor: "#4285F4", // Vue proyektingizdan olingan rang
+                strokeColor: "#4285F4", // Color taken from Vue project
                 lineWidth: 5,
                 lineTailCap: "round",
                 lineHeadCap: "round"
@@ -166,7 +166,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           }
         })
 
-        // Add markers for stops - Vue proyektingizdan ilhomlangan
+        // Add markers for stops - inspired by Vue project
         validStops.forEach((stop, index) => {
           try {
             const marker = new H.map.DomMarker(
@@ -182,7 +182,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         // Add group to map
         map.addObject(group)
 
-        // Fit map to show all routes - Vue proyektingizda ham bor
+        // Fit map to show all routes - also present in Vue project
         if (boundingBox) {
           map.getViewModel().setLookAtData(
             {
@@ -199,7 +199,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     [mapInstance, getValidStops, createMarkerIcon]
   )
 
-  // Remove all route objects - Vue proyektingizdan ilhomlangan
+  // Remove all route objects - inspired by Vue project
   const removeRouteObjects = useCallback(() => {
     if (!mapInstance.current) return
 

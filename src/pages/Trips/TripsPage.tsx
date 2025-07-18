@@ -5,7 +5,7 @@ import { DataTable } from "@/components/shared"
 import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
-import { ResizableMapContent, TripsMapView } from "./components"
+import { TripsMapView } from "./components"
 import { useTripsViewStore } from "@/store"
 import { cn } from "@/lib/utils"
 
