@@ -5,7 +5,7 @@ import { DataTable } from "@/components/shared"
 import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
-import { ResizableMapContent } from "./components"
+import { ResizableMapContent, TripsMapView } from "./components"
 import { useTripsViewStore } from "@/store"
 import { cn } from "@/lib/utils"
 
@@ -56,7 +56,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        <ResizableMapContent isVisible={view === "map"} />
+        <TripsMapView isVisible={view === "map"} />
       </div>
     </div>
   )

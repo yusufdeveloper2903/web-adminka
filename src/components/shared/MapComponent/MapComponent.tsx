@@ -46,12 +46,16 @@ export const MapComponent = memo(
           pois: true
         })
 
-        newMap = new H.Map(mapContainer, isDark ? defaultLayers.vector.normal.mapnight : defaultLayers.vector.normal.map, {
-          engineType: H.Map.EngineType.HARP,
-          pixelRatio: window.devicePixelRatio || 1,
-          center: initialCenter,
-          zoom
-        })
+        newMap = new H.Map(
+          mapContainer,
+          isDark ? defaultLayers.vector.normal.mapnight : defaultLayers.vector.normal.map,
+          {
+            engineType: H.Map.EngineType.HARP,
+            pixelRatio: window.devicePixelRatio || 1,
+            center: initialCenter,
+            zoom
+          }
+        )
 
         H.ui.UI.createDefault(newMap, defaultLayers)
         new H.mapevents.Behavior(new H.mapevents.MapEvents(newMap))
