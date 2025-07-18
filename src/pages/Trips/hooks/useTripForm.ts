@@ -31,7 +31,7 @@ const tripFormSchema = z
 
 export const useTripForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { setRoute } = useRouteStore()
+  const { setRoute, clearRoute } = useRouteStore()
   const { setView } = useTripsViewStore()
   const [stops, setStops] = useState<TripStopCreateDto[]>([])
 
@@ -72,7 +72,14 @@ export const useTripForm = () => {
         }
 
         console.log("Trip data for backend:", tripData)
-        setRoute(tripData)
+        
+        // Clear any existing route first to prevent overlap
+        clearRoute()
+        
+        // Small delay to ensure clearing is complete, then set new route
+        setTimeout(() => {
+          setRoute(tripData)
+        }, 100)
 
         // Switch to map view to show the route
         setView("map")

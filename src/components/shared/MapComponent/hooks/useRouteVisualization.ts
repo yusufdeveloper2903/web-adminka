@@ -175,15 +175,16 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
   // Main route visualization effect - inspired by Vue project's handleGo function
   useEffect(() => {
     const handleRouteVisualization = async () => {
+      // Always clear existing routes first - inspired by Vue project's removeMapObjectsExceptTruckMarker
+      removeRouteObjects()
+      
       if (!mapInstance.current || !isRouteVisible) {
-        removeRouteObjects()
         setCalculatingRoute(false)
         return
       }
 
       const validStops = getValidStops()
       if (validStops.length < 2) {
-        removeRouteObjects()
         setCalculatingRoute(false)
         return
       }
@@ -243,17 +244,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     }
 
     handleRouteVisualization()
-  }, [
-    isRouteVisible,
-    routeStops,
-    currentRoute,
-    mapInstance,
-    calculateRoute,
-    drawRoutes,
-    removeRouteObjects,
-    getValidStops,
-    createMarkerIcon
-  ])
+  }, [isRouteVisible, routeStops, currentRoute, mapInstance, calculateRoute, drawRoutes, removeRouteObjects, getValidStops, createMarkerIcon, setCalculatingRoute])
 
   return {
     routeGroupRef

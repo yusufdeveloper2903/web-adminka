@@ -18,6 +18,7 @@ interface CalculatedRoute {
 
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
+  const routeGroupRef = useRef<H.map.Group | null>(null)
 
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
@@ -121,14 +122,22 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
       const map = mapInstance.current
       const validStops = getValidStops(stops)
 
-      // Clear existing route polylines
-      if (routePolylinesRef.current.length > 0) {
-        map.removeObjects(routePolylinesRef.current)
-        routePolylinesRef.current = []
+      // Clear existing route objects first - inspired by Vue project's removeMapObjectsExceptTruckMarker
+      if (routeGroupRef.current) {
+        try {
+          map.removeObject(routeGroupRef.current)
+        } catch (error) {
+          console.warn("Error removing existing route group:", error)
+        }
+        routeGroupRef.current = null
       }
+
+      // Clear polylines reference
+      routePolylinesRef.current = []
 
       try {
         const group = new H.map.Group()
+        routeGroupRef.current = group
         let boundingBox: H.geo.Rect | null = null
 
         // Draw route polylines - inspired by Vue project
@@ -199,15 +208,25 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     [mapInstance, getValidStops, createMarkerIcon]
   )
 
-  // Remove all route objects - inspired by Vue project
+  // Remove all route objects - inspired by Vue project's removeMapObjectsExceptTruckMarker
   const removeRouteObjects = useCallback(() => {
     if (!mapInstance.current) return
 
     try {
       const map = mapInstance.current
-      const objects = map.getObjects()
 
-      // Remove route-related objects
+      // Remove the tracked route group first
+      if (routeGroupRef.current) {
+        try {
+          map.removeObject(routeGroupRef.current)
+        } catch (error) {
+          console.warn("Error removing tracked route group:", error)
+        }
+        routeGroupRef.current = null
+      }
+
+      // Fallback: remove any remaining route-related objects
+      const objects = map.getObjects()
       const objectsToRemove = objects.filter((obj: any) => {
         return (
           obj instanceof H.map.Group ||
@@ -220,7 +239,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         map.removeObjects(objectsToRemove)
       }
 
-      // Clear polylines reference
+      // Clear references
       routePolylinesRef.current = []
     } catch (error) {
       console.warn("Error removing route objects:", error)

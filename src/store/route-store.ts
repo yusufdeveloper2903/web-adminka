@@ -17,25 +17,30 @@ export const useRouteStore = create<RouteState>((set) => ({
   routeStops: [],
   isRouteVisible: false,
   isCalculatingRoute: false,
-  
-  setRoute: (route) => set({ 
-    currentRoute: route, 
-    routeStops: route.tripStops,
-    isRouteVisible: true 
-  }),
-  
-  clearRoute: () => set({ 
-    currentRoute: null, 
-    routeStops: [],
-    isRouteVisible: false,
-    isCalculatingRoute: false
-  }),
-  
-  toggleRouteVisibility: () => set((state) => ({ 
-    isRouteVisible: !state.isRouteVisible 
-  })),
-  
-  setCalculatingRoute: (isCalculating) => set({ 
-    isCalculatingRoute: isCalculating 
-  })
+
+  setRoute: (route) =>
+    set({
+      currentRoute: route,
+      routeStops: route.tripStops,
+      isRouteVisible: true,
+      isCalculatingRoute: false
+    }),
+
+  clearRoute: () =>
+    set({
+      currentRoute: null,
+      routeStops: [],
+      isRouteVisible: false,
+      isCalculatingRoute: false
+    }),
+
+  toggleRouteVisibility: () =>
+    set((state) => ({
+      isRouteVisible: !state.isRouteVisible
+    })),
+
+  setCalculatingRoute: (isCalculating) =>
+    set({
+      isCalculatingRoute: isCalculating
+    })
 }))
