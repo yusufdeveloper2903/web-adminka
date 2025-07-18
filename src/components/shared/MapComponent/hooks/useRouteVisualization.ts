@@ -1,16 +1,20 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
+import { useHereRouting } from "./useHereRouting"
 import type { TripStopCreateDto } from "@/types"
 
 export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const { currentRoute, routeStops, isRouteVisible } = useRouteStore()
   const routeGroupRef = useRef<H.map.Group | null>(null)
 
-  // Create marker icon based on stop type
-  const createMarkerIcon = (stopType: string, index: number) => {
+  // Use HERE routing API - Vue proyektingizdan ilhomlangan
+  const { calculateRoute, drawRoutes, removeRouteObjects } = useHereRouting(mapInstance)
+
+  // Create marker icon based on stop type - Vue proyektingizdan ilhomlangan
+  const createMarkerIcon = useCallback((stopType: string, index: number) => {
     const color =
       stopType === "PICKUP"
         ? "#14b8a6" // teal
@@ -21,18 +25,16 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
             : "#6b7280" // gray for SHOP
 
     return new H.map.Icon(
-      `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
-        <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">
-          ${index + 1}
-        </text>
+      `<svg width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+        <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
+        <text x="192" y="280" font-family="Arial" font-size="200" text-anchor="middle" fill="#FFF">${index + 1}</text>
       </svg>`,
-      { size: { w: 24, h: 24 } }
+      { size: { w: 30, h: 40 } }
     )
-  }
+  }, [])
 
   // Create info bubble content
-  const createInfoBubbleContent = (stop: TripStopCreateDto, index: number) => {
+  const createInfoBubbleContent = useCallback((stop: TripStopCreateDto, index: number) => {
     return `
       <div style="padding: 8px; min-width: 200px;">
         <h4 style="margin: 0 0 8px 0; font-weight: bold;">Stop ${index + 1}</h4>
@@ -42,110 +44,209 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
         <p style="margin: 4px 0;"><strong>Distance:</strong> ${stop.distance.toFixed(1)} miles</p>
       </div>
     `
-  }
+  }, [])
 
-  // Add markers to route group
-  const addMarkersToRoute = (routeGroup: H.map.Group, map: H.Map) => {
-    routeStops.forEach((stop, index) => {
-      const marker = new H.map.Marker(
-        { lat: stop.latitude, lng: stop.longitude },
-        { icon: createMarkerIcon(stop.stopType, index) }
-      )
+  // Check if coordinates are valid - Vue proyektingizdan ilhomlangan
+  const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
+    return (
+      lat !== undefined &&
+      lng !== undefined &&
+      !isNaN(lat) &&
+      !isNaN(lng) &&
+      lat !== 0 &&
+      lng !== 0 && // Often 0,0 indicates uninitialized coordinates
+      lat >= -90 &&
+      lat <= 90 &&
+      lng >= -180 &&
+      lng <= 180
+    )
+  }, [])
 
-      // Add info bubble event
-      marker.addEventListener("tap", () => {
-        const bubble = new H.ui.InfoBubble(createInfoBubbleContent(stop, index), {
-          lat: stop.latitude,
-          lng: stop.longitude
-        })
+  // Get valid stops only
+  const getValidStops = useCallback(() => {
+    return routeStops.filter((stop) => isValidCoordinate(stop.latitude, stop.longitude))
+  }, [routeStops, isValidCoordinate])
 
-        // Remove existing bubbles
-        map.getBubbles().forEach((b: any) => map.removeBubble(b))
-        map.addBubble(bubble)
+  // Add markers to route group - Vue proyektingizdan ilhomlangan
+  const addMarkersToRoute = useCallback(
+    (routeGroup: H.map.Group, map: H.Map) => {
+      const validStops = getValidStops()
+
+      validStops.forEach((stop, index) => {
+        try {
+          const marker = new H.map.Marker(
+            { lat: stop.latitude, lng: stop.longitude },
+            { icon: createMarkerIcon(stop.stopType, index) }
+          )
+
+          // Add info bubble event
+          marker.addEventListener("tap", () => {
+            try {
+              const bubble = new H.ui.InfoBubble(createInfoBubbleContent(stop, index), {
+                lat: stop.latitude,
+                lng: stop.longitude
+              })
+
+              // Remove existing bubbles
+              map.getBubbles().forEach((b: any) => map.removeBubble(b))
+              map.addBubble(bubble)
+            } catch (error) {
+              console.warn("Error creating info bubble:", error)
+            }
+          })
+
+          routeGroup.addObject(marker)
+        } catch (error) {
+          console.warn(`Error adding marker for stop ${index}:`, error)
+        }
       })
+    },
+    [getValidStops, createMarkerIcon, createInfoBubbleContent]
+  )
 
-      routeGroup.addObject(marker)
-    })
-  }
+  // Add route line to route group - Vue proyektingizdan ilhomlangan
+  const addRouteLineToRoute = useCallback(
+    (routeGroup: H.map.Group) => {
+      try {
+        const validStops = getValidStops()
 
-  // Add route line to route group
-  const addRouteLineToRoute = (routeGroup: H.map.Group) => {
-    if (routeStops.length > 1) {
-      const lineString = new H.geo.LineString()
-      
-      // Filter out stops with invalid coordinates
-      const validStops = routeStops.filter(stop => 
-        stop.latitude != null && 
-        stop.longitude != null && 
-        !isNaN(stop.latitude) && 
-        !isNaN(stop.longitude)
-      )
-      
-      if (validStops.length > 1) {
-        validStops.forEach((stop) => {
-          lineString.pushPoint(stop.latitude, stop.longitude)
-        })
+        if (validStops.length > 1) {
+          const lineString = new H.geo.LineString()
 
-        const routeLine = new H.map.Polyline(lineString, {
-          style: {
-            strokeColor: "#3b82f6", // blue
-            lineWidth: 4,
-            lineDash: [2, 2] // dashed line
+          validStops.forEach((stop) => {
+            try {
+              // Vue proyektingizda pushPoint(lat, lng) formatida ishlatilgan
+              lineString.pushPoint(stop.latitude, stop.longitude)
+            } catch (error) {
+              console.warn(`Error adding point to lineString: ${stop.latitude},${stop.longitude}`, error)
+            }
+          })
+
+          if (lineString.getPointCount() > 1) {
+            const routeLine = new H.map.Polyline(lineString, {
+              style: {
+                strokeColor: "#4285F4", // Vue proyektingizdan olingan rang
+                lineWidth: 5,
+                lineTailCap: "round",
+                lineHeadCap: "round"
+              }
+            })
+
+            routeGroup.addObject(routeLine)
           }
-        })
-
-        routeGroup.addObject(routeLine)
+        }
+      } catch (error) {
+        console.error("Error creating route line:", error)
       }
-    }
-  }
+    },
+    [getValidStops]
+  )
 
-  // Fit map to show all stops
-  const fitMapToRoute = (routeGroup: H.map.Group, map: H.Map) => {
-    const boundingBox = routeGroup.getBoundingBox()
-    if (boundingBox) {
-      map.getViewModel().setLookAtData({
-        bounds: boundingBox,
-        padding: 50
-      })
-    }
-  }
-
-  // Main route visualization effect
-  useEffect(() => {
-    if (!mapInstance.current || !isRouteVisible || !routeStops.length) {
-      // Clear existing route if not visible or no stops
-      if (routeGroupRef.current && mapInstance.current) {
-        mapInstance.current.removeObject(routeGroupRef.current)
-        routeGroupRef.current = null
-      }
-      return
-    }
-
-    const map = mapInstance.current
-
-    // Clear existing route
-    if (routeGroupRef.current) {
-      map.removeObject(routeGroupRef.current)
-    }
-
-    // Create new route group
-    const routeGroup = new H.map.Group()
-    routeGroupRef.current = routeGroup
-
+  // Fit map to show all stops - Vue proyektingizdan ilhomlangan
+  const fitMapToRoute = useCallback((routeGroup: H.map.Group, map: H.Map) => {
     try {
-      // Add markers and route line
-      addMarkersToRoute(routeGroup, map)
-      addRouteLineToRoute(routeGroup)
-
-      // Add route group to map
-      map.addObject(routeGroup)
-
-      // Fit map to show all stops
-      fitMapToRoute(routeGroup, map)
+      const boundingBox = routeGroup.getBoundingBox()
+      if (boundingBox) {
+        map.getViewModel().setLookAtData(
+          {
+            bounds: boundingBox,
+            padding: 50
+          },
+          true
+        ) // Vue proyektingizda true parametri ishlatilgan
+      }
     } catch (error) {
-      console.error("Route visualization error:", error)
+      console.warn("Error fitting map to route:", error)
     }
-  }, [isRouteVisible, routeStops, currentRoute, mapInstance, addMarkersToRoute, addRouteLineToRoute])
+  }, [])
+
+  // Safely remove route group - Vue proyektingizdan ilhomlangan
+  const safelyRemoveRouteGroup = useCallback(() => {
+    if (routeGroupRef.current && mapInstance.current) {
+      try {
+        mapInstance.current.removeObject(routeGroupRef.current)
+      } catch (error) {
+        console.warn("Error removing route group:", error)
+      }
+      routeGroupRef.current = null
+    }
+  }, [mapInstance])
+
+  // Main route visualization effect - Vue proyektingizdan ilhomlangan handleGo funksiyasi
+  useEffect(() => {
+    const handleRouteVisualization = async () => {
+      if (!mapInstance.current || !isRouteVisible) {
+        removeRouteObjects()
+        return
+      }
+
+      const validStops = getValidStops()
+      if (validStops.length < 2) {
+        removeRouteObjects()
+        return
+      }
+
+      try {
+        console.log("Calculating route for stops:", validStops)
+
+        // Calculate route using HERE API - Vue proyektingizdan ilhomlangan
+        const routes = await calculateRoute(validStops)
+
+        if (routes && routes.length > 0) {
+          console.log("Routes calculated successfully:", routes)
+
+          // Draw routes on map - Vue proyektingizdan ilhomlangan drawRoutes funksiyasi
+          await drawRoutes(routes, validStops)
+        } else {
+          console.warn("No routes calculated, falling back to simple markers")
+
+          // Fallback: just show markers without route line
+          const map = mapInstance.current
+          const routeGroup = new H.map.Group()
+
+          validStops.forEach((stop, index) => {
+            try {
+              const marker = new H.map.Marker(
+                { lat: stop.latitude, lng: stop.longitude },
+                { icon: createMarkerIcon(stop.stopType, index) }
+              )
+              routeGroup.addObject(marker)
+            } catch (error) {
+              console.warn(`Error adding fallback marker for stop ${index}:`, error)
+            }
+          })
+
+          map.addObject(routeGroup)
+
+          // Fit map to show all stops
+          const boundingBox = routeGroup.getBoundingBox()
+          if (boundingBox) {
+            map.getViewModel().setLookAtData(
+              {
+                bounds: boundingBox,
+                padding: 50
+              },
+              true
+            )
+          }
+        }
+      } catch (error) {
+        console.error("Route visualization error:", error)
+      }
+    }
+
+    handleRouteVisualization()
+  }, [
+    isRouteVisible,
+    routeStops,
+    currentRoute,
+    mapInstance,
+    calculateRoute,
+    drawRoutes,
+    removeRouteObjects,
+    getValidStops,
+    createMarkerIcon
+  ])
 
   return {
     routeGroupRef

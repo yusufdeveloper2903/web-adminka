@@ -87,7 +87,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
       cell: ({ row }) => {
         const trip = row.original
         return (
-          <div className="flex justify-center ">
+          <div className="flex justify-center">
             <Button variant="ghost" size="icon">
               <Edit className="h-4 w-4" />
             </Button>
