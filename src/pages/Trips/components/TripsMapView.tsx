@@ -24,6 +24,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
+  const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
 
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
@@ -61,7 +62,18 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   )
 
   const handleToggleExpand = (mapId: string) => {
+    // Faqat shu mapni transitioning qilish
+    setTransitioningMaps((prev) => new Set([...prev, mapId]))
     setExpandedMap((prev) => (prev === mapId ? null : mapId))
+
+    // Transition tugagandan keyin loading yashirish
+    setTimeout(() => {
+      setTransitioningMaps((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(mapId)
+        return newSet
+      })
+    }, 350) // Transition duration + biroz qo'shimcha
   }
 
   const handleZoomIn = (mapId: string) => {
@@ -72,13 +84,19 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
     mapRefs.current[mapId]?.zoomOut()
   }
 
-  // Trigger resize when expand/collapse happens
+  // Simple resize after transition
   useEffect(() => {
+    // Darhol resize qilish
+    Object.values(mapRefs.current).forEach((mapRef) => {
+      mapRef?.resize()
+    })
+
+    // Transition paytida ham resize qilish
     const timeoutId = setTimeout(() => {
       Object.values(mapRefs.current).forEach((mapRef) => {
         mapRef?.resize()
       })
-    }, 550) // After transition completes
+    }, 50) // Juda tez
 
     return () => clearTimeout(timeoutId)
   }, [expandedMap])
@@ -91,7 +109,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
     <div className="h-full w-full p-4">
       <div
         className={cn(
-          "grid h-full gap-4 transition-all duration-500 ease-in-out",
+          "grid h-full gap-4 transition-all duration-300 ease-in-out",
           expandedMap ? "grid-cols-1 grid-rows-1" : "grid-cols-2 grid-rows-2"
         )}
       >
@@ -99,12 +117,16 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
           <div
             key={trip.id}
             className={cn(
-              "bg-card relative rounded-lg border transition-all duration-500 ease-in-out",
-              expandedMap && expandedMap !== trip.id && "hidden",
-              trip.id === "here" && !expandedMap && "col-span-1 row-span-2",
-              trip.id === "samsara" && !expandedMap && "col-span-1 row-span-1",
-              trip.id === "gle" && !expandedMap && "col-span-1 row-span-1"
+              "bg-card relative overflow-hidden rounded-lg border transition-all duration-300 ease-in-out",
+              // Grid layout classes - fixed positions
+              trip.id === "here" && !expandedMap && "col-span-1 row-span-2", // Chap tomonda katta
+              trip.id === "samsara" && !expandedMap && "col-span-1 row-span-1", // O'ng yuqorida
+              trip.id === "gle" && !expandedMap && "col-span-1 row-span-1" // O'ng pastda
             )}
+            style={{
+              // Oddiy visibility bilan yashirish
+              display: expandedMap && expandedMap !== trip.id ? "none" : "block"
+            }}
           >
             {/* Header */}
             <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg border-b p-3 backdrop-blur-sm">
@@ -133,8 +155,9 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
 
             {/* Map Container */}
             <div className="h-full px-2 pt-16 pb-2">
-              <div className="relative h-full w-full overflow-hidden rounded-md">
+              <div className="bg-muted/10 relative h-full w-full overflow-hidden rounded-md">
                 <LazyMap
+                  key={trip.id} // Stable key - no unnecessary re-renders
                   ref={(ref) => {
                     mapRefs.current[trip.id] = ref
                   }}
@@ -173,6 +196,25 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                 >
                   {expandedMap === trip.id ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </Button>
+
+                {/* Ultra-Strong Overlay - Qora iconni butunlay yashirish */}
+                {transitioningMaps.has(trip.id) && (
+                  <div
+                    className="absolute inset-0 z-50 flex items-center justify-center transition-all duration-300"
+                    style={{
+                      background: isDark ? "rgba(26, 26, 26, 0.98)" : "rgba(248, 249, 250, 0.98)",
+                      backdropFilter: "blur(2px)"
+                    }}
+                  >
+                    {/* Minimal Loading Dot */}
+                    <div
+                      className="h-2 w-2 animate-pulse rounded-full"
+                      style={{
+                        backgroundColor: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Route Markers (Mock) */}
                 <div className="absolute bottom-4 left-4 z-10 flex gap-2">

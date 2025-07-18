@@ -1,4 +1,4 @@
-import { useEffect, useRef, memo, useImperativeHandle, forwardRef } from "react"
+import { useEffect, useRef, memo, useImperativeHandle, forwardRef, useState } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
@@ -37,6 +37,7 @@ export const MapComponent = memo(
       const mapInstance = useRef<H.Map | null>(null)
       const platformRef = useRef<H.service.Platform | null>(null)
       const { isOpen: isDrawerOpen } = useDrawerStore()
+      const [isMapLoading, setIsMapLoading] = useState(true)
 
       const debouncedResize = useDebounceCallback((map: H.Map) => {
         if (isParentVisible && !isDrawerOpen && map) {
@@ -46,7 +47,7 @@ export const MapComponent = memo(
             console.warn("Map resize error:", error)
           }
         }
-      }, 150)
+      }, 0) // Juda tez resize
 
       // Expose map methods via ref
       useImperativeHandle(
@@ -102,8 +103,16 @@ export const MapComponent = memo(
               pixelRatio: window.devicePixelRatio || 1,
               center: initialCenter,
               zoom,
-              // Prevent map from being recreated on resize
-              renderBaseBackground: true
+              // Loading iconni disable qilish
+              renderBaseBackground: {
+                lower: isDark ? 0x1a1a1a : 0xf8f9fa,
+                higher: isDark ? 0x2a2a2a : 0xe9ecef
+              },
+              // Loading animationni disable qilish
+              imprint: {
+                href: "",
+                alt: ""
+              }
             }
           )
 
@@ -120,6 +129,24 @@ export const MapComponent = memo(
           new H.mapevents.Behavior(new H.mapevents.MapEvents(newMap))
 
           mapInstance.current = newMap
+
+          // Map ready bo'lganda loading ni to'xtatish
+          newMap.addEventListener('mapviewchangeend', () => {
+            setTimeout(() => setIsMapLoading(false), 100)
+          })
+
+          // Darhol resize qilish map yaratilgandan keyin
+          setTimeout(() => {
+            if (newMap) {
+              try {
+                newMap.getViewPort().resize()
+                // Loading ni to'xtatish
+                setIsMapLoading(false)
+              } catch (error) {
+                console.warn("Initial resize error:", error)
+              }
+            }
+          }, 200) // Biroz kechiktirish
 
           // Call onMapReady callback
           if (onMapReady) {
@@ -146,7 +173,7 @@ export const MapComponent = memo(
           }
           // Don't dispose map immediately, let parent handle it
         }
-      }, [apikey, initialCenter.lat, initialCenter.lng, zoom, isDark, onMapReady, debouncedResize])
+      }, [apikey, initialCenter.lat, initialCenter.lng, zoom, isDark, onMapReady, debouncedResize, initialCenter])
 
       // Handle theme changes without recreating map
       useEffect(() => {
@@ -199,7 +226,30 @@ export const MapComponent = memo(
         )
       }
 
-      return <div className="h-full w-full" ref={mapContainerRef} />
+      return (
+        <div className="relative h-full w-full">
+          <div
+            className="here-map-container h-full w-full transition-all duration-300"
+            ref={mapContainerRef}
+            style={{
+              // Qora romb iconni yashirish uchun background
+              backgroundColor: isDark ? "#1a1a1a" : "#f8f9fa"
+            }}
+          />
+          
+          {/* Loading overlay - qora iconni to'liq yashirish */}
+          {isMapLoading && (
+            <div 
+              className="absolute inset-0 z-50 flex items-center justify-center transition-opacity duration-300"
+              style={{
+                backgroundColor: isDark ? "#1a1a1a" : "#f8f9fa"
+              }}
+            >
+              <div className="text-muted-foreground text-sm">Loading map...</div>
+            </div>
+          )}
+        </div>
+      )
     }
   )
 )
