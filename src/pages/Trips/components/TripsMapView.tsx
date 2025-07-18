@@ -2,8 +2,9 @@ import { LazyMap } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
 import { Maximize2, Minimize2 } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 
 interface TripMapData {
   id: string
@@ -24,7 +25,10 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
 
-  // Mock data for three trips
+  // Refs for each map to control zoom
+  const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
+
+  // Mock data for three trips - memoized to prevent recreation
   const tripsData: TripMapData[] = useMemo(
     () => [
       {
@@ -57,8 +61,27 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   )
 
   const handleToggleExpand = (mapId: string) => {
-    setExpandedMap(expandedMap === mapId ? null : mapId)
+    setExpandedMap((prev) => (prev === mapId ? null : mapId))
   }
+
+  const handleZoomIn = (mapId: string) => {
+    mapRefs.current[mapId]?.zoomIn()
+  }
+
+  const handleZoomOut = (mapId: string) => {
+    mapRefs.current[mapId]?.zoomOut()
+  }
+
+  // Trigger resize when expand/collapse happens
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      Object.values(mapRefs.current).forEach((mapRef) => {
+        mapRef?.resize()
+      })
+    }, 550) // After transition completes
+
+    return () => clearTimeout(timeoutId)
+  }, [expandedMap])
 
   const formatMiles = (miles: number) => miles.toFixed(1)
   const formatHours = (hours: number) => hours.toFixed(2)
@@ -112,6 +135,9 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
             <div className="h-full px-2 pt-16 pb-2">
               <div className="relative h-full w-full overflow-hidden rounded-md">
                 <LazyMap
+                  ref={(ref) => {
+                    mapRefs.current[trip.id] = ref
+                  }}
                   isParentVisible={isVisible}
                   initialCenter={trip.coordinates}
                   zoom={expandedMap === trip.id ? 8 : 6}
@@ -124,6 +150,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                     variant="secondary"
                     size="icon"
                     className="bg-background/90 hover:bg-background h-8 w-8 backdrop-blur-sm"
+                    onClick={() => handleZoomIn(trip.id)}
                   >
                     +
                   </Button>
@@ -131,6 +158,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                     variant="secondary"
                     size="icon"
                     className="bg-background/90 hover:bg-background h-8 w-8 backdrop-blur-sm"
+                    onClick={() => handleZoomOut(trip.id)}
                   >
                     -
                   </Button>
