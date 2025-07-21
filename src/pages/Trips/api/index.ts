@@ -1,7 +1,8 @@
 import { type SortingState } from "@tanstack/react-table"
 import { type Trip } from "../hooks/useTripsColumns"
 import { mockTripsData } from "../data/mockTripsData"
-import { Gle_polyline } from "./polyline"
+import { Gle_polyline1 } from "./polyline1"
+import { Gle_polyline2 } from "./polyline2"
 
 export type TripAPIResponse = {
   data: Trip[]
@@ -49,8 +50,8 @@ const allTrips: Trip[] = [
               : "Boston, MA",
     updated: new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)).toISOString(),
     status: (i % 3 === 0 ? "COMPLETED" : i % 3 === 1 ? "IN_TRANSIT" : "PENDING") as Trip["status"],
-    gleLocation: { polyline: Gle_polyline },
-    samsaraLocation: { polyline: Gle_polyline },
+    gleLocation: { polyline: [Gle_polyline1, Gle_polyline2] },
+    samsaraLocation: { polyline: [Gle_polyline1, Gle_polyline2] },
     tripStops: [
       {
         id: i * 2 + 1,

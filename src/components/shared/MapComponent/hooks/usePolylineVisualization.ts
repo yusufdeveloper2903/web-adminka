@@ -7,16 +7,18 @@ import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const polylineGroupRef = useRef<H.map.Group | null>(null)
 
-  // Create stop marker icon with A/B labels like HERE maps
+  // Create stop marker icon with A/B/C labels like HERE maps
   const createStopMarker = useCallback((stopType: string, index: number) => {
     const color =
       stopType === "PICKUP"
         ? "#469946" // green for pickup (A)
         : stopType === "DELIVERY"
-          ? "#FF4646" // red for delivery (B)
-          : stopType === "TRAILER"
-            ? "#f59e0b"
-            : "#6b7280"
+          ? "#FF4646" // red for delivery (C)
+          : stopType === "WAYPOINT"
+            ? "#FFC107" // amber for waypoint (B)
+            : stopType === "TRAILER"
+              ? "#f59e0b"
+              : "#6b7280"
 
     const label = String.fromCharCode(65 + index - 1) // A, B, C, etc. (index-1 because we pass index+1)
 
@@ -40,65 +42,56 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
     `
   }, [])
 
-  // Get pickup and delivery coordinates from location strings
-  const getPickupDeliveryCoords = useCallback((pickupLocation: string, deliveryLocation: string) => {
-    const locationToCoords = (location: string) => {
-      const lowerLocation = location.toLowerCase()
+  // Get route segment points for A, B, C markers based on polyline segments
+  const getRouteSegmentPoints = useCallback(
+    (pickupLocation: string, deliveryLocation: string, mapType: "gle" | "samsara", trip: Trip) => {
+      const locationToCoords = (location: string) => {
+        const lowerLocation = location.toLowerCase()
 
-      // Basic location mapping - extend this as needed
-      if (lowerLocation.includes("new york") || lowerLocation.includes("ny")) {
-        return { lat: 40.7128, lng: -74.006 }
-      } else if (lowerLocation.includes("dallas") || lowerLocation.includes("tx")) {
-        return { lat: 32.7767, lng: -96.797 }
-      } else if (lowerLocation.includes("los angeles") || lowerLocation.includes("ca")) {
-        return { lat: 34.0522, lng: -118.2437 }
-      } else if (lowerLocation.includes("chicago") || lowerLocation.includes("il")) {
-        return { lat: 41.8781, lng: -87.6298 }
-      } else if (lowerLocation.includes("miami") || lowerLocation.includes("fl")) {
-        return { lat: 25.7617, lng: -80.1918 }
-      } else if (lowerLocation.includes("seattle") || lowerLocation.includes("wa")) {
-        return { lat: 47.6062, lng: -122.3321 }
-      } else if (lowerLocation.includes("denver") || lowerLocation.includes("co")) {
-        return { lat: 39.7392, lng: -104.9903 }
-      } else if (lowerLocation.includes("atlanta") || lowerLocation.includes("ga")) {
-        return { lat: 33.749, lng: -84.388 }
-      } else if (lowerLocation.includes("phoenix") || lowerLocation.includes("az")) {
-        return { lat: 33.4484, lng: -112.074 }
-      } else if (lowerLocation.includes("boston") || lowerLocation.includes("ma")) {
-        return { lat: 42.3601, lng: -71.0589 }
-      } else if (lowerLocation.includes("houston")) {
-        return { lat: 29.7604, lng: -95.3698 }
-      } else if (lowerLocation.includes("detroit")) {
-        return { lat: 42.3314, lng: -83.0458 }
-      } else if (lowerLocation.includes("washington") || lowerLocation.includes("dc")) {
-        return { lat: 38.9072, lng: -77.0369 }
-      } else if (lowerLocation.includes("las vegas") || lowerLocation.includes("nv")) {
-        return { lat: 36.1699, lng: -115.1398 }
+        if (lowerLocation.includes("new york") || lowerLocation.includes("ny")) {
+          return { lat: 40.7128, lng: -74.006 }
+        } else if (lowerLocation.includes("dallas") || lowerLocation.includes("tx")) {
+          return { lat: 32.7767, lng: -96.797 }
+        } else if (lowerLocation.includes("los angeles") || lowerLocation.includes("ca")) {
+          return { lat: 34.0522, lng: -118.2437 }
+        } else if (lowerLocation.includes("las vegas") || lowerLocation.includes("nv")) {
+          return { lat: 36.1699, lng: -115.1398 }
+        }
+        return { lat: 39.8283, lng: -98.5795 }
       }
 
-      // Default fallback
-      return { lat: 39.8283, lng: -98.5795 } // Center of US
-    }
+      // For your mock data: A (New York) → B (Dallas) route
+      const routePoints = [
+        {
+          lat: locationToCoords("New York, NY").lat,
+          lng: locationToCoords("New York, NY").lng,
+          type: "PICKUP"
+        },
+        {
+          lat: locationToCoords("Dallas, TX").lat,
+          lng: locationToCoords("Dallas, TX").lng,
+          type: "DELIVERY"
+        }
+      ]
 
-    return [
-      locationToCoords(pickupLocation),
-      locationToCoords(deliveryLocation)
-    ]
-  }, [])
+      return routePoints
+    },
+    []
+  )
 
-  // Create polyline from encoded string or array of strings
-  const createPolylineFromString = useCallback((polylineData: string | string[], color: string, label: string) => {
+  // Create continuous route from multiple polyline strings
+  const createContinuousRoute = useCallback((polylineData: string | string[], color: string, label: string) => {
     try {
       let combinedLineString: H.geo.LineString
 
       if (Array.isArray(polylineData)) {
-        // Handle multiple polylines - combine them into one
+        // Handle multiple polylines - combine them into one continuous route
         if (polylineData.length === 0) return null
 
         // Start with the first polyline
         combinedLineString = H.geo.LineString.fromFlexiblePolyline(polylineData[0])
 
-        // Add remaining polylines to the combined line
+        // Add remaining polylines to create continuous route
         for (let i = 1; i < polylineData.length; i++) {
           try {
             const additionalLine = H.geo.LineString.fromFlexiblePolyline(polylineData[i])
@@ -117,7 +110,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         combinedLineString = H.geo.LineString.fromFlexiblePolyline(polylineData)
       }
 
-      // Create polyline with styling
+      // Create single continuous polyline with styling
       const polyline = new H.map.Polyline(combinedLineString, {
         style: {
           strokeColor: color,
@@ -132,7 +125,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
 
       return polyline
     } catch (error) {
-      console.warn(`Error creating polyline for ${label}:`, error)
+      console.warn(`Error creating continuous route for ${label}:`, error)
       return null
     }
   }, [])
@@ -161,77 +154,76 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
       try {
         // Draw specific route based on mapType - all routes use blue color for consistency
         if (mapType === "gle" && trip.gleLocation?.polyline) {
-          // Draw only GLE route
-          const glePolyline = createPolylineFromString(
+          // Draw only GLE continuous route
+          const gleRoute = createContinuousRoute(
             trip.gleLocation.polyline,
             "#4285F4", // blue for consistency with HERE maps
             "GLE"
           )
-          if (glePolyline) {
-            group.addObject(glePolyline)
-            boundingBox = glePolyline.getBoundingBox()
+          if (gleRoute) {
+            group.addObject(gleRoute)
+            boundingBox = gleRoute.getBoundingBox()
           }
         } else if (mapType === "samsara" && trip.samsaraLocation?.polyline) {
-          // Draw only Samsara route
-          const samsaraPolyline = createPolylineFromString(
+          // Draw only Samsara continuous route
+          const samsaraRoute = createContinuousRoute(
             trip.samsaraLocation.polyline,
             "#4285F4", // blue for consistency with HERE maps
             "Samsara"
           )
-          if (samsaraPolyline) {
-            group.addObject(samsaraPolyline)
-            boundingBox = samsaraPolyline.getBoundingBox()
+          if (samsaraRoute) {
+            group.addObject(samsaraRoute)
+            boundingBox = samsaraRoute.getBoundingBox()
           }
         } else {
           // Draw all routes (original behavior) - all use blue for consistency
-          // Draw GLE route (blue)
+          // Draw GLE continuous route (blue)
           if (trip.gleLocation?.polyline) {
-            const glePolyline = createPolylineFromString(
+            const gleRoute = createContinuousRoute(
               trip.gleLocation.polyline,
               "#4285F4", // blue for consistency with HERE maps
               "GLE"
             )
-            if (glePolyline) {
-              group.addObject(glePolyline)
-              const gleBounds = glePolyline.getBoundingBox()
+            if (gleRoute) {
+              group.addObject(gleRoute)
+              const gleBounds = gleRoute.getBoundingBox()
               boundingBox = boundingBox ? boundingBox.mergeRect(gleBounds) : gleBounds
             }
           }
 
-          // Draw Samsara route (blue)
+          // Draw Samsara continuous route (blue)
           if (trip.samsaraLocation?.polyline) {
-            const samsaraPolyline = createPolylineFromString(
+            const samsaraRoute = createContinuousRoute(
               trip.samsaraLocation.polyline,
               "#4285F4", // blue for consistency with HERE maps
               "Samsara"
             )
-            if (samsaraPolyline) {
-              group.addObject(samsaraPolyline)
-              const samsaraBounds = samsaraPolyline.getBoundingBox()
+            if (samsaraRoute) {
+              group.addObject(samsaraRoute)
+              const samsaraBounds = samsaraRoute.getBoundingBox()
               boundingBox = boundingBox ? boundingBox.mergeRect(samsaraBounds) : samsaraBounds
             }
           }
         }
 
-        // Add A/B markers for pickup and delivery locations (consistent with HERE maps)
+        // Add A/B/C markers for route segments (consistent with HERE maps)
         if (mapType) {
-          // For specific map types, add simple A/B markers for pickup/delivery
-          const pickupCoords = getPickupDeliveryCoords(trip.pickupLocation, trip.deliveryLocation)
-          
-          pickupCoords.forEach((coord, index) => {
+          // For specific map types, add markers for each segment endpoint
+          const routePoints = getRouteSegmentPoints(trip.pickupLocation, trip.deliveryLocation, mapType, trip)
+
+          routePoints.forEach((point, index) => {
             try {
-              if (coord.lat && coord.lng) {
-                const stopType = index === 0 ? "PICKUP" : "DELIVERY"
+              if (point.lat && point.lng) {
                 const marker = new H.map.DomMarker(
-                  { lat: coord.lat, lng: coord.lng },
+                  { lat: point.lat, lng: point.lng },
                   {
-                    icon: createStopMarker(stopType, index + 1)
+                    icon: createStopMarker(point.type, index + 1)
                   }
                 )
                 group.addObject(marker)
               }
             } catch (error) {
-              console.warn(`Error adding ${index === 0 ? 'pickup' : 'delivery'} marker:`, error)
+              console.warn(`Error adding route point marker ${index}:`, error)
             }
           })
         } else {
@@ -295,7 +287,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         console.error("Error drawing trip routes:", error)
       }
     },
-    [mapInstance, createPolylineFromString, getPickupDeliveryCoords, createStopMarker, createStopInfoBubble]
+    [mapInstance, createContinuousRoute, getRouteSegmentPoints, createStopMarker, createStopInfoBubble]
   )
 
   // Clear all polylines

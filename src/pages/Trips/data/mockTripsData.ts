@@ -1,5 +1,6 @@
 import type { Trip } from "../hooks/useTripsColumns"
-import { Gle_polyline } from "../api/polyline"
+import { Gle_polyline1 } from "../api/polyline1"
+import { Gle_polyline2 } from "../api/polyline2"
 
 // Mock trip data based on backend response format
 export const mockTripsData: Trip[] = [
@@ -20,10 +21,10 @@ export const mockTripsData: Trip[] = [
     updated: "2025-01-21T10:30:00Z",
     status: "IN_TRANSIT",
     gleLocation: {
-      polyline: Gle_polyline // Use the actual polyline data
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     samsaraLocation: {
-      polyline: Gle_polyline // Same polyline for demo
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     tripStops: [
       {
@@ -69,10 +70,10 @@ export const mockTripsData: Trip[] = [
     updated: "2025-01-21T14:15:00Z",
     status: "COMPLETED",
     gleLocation: {
-      polyline: [Gle_polyline.substring(0, 1000), Gle_polyline.substring(1000, 2000)] // Split into array for testing
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     samsaraLocation: {
-      polyline: Gle_polyline
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     tripStops: [
       {
@@ -110,10 +111,10 @@ export const mockTripsData: Trip[] = [
     updated: "2025-01-21T09:45:00Z",
     status: "PENDING",
     gleLocation: {
-      polyline: [Gle_polyline.substring(0, 800), Gle_polyline.substring(800, 1600), Gle_polyline.substring(1600, 2400)] // Split into 3 parts for testing multiple polylines
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     samsaraLocation: {
-      polyline: Gle_polyline
+      polyline: [Gle_polyline1, Gle_polyline2]
     },
     tripStops: [
       {
