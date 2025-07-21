@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { X } from "lucide-react"
+import { useRouteStore } from "@/store"
 import type { TripStopCreateDto, LoadStatus, StopType } from "@/types"
 
 interface StopsTableProps {
@@ -14,6 +15,9 @@ interface StopsTableProps {
 }
 
 const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatDuration }: StopsTableProps) => {
+  const { routeSettings } = useRouteStore()
+  const distanceUnit = routeSettings.distanceUnit === 'km' ? 'KM' : 'Miles'
+  
   if (stops.length === 0) return null
 
   return (
@@ -26,7 +30,7 @@ const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatD
               <TableHead className="w-[80px]">Order</TableHead>
               <TableHead>Address</TableHead>
               <TableHead>Post Code</TableHead>
-              <TableHead>Miles</TableHead>
+              <TableHead>{distanceUnit}</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Hours</TableHead>
               <TableHead>Type</TableHead>

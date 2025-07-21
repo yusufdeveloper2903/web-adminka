@@ -2,6 +2,7 @@ import { useCallback, useRef } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
+import { useRouteStore } from "@/store"
 import type { TripStopCreateDto } from "@/types"
 
 interface RouteSection {
@@ -19,6 +20,7 @@ interface CalculatedRoute {
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
   const routeGroupRef = useRef<H.map.Group | null>(null)
+  const { routeSettings } = useRouteStore()
 
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
@@ -64,15 +66,40 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         const destination = validStops[validStops.length - 1]
         const intermediate = validStops.slice(1, -1)
 
+        // Use route settings from store
+        const routingMode = routeSettings.routingMode === 'shortest' ? 'short' : 'fast'
+        const transportMode = routeSettings.hasTrailer ? 'truck' : 'car'
+
         const routingParameters: any = {
-          transportMode: "truck",
+          transportMode: transportMode,
           origin: `${origin.latitude},${origin.longitude}`,
           destination: `${destination.latitude},${destination.longitude}`,
-          routingMode: "fast",
-          return: "polyline,summary",
-          alternatives: 0, // Only get the best route
+          routingMode: routingMode,
+          return: "polyline,summary,actions",
+          alternatives: 2, // Get alternatives to see difference
           lang: "en-US"
         }
+
+        // Add truck specifications if trailer is enabled
+        if (routeSettings.hasTrailer) {
+          routingParameters.truck = {
+            shippedHazardousGoods: [],
+            grossWeight: 40000, // 40 tons max weight
+            weightPerAxle: 10000, // 10 tons per axle
+            height: 400, // 4 meters height
+            width: 250, // 2.5 meters width
+            length: 1600, // 16 meters length (truck + 53' trailer)
+            limitedWeight: 40000,
+            disallowedCountries: []
+          }
+        }
+
+        console.log(`🚛 Route calculation with settings:`, {
+          routingMode: `${routingMode} (${routeSettings.routingMode})`,
+          transportMode: `${transportMode} (trailer: ${routeSettings.hasTrailer})`,
+          distanceUnit: routeSettings.distanceUnit,
+          truckSpecs: routeSettings.hasTrailer ? 'With 53ft trailer restrictions' : 'Car routing'
+        })
 
         // Add intermediate waypoints if any
         if (intermediate.length > 0) {
@@ -92,7 +119,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         return null
       }
     },
-    [mapInstance, getValidStops]
+    [mapInstance, getValidStops, routeSettings.routingMode, routeSettings.hasTrailer, routeSettings.distanceUnit]
   )
 
   // Create marker icon - inspired by Vue project

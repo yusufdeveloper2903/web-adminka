@@ -5,14 +5,14 @@ import { useDrawerStore, useRouteStore, useTripsViewStore } from "@/store"
 import type { TripCreateDto, TripStopCreateDto } from "@/types"
 import dayjs from "dayjs"
 
-// Zod validation schema
+// Zod validation schema - all fields optional for testing
 const tripFormSchema = z
   .object({
-    truckId: z.string().min(1, "Please select a truck"),
-    dispatcherId: z.string().min(1, "Please select a dispatcher"),
-    loadNumber: z.string().min(1, "Load number is required"),
-    startDateTime: z.string().min(1, "Start date/time is required"),
-    endDateTime: z.string().min(1, "End date/time is required"),
+    truckId: z.string().optional(),
+    dispatcherId: z.string().optional(),
+    loadNumber: z.string().optional(),
+    startDateTime: z.string().optional(),
+    endDateTime: z.string().optional(),
     startOdometer: z.string().optional(),
     endOdometer: z.string().optional()
   })
@@ -43,13 +43,13 @@ export const useTripForm = () => {
 
   const form = useForm({
     defaultValues: {
-      truckId: "",
-      dispatcherId: "",
-      loadNumber: "",
-      startDateTime: "",
-      endDateTime: "",
-      startOdometer: "",
-      endOdometer: ""
+      truckId: "626", // Default truck
+      dispatcherId: "1", // Default dispatcher
+      loadNumber: "TEST-" + Date.now().toString().slice(-6), // Auto-generated load number
+      startDateTime: dayjs().format("YYYY-MM-DDTHH:mm"), // Current time
+      endDateTime: dayjs().add(8, 'hours').format("YYYY-MM-DDTHH:mm"), // 8 hours later
+      startOdometer: "100000",
+      endOdometer: "100500"
     },
     onSubmit: async ({ value }) => {
       try {
@@ -61,13 +61,13 @@ export const useTripForm = () => {
         }
 
         const tripData: TripCreateDto = {
-          truckId: parseInt(validatedData.truckId),
-          dispatcherId: parseInt(validatedData.dispatcherId),
-          loadNumber: validatedData.loadNumber,
-          startDateTime: formatDateTime(validatedData.startDateTime),
-          endDateTime: formatDateTime(validatedData.endDateTime),
-          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : 0,
-          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : 0,
+          truckId: validatedData.truckId ? parseInt(validatedData.truckId) : 626,
+          dispatcherId: validatedData.dispatcherId ? parseInt(validatedData.dispatcherId) : 1,
+          loadNumber: validatedData.loadNumber || "TEST-" + Date.now().toString().slice(-6),
+          startDateTime: formatDateTime(validatedData.startDateTime || dayjs().format("YYYY-MM-DDTHH:mm")),
+          endDateTime: formatDateTime(validatedData.endDateTime || dayjs().add(8, 'hours').format("YYYY-MM-DDTHH:mm")),
+          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : 100000,
+          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : 100500,
           tripStops: stops
         }
 
@@ -76,13 +76,13 @@ export const useTripForm = () => {
         // Clear any existing route first to prevent overlap
         clearRoute()
         
+        // Switch to map view immediately for better UX
+        setView("map")
+        
         // Small delay to ensure clearing is complete, then set new route
         setTimeout(() => {
           setRoute(tripData)
-        }, 100)
-
-        // Switch to map view to show the route
-        setView("map")
+        }, 150)
 
         // TODO: Send to backend API
         // await createTrip(tripData)

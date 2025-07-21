@@ -246,6 +246,15 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     handleRouteVisualization()
   }, [isRouteVisible, routeStops, currentRoute, mapInstance, calculateRoute, drawRoutes, removeRouteObjects, getValidStops, createMarkerIcon, setCalculatingRoute])
 
+  // Cleanup effect - ensure routes are cleared when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      removeRouteObjects()
+      setCalculatingRoute(false)
+    }
+  }, [removeRouteObjects, setCalculatingRoute])
+
   return {
     routeGroupRef
   }

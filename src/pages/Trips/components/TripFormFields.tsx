@@ -27,82 +27,59 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
       {/* Top section - Truck, Dispatcher, Load Number */}
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="truck">Truck</Label>
+          <Label htmlFor="truck">Truck (Optional)</Label>
           <form.Field
             name="truckId"
-            children={(field: any) => {
-              // Simplified validation - just check if field is touched and empty
-              const hasError = field.state.meta.isTouched && !field.state.value
-
-              return (
-                <>
-                  <Select value={field.state.value} onValueChange={field.handleChange}>
-                    <SelectTrigger className={hasError ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Select Truck" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {truckOptions.map((truck) => (
-                        <SelectItem key={truck.value} value={truck.value}>
-                          {truck.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {hasError && <div className="text-sm text-red-500">Please select a truck</div>}
-                </>
-              )
-            }}
+            children={(field: any) => (
+              <Select value={field.state.value} onValueChange={field.handleChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Truck (Optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {truckOptions.map((truck) => (
+                    <SelectItem key={truck.value} value={truck.value}>
+                      {truck.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dispatcher">Dispatcher</Label>
+          <Label htmlFor="dispatcher">Dispatcher (Optional)</Label>
           <form.Field
             name="dispatcherId"
-            children={(field: any) => {
-              const hasError = field.state.meta.isTouched && !field.state.value
-
-              return (
-                <>
-                  <Select value={field.state.value} onValueChange={field.handleChange}>
-                    <SelectTrigger className={hasError ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Dispatcher" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dispatcherOptions.map((dispatcher) => (
-                        <SelectItem key={dispatcher.value} value={dispatcher.value}>
-                          {dispatcher.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {hasError && <div className="text-sm text-red-500">Please select a dispatcher</div>}
-                </>
-              )
-            }}
+            children={(field: any) => (
+              <Select value={field.state.value} onValueChange={field.handleChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Dispatcher (Optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dispatcherOptions.map((dispatcher) => (
+                    <SelectItem key={dispatcher.value} value={dispatcher.value}>
+                      {dispatcher.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="loadNumber">Load Number</Label>
+          <Label htmlFor="loadNumber">Load Number (Optional)</Label>
           <form.Field
             name="loadNumber"
-            children={(field: any) => {
-              const hasError = field.state.meta.isTouched && !field.state.value
-
-              return (
-                <>
-                  <Input
-                    placeholder="Load Number"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className={hasError ? "border-red-500" : ""}
-                  />
-                  {hasError && <div className="text-sm text-red-500">Load number is required</div>}
-                </>
-              )
-            }}
+            children={(field: any) => (
+              <Input
+                placeholder="Load Number (Optional)"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+              />
+            )}
           />
         </div>
       </div>
@@ -110,46 +87,30 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
       {/* Date/time inputs */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDateTime">Start Date/Time</Label>
+          <Label htmlFor="startDateTime">Start Date/Time (Optional)</Label>
           <form.Field
             name="startDateTime"
-            children={(field: any) => {
-              const hasError = field.state.meta.isTouched && !field.state.value
-
-              return (
-                <>
-                  <DateTimePicker
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    placeholder="Select start date and time"
-                    className={hasError ? "border-red-500" : ""}
-                  />
-                  {hasError && <div className="text-sm text-red-500">Start date/time is required</div>}
-                </>
-              )
-            }}
+            children={(field: any) => (
+              <DateTimePicker
+                value={field.state.value}
+                onChange={field.handleChange}
+                placeholder="Select start date and time (Optional)"
+              />
+            )}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="endDateTime">End Date/Time</Label>
+          <Label htmlFor="endDateTime">End Date/Time (Optional)</Label>
           <form.Field
             name="endDateTime"
-            children={(field: any) => {
-              const hasError = field.state.meta.isTouched && !field.state.value
-
-              return (
-                <>
-                  <DateTimePicker
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    placeholder="Select end date and time"
-                    className={hasError ? "border-red-500" : ""}
-                  />
-                  {hasError && <div className="text-sm text-red-500">End date/time is required</div>}
-                </>
-              )
-            }}
+            children={(field: any) => (
+              <DateTimePicker
+                value={field.state.value}
+                onChange={field.handleChange}
+                placeholder="Select end date and time (Optional)"
+              />
+            )}
           />
         </div>
 

@@ -6,6 +6,7 @@ import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouteStore } from "@/store"
 import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
+import RouteSuccessIndicator from "@/components/shared/MapComponent/RouteSuccessIndicator"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 
 interface TripMapData {
@@ -27,9 +28,24 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
-  
+
   // Get route calculation loading state
-  const { isCalculatingRoute } = useRouteStore()
+  const { isCalculatingRoute, routeStops, isRouteVisible } = useRouteStore()
+  const [showSuccessIndicator, setShowSuccessIndicator] = useState(false)
+
+  // Show success indicator when route is calculated
+  useEffect(() => {
+    if (!isCalculatingRoute && isRouteVisible && routeStops.length > 0) {
+      setShowSuccessIndicator(true)
+      // Auto-hide after 3 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessIndicator(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    } else {
+      setShowSuccessIndicator(false)
+    }
+  }, [isCalculatingRoute, isRouteVisible, routeStops.length])
 
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})

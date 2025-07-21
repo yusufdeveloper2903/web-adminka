@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useRouteStore } from "@/store"
 import type { TripStopCreateDto, LoadStatus, StopType, HereAutosuggestResult } from "@/types"
 
 interface NewStopFormData {
@@ -12,6 +13,7 @@ export const useStopManagement = (
   stops: TripStopCreateDto[],
   setStops: React.Dispatch<React.SetStateAction<TripStopCreateDto[]>>
 ) => {
+  const { routeSettings } = useRouteStore()
   const [newStopForm, setNewStopForm] = useState<NewStopFormData>({
     city: "",
     stopType: "PICKUP" as StopType,
@@ -101,8 +103,16 @@ export const useStopManagement = (
     })
   }
 
-  // Format functions
-  const formatDistance = (distance: number) => distance.toFixed(1)
+  // Format functions with unit conversion
+  const formatDistance = (distance: number) => {
+    if (routeSettings.distanceUnit === 'km') {
+      // Convert miles to kilometers (1 mile = 1.60934 km)
+      const distanceInKm = distance * 1.60934
+      return distanceInKm.toFixed(1)
+    }
+    return distance.toFixed(1)
+  }
+  
   const formatDuration = (durationMs: number) => (durationMs / 3600000).toFixed(2)
 
   return {
