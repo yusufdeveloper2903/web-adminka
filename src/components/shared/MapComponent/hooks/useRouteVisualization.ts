@@ -4,14 +4,18 @@ import { useEffect, useRef, useCallback } from "react"
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
+import { usePolylineVisualization } from "./usePolylineVisualization"
 import type { TripStopCreateDto } from "@/types"
 
 export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
-  const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute } = useRouteStore()
+  const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute, currentTripData } = useRouteStore()
   const routeGroupRef = useRef<H.map.Group | null>(null)
 
   // Use HERE routing API - inspired by Vue project
   const { calculateRoute, drawRoutes, removeRouteObjects } = useHereRouting(mapInstance)
+
+  // Use polyline visualization for backend trip data
+  const { drawTripRoutes, clearPolylines } = usePolylineVisualization(mapInstance)
 
   // Create marker icon based on stop type - inspired by Vue project
   const createMarkerIcon = useCallback((stopType: string, index: number) => {
@@ -177,12 +181,21 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     const handleRouteVisualization = async () => {
       // Always clear existing routes first - inspired by Vue project's removeMapObjectsExceptTruckMarker
       removeRouteObjects()
-      
+      clearPolylines()
+
       if (!mapInstance.current || !isRouteVisible) {
         setCalculatingRoute(false)
         return
       }
 
+      // Handle backend trip data with polylines
+      if (currentTripData) {
+        console.log("Drawing trip routes from backend data:", currentTripData)
+        drawTripRoutes(currentTripData)
+        return
+      }
+
+      // Handle frontend route calculation
       const validStops = getValidStops()
       if (validStops.length < 2) {
         setCalculatingRoute(false)
@@ -244,16 +257,31 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     }
 
     handleRouteVisualization()
-  }, [isRouteVisible, routeStops, currentRoute, mapInstance, calculateRoute, drawRoutes, removeRouteObjects, getValidStops, createMarkerIcon, setCalculatingRoute])
+  }, [
+    isRouteVisible,
+    routeStops,
+    currentRoute,
+    currentTripData,
+    mapInstance,
+    calculateRoute,
+    drawRoutes,
+    removeRouteObjects,
+    clearPolylines,
+    drawTripRoutes,
+    getValidStops,
+    createMarkerIcon,
+    setCalculatingRoute
+  ])
 
   // Cleanup effect - ensure routes are cleared when component unmounts
   useEffect(() => {
     return () => {
       // Cleanup on unmount
       removeRouteObjects()
+      clearPolylines()
       setCalculatingRoute(false)
     }
-  }, [removeRouteObjects, setCalculatingRoute])
+  }, [removeRouteObjects, clearPolylines, setCalculatingRoute])
 
   return {
     routeGroupRef
