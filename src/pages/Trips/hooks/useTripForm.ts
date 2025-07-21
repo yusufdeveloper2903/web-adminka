@@ -31,7 +31,7 @@ const tripFormSchema = z
 
 export const useTripForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { setRoute, clearRoute } = useRouteStore()
+  const { setRoute, clearRoute, setCalculatingRoute } = useRouteStore()
   const { setView } = useTripsViewStore()
   const [stops, setStops] = useState<TripStopCreateDto[]>([])
 
@@ -47,7 +47,7 @@ export const useTripForm = () => {
       dispatcherId: "1", // Default dispatcher
       loadNumber: "TEST-" + Date.now().toString().slice(-6), // Auto-generated load number
       startDateTime: dayjs().format("YYYY-MM-DDTHH:mm"), // Current time
-      endDateTime: dayjs().add(8, 'hours').format("YYYY-MM-DDTHH:mm"), // 8 hours later
+      endDateTime: dayjs().add(8, "hours").format("YYYY-MM-DDTHH:mm"), // 8 hours later
       startOdometer: "100000",
       endOdometer: "100500"
     },
@@ -65,20 +65,23 @@ export const useTripForm = () => {
           dispatcherId: validatedData.dispatcherId ? parseInt(validatedData.dispatcherId) : 1,
           loadNumber: validatedData.loadNumber || "TEST-" + Date.now().toString().slice(-6),
           startDateTime: formatDateTime(validatedData.startDateTime || dayjs().format("YYYY-MM-DDTHH:mm")),
-          endDateTime: formatDateTime(validatedData.endDateTime || dayjs().add(8, 'hours').format("YYYY-MM-DDTHH:mm")),
+          endDateTime: formatDateTime(validatedData.endDateTime || dayjs().add(8, "hours").format("YYYY-MM-DDTHH:mm")),
           startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : 100000,
           endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : 100500,
           tripStops: stops
         }
 
         console.log("Trip data for backend:", tripData)
-        
+
         // Clear any existing route first to prevent overlap
         clearRoute()
-        
+
         // Switch to map view immediately for better UX
         setView("map")
-        
+
+        // Start loading state for route calculation
+        setCalculatingRoute(true)
+
         // Small delay to ensure clearing is complete, then set new route
         setTimeout(() => {
           setRoute(tripData)

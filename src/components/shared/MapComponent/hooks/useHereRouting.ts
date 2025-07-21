@@ -20,7 +20,7 @@ interface CalculatedRoute {
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
   const routeGroupRef = useRef<H.map.Group | null>(null)
-  const { routeSettings, setHereRouteData } = useRouteStore()
+  const { routeSettings, setHereRouteData, setCalculatingRoute } = useRouteStore()
 
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
@@ -67,8 +67,8 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         const intermediate = validStops.slice(1, -1)
 
         // Use route settings from store
-        const routingMode = routeSettings.routingMode === 'shortest' ? 'short' : 'fast'
-        const transportMode = routeSettings.hasTrailer ? 'truck' : 'car'
+        const routingMode = routeSettings.routingMode === "shortest" ? "short" : "fast"
+        const transportMode = routeSettings.hasTrailer ? "truck" : "car"
 
         const routingParameters: any = {
           transportMode: transportMode,
@@ -98,7 +98,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           routingMode: `${routingMode} (${routeSettings.routingMode})`,
           transportMode: `${transportMode} (trailer: ${routeSettings.hasTrailer})`,
           distanceUnit: routeSettings.distanceUnit,
-          truckSpecs: routeSettings.hasTrailer ? 'With 53ft trailer restrictions' : 'Car routing'
+          truckSpecs: routeSettings.hasTrailer ? "With 53ft trailer restrictions" : "Car routing"
         })
 
         // Add intermediate waypoints if any
@@ -212,12 +212,12 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
           if (routeLineStrings.length > 0) {
             const routeMultiLineString = new H.geo.MultiLineString(routeLineStrings)
-            
+
             // Use blue for main route (index 0), gray for alternatives
             const strokeColor = routeIndex === 0 ? "#4285F4" : "#9CA3AF"
             const lineWidth = routeIndex === 0 ? 5 : 3
             const zIndex = routeIndex === 0 ? 20 : 10
-            
+
             const routeLine = new H.map.Polyline(routeMultiLineString, {
               style: {
                 strokeColor: strokeColor,
@@ -230,20 +230,20 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
             // Add click event to alternative routes for switching
             if (routeIndex > 0) {
-              routeLine.addEventListener('tap', () => {
+              routeLine.addEventListener("tap", () => {
                 console.log(`Alternative route ${routeIndex} clicked, switching to main route`)
-                
+
                 // Calculate metrics for the new main route
                 const newMainRouteMetrics = calculateRouteMetrics(route, 0)
                 setHereRouteData(newMainRouteMetrics)
-                
+
                 // Re-draw routes with this route as the main one
                 const reorderedRoutes = [route, ...routes.filter((_, i) => i !== routeIndex)]
                 drawRoutes(reorderedRoutes, stops)
               })
-              
+
               // Add hover effect for alternative routes
-              routeLine.addEventListener('pointerenter', () => {
+              routeLine.addEventListener("pointerenter", () => {
                 routeLine.setStyle({
                   strokeColor: "#6B7280", // Darker gray on hover
                   lineWidth: 4,
@@ -251,8 +251,8 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
                   lineHeadCap: "round"
                 })
               })
-              
-              routeLine.addEventListener('pointerleave', () => {
+
+              routeLine.addEventListener("pointerleave", () => {
                 routeLine.setStyle({
                   strokeColor: "#9CA3AF", // Back to original gray
                   lineWidth: 3,
@@ -293,11 +293,16 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
             true
           )
         }
+
+        // Stop loading state after route is drawn
+        setCalculatingRoute(false)
       } catch (error) {
         console.error("Error drawing routes:", error)
+        // Stop loading state on error as well
+        setCalculatingRoute(false)
       }
     },
-    [mapInstance, getValidStops, createMarkerIcon, calculateRouteMetrics, setHereRouteData]
+    [mapInstance, getValidStops, createMarkerIcon, calculateRouteMetrics, setHereRouteData, setCalculatingRoute]
   )
 
   // Remove all route objects - inspired by Vue project's removeMapObjectsExceptTruckMarker
