@@ -7,14 +7,73 @@ import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const polylineGroupRef = useRef<H.map.Group | null>(null)
 
-  // Create polyline from encoded string - inspired by Vue project
-  const createPolylineFromString = useCallback((polylineString: string, color: string, label: string) => {
+  // Create stop marker icon
+  const createStopMarker = useCallback((stopType: string, index: number) => {
+    const color =
+      stopType === "PICKUP"
+        ? "#22c55e"
+        : stopType === "DELIVERY"
+          ? "#ef4444"
+          : stopType === "TRAILER"
+            ? "#f59e0b"
+            : "#6b7280"
+
+    return new H.map.Icon(
+      `<svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+        <path fill="${color}" d="M12 0C5.4 0 0 5.4 0 12c0 7.2 12 20 12 20s12-12.8 12-20C24 5.4 18.6 0 12 0z"/>
+        <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">
+          ${index}
+        </text>
+      </svg>`,
+      { size: { w: 24, h: 32 } }
+    )
+  }, [])
+
+  // Create stop info bubble content
+  const createStopInfoBubble = useCallback((stop: any, index: number) => {
+    return `
+      <div style="padding: 8px; min-width: 200px;">
+        <h4 style="margin: 0 0 8px 0; font-weight: bold;">Stop ${index}</h4>
+        <p style="margin: 4px 0;"><strong>Address:</strong> ${stop.address}</p>
+        <p style="margin: 4px 0;"><strong>Type:</strong> ${stop.stopType || "N/A"}</p>
+        <p style="margin: 4px 0;"><strong>Status:</strong> ${stop.loadStatus || "N/A"}</p>
+      </div>
+    `
+  }, [])
+
+  // Create polyline from encoded string or array of strings
+  const createPolylineFromString = useCallback((polylineData: string | string[], color: string, label: string) => {
     try {
-      // Decode polyline string to LineString
-      const lineString = H.geo.LineString.fromFlexiblePolyline(polylineString)
+      let combinedLineString: H.geo.LineString
+
+      if (Array.isArray(polylineData)) {
+        // Handle multiple polylines - combine them into one
+        if (polylineData.length === 0) return null
+
+        // Start with the first polyline
+        combinedLineString = H.geo.LineString.fromFlexiblePolyline(polylineData[0])
+
+        // Add remaining polylines to the combined line
+        for (let i = 1; i < polylineData.length; i++) {
+          try {
+            const additionalLine = H.geo.LineString.fromFlexiblePolyline(polylineData[i])
+            const points = additionalLine.getLatLngAltArray()
+
+            // Add each point from the additional line (every 3 elements: lat, lng, alt)
+            for (let j = 0; j < points.length; j += 3) {
+              combinedLineString.pushPoint(points[j], points[j + 1], points[j + 2] || 0)
+            }
+          } catch (error) {
+            console.warn(`Error processing polyline ${i} for ${label}:`, error)
+          }
+        }
+      } else {
+        // Handle single polyline string
+        combinedLineString = H.geo.LineString.fromFlexiblePolyline(polylineData)
+      }
 
       // Create polyline with styling
-      const polyline = new H.map.Polyline(lineString, {
+      const polyline = new H.map.Polyline(combinedLineString, {
         style: {
           strokeColor: color,
           lineWidth: 4,
@@ -35,7 +94,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
 
   // Draw trip routes from backend data
   const drawTripRoutes = useCallback(
-    (trip: Trip) => {
+    (trip: Trip, mapType?: "gle" | "samsara") => {
       if (!mapInstance.current) return
 
       const map = mapInstance.current
@@ -55,8 +114,9 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
       let boundingBox: H.geo.Rect | null = null
 
       try {
-        // Draw GLE route (green)
-        if (trip.gleLocation?.polyline) {
+        // Draw specific route based on mapType
+        if (mapType === "gle" && trip.gleLocation?.polyline) {
+          // Draw only GLE route
           const glePolyline = createPolylineFromString(
             trip.gleLocation.polyline,
             "#22c55e", // green
@@ -64,13 +124,10 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
           )
           if (glePolyline) {
             group.addObject(glePolyline)
-            const gleBounds = glePolyline.getBoundingBox()
-            boundingBox = boundingBox ? boundingBox.mergeRect(gleBounds) : gleBounds
+            boundingBox = glePolyline.getBoundingBox()
           }
-        }
-
-        // Draw Samsara route (blue)
-        if (trip.samsaraLocation?.polyline) {
+        } else if (mapType === "samsara" && trip.samsaraLocation?.polyline) {
+          // Draw only Samsara route
           const samsaraPolyline = createPolylineFromString(
             trip.samsaraLocation.polyline,
             "#3b82f6", // blue
@@ -78,13 +135,41 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
           )
           if (samsaraPolyline) {
             group.addObject(samsaraPolyline)
-            const samsaraBounds = samsaraPolyline.getBoundingBox()
-            boundingBox = boundingBox ? boundingBox.mergeRect(samsaraBounds) : samsaraBounds
+            boundingBox = samsaraPolyline.getBoundingBox()
+          }
+        } else {
+          // Draw all routes (original behavior)
+          // Draw GLE route (green)
+          if (trip.gleLocation?.polyline) {
+            const glePolyline = createPolylineFromString(
+              trip.gleLocation.polyline,
+              "#22c55e", // green
+              "GLE"
+            )
+            if (glePolyline) {
+              group.addObject(glePolyline)
+              const gleBounds = glePolyline.getBoundingBox()
+              boundingBox = boundingBox ? boundingBox.mergeRect(gleBounds) : gleBounds
+            }
+          }
+
+          // Draw Samsara route (blue)
+          if (trip.samsaraLocation?.polyline) {
+            const samsaraPolyline = createPolylineFromString(
+              trip.samsaraLocation.polyline,
+              "#3b82f6", // blue
+              "Samsara"
+            )
+            if (samsaraPolyline) {
+              group.addObject(samsaraPolyline)
+              const samsaraBounds = samsaraPolyline.getBoundingBox()
+              boundingBox = boundingBox ? boundingBox.mergeRect(samsaraBounds) : samsaraBounds
+            }
           }
         }
 
-        // Add trip stops as markers if available
-        if (trip.tripStops && trip.tripStops.length > 0) {
+        // Add trip stops as markers if available (only for specific map types or all)
+        if (trip.tripStops && trip.tripStops.length > 0 && (!mapType || mapType === "gle")) {
           trip.tripStops.forEach((stop, index) => {
             try {
               // Validate coordinates
@@ -142,42 +227,8 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         console.error("Error drawing trip routes:", error)
       }
     },
-    [mapInstance, createPolylineFromString]
+    [mapInstance, createPolylineFromString, createStopMarker, createStopInfoBubble]
   )
-
-  // Create stop marker icon
-  const createStopMarker = useCallback((stopType: string, index: number) => {
-    const color =
-      stopType === "PICKUP"
-        ? "#22c55e"
-        : stopType === "DELIVERY"
-          ? "#ef4444"
-          : stopType === "TRAILER"
-            ? "#f59e0b"
-            : "#6b7280"
-
-    return new H.map.Icon(
-      `<svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
-        <path fill="${color}" d="M12 0C5.4 0 0 5.4 0 12c0 7.2 12 20 12 20s12-12.8 12-20C24 5.4 18.6 0 12 0z"/>
-        <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">
-          ${index}
-        </text>
-      </svg>`,
-      { size: { w: 24, h: 32 } }
-    )
-  }, [])
-
-  // Create stop info bubble content
-  const createStopInfoBubble = useCallback((stop: any, index: number) => {
-    return `
-      <div style="padding: 8px; min-width: 200px;">
-        <h4 style="margin: 0 0 8px 0; font-weight: bold;">Stop ${index}</h4>
-        <p style="margin: 4px 0;"><strong>Address:</strong> ${stop.address}</p>
-        <p style="margin: 4px 0;"><strong>Type:</strong> ${stop.stopType || "N/A"}</p>
-        <p style="margin: 4px 0;"><strong>Status:</strong> ${stop.loadStatus || "N/A"}</p>
-      </div>
-    `
-  }, [])
 
   // Clear all polylines
   const clearPolylines = useCallback(() => {

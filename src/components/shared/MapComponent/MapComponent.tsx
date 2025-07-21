@@ -2,7 +2,7 @@ import { memo, forwardRef } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
-import { useMapInitialization, useRouteVisualization, useMapControls } from "./hooks"
+import { useMapInitialization, useRouteVisualization, useMapControls, useMapSpecificVisualization } from "./hooks"
 
 interface MapComponentProps {
   initialCenter?: { lat: number; lng: number }
@@ -10,6 +10,7 @@ interface MapComponentProps {
   isDark?: boolean
   isParentVisible?: boolean
   onMapReady?: (map: H.Map) => void
+  mapType?: "here" | "samsara" | "gle"
 }
 
 export interface MapComponentRef {
@@ -27,7 +28,8 @@ export const MapComponent = memo(
         zoom = 4,
         isDark = false,
         isParentVisible = true,
-        onMapReady
+        onMapReady,
+        mapType
       },
       ref
     ) => {
@@ -40,8 +42,12 @@ export const MapComponent = memo(
         onMapReady
       })
 
-      // Route visualization hook
-      useRouteVisualization(mapInstance)
+      // Use specific visualization if mapType is provided, otherwise use general route visualization
+      if (mapType) {
+        useMapSpecificVisualization({ mapInstance, mapType })
+      } else {
+        useRouteVisualization(mapInstance)
+      }
 
       // Map controls hook
       useMapControls(ref, mapInstance, debouncedResize)

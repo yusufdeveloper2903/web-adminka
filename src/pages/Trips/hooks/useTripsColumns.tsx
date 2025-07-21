@@ -20,8 +20,8 @@ export type Trip = {
   updated: string
   status: "COMPLETED" | "IN_TRANSIT" | "PENDING"
   // Route data for map visualization
-  gleLocation?: { polyline: string }
-  samsaraLocation?: { polyline: string }
+  gleLocation?: { polyline: string | string[] }
+  samsaraLocation?: { polyline: string | string[] }
   tripStops?: Array<{
     id: number
     address: string

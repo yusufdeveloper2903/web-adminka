@@ -1,6 +1,7 @@
 # Technology Stack
 
 ## Core Technologies
+
 - **Frontend**: React 19 with TypeScript
 - **Build Tool**: Vite 7.0
 - **Styling**: Tailwind CSS 4.1 with custom animations
@@ -15,6 +16,7 @@
 - **Theming**: next-themes for dark/light mode
 
 ## Development Tools
+
 - **Linting**: ESLint 9 with TypeScript support
 - **Formatting**: Prettier with Tailwind plugin
 - **Type Checking**: TypeScript 5.8
@@ -23,6 +25,7 @@
 ## Common Commands
 
 ### Development
+
 ```bash
 pnpm dev              # Start development server (staging mode)
 pnpm dev:prod         # Start development server (production mode)
@@ -30,6 +33,7 @@ pnpm watch-routes     # Watch for route changes
 ```
 
 ### Building
+
 ```bash
 pnpm build            # Production build
 pnpm build:staging    # Staging build
@@ -38,20 +42,23 @@ pnpm start:staging    # Preview staging build
 ```
 
 ### Code Quality
+
 ```bash
 pnpm lint             # Run ESLint
 pnpm format           # Format code with Prettier
 ```
 
 ### Route Generation
+
 ```bash
 pnpm generate-routes  # Generate route types
 ```
 
 ## Key Libraries
+
 - **@here/maps-api-for-javascript**: Maps integration
-- **@tanstack/react-***: Router, Query, Table, Form, Virtual
-- **@radix-ui/react-***: Accessible UI primitives
+- **@tanstack/react-\***: Router, Query, Table, Form, Virtual
+- **@radix-ui/react-\***: Accessible UI primitives
 - **class-variance-authority**: Component variant management
 - **clsx**: Conditional className utility
 - **lucide-react**: Icon library

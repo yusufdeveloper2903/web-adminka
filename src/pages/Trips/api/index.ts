@@ -84,9 +84,24 @@ function sortData(data: Trip[], sorting: SortingState) {
     const valA = a[id as keyof Trip]
     const valB = b[id as keyof Trip]
 
-    if (valA > valB) return desc ? -1 : 1
-    if (valB > valA) return desc ? 1 : -1
-    return 0
+    // Handle undefined values
+    if (valA == null && valB == null) return 0
+    if (valA == null) return desc ? 1 : -1
+    if (valB == null) return desc ? -1 : 1
+
+    // Handle different data types
+    if (typeof valA === "string" && typeof valB === "string") {
+      return desc ? valB.localeCompare(valA) : valA.localeCompare(valB)
+    }
+
+    if (typeof valA === "number" && typeof valB === "number") {
+      return desc ? valB - valA : valA - valB
+    }
+
+    // Convert to string for comparison as fallback
+    const strA = String(valA)
+    const strB = String(valB)
+    return desc ? strB.localeCompare(strA) : strA.localeCompare(strB)
   })
 }
 

@@ -1,4 +1,5 @@
 import type { Trip } from "../hooks/useTripsColumns"
+import { Gle_polyline } from "../api/polyline"
 
 // Mock trip data based on backend response format
 export const mockTripsData: Trip[] = [
@@ -14,15 +15,15 @@ export const mockTripsData: Trip[] = [
     pu: 746,
     trl: 932,
     totalMiles: 3170,
-    pickupLocation: "Washington, DC",
-    deliveryLocation: "Las Vegas, NV",
+    pickupLocation: "New York, NY",
+    deliveryLocation: "Dallas, TX",
     updated: "2025-01-21T10:30:00Z",
     status: "IN_TRANSIT",
     gleLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBsi..."
+      polyline: Gle_polyline // Use the actual polyline data
     },
     samsaraLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBs..."
+      polyline: Gle_polyline // Same polyline for demo
     },
     tripStops: [
       {
@@ -68,16 +69,16 @@ export const mockTripsData: Trip[] = [
     updated: "2025-01-21T14:15:00Z",
     status: "COMPLETED",
     gleLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBsi..."
+      polyline: [Gle_polyline.substring(0, 1000), Gle_polyline.substring(1000, 2000)] // Split into array for testing
     },
     samsaraLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBs..."
+      polyline: Gle_polyline
     },
     tripStops: [
       {
         id: 4,
         address: "Times Square, New York, NY",
-        latitude: 40.7580,
+        latitude: 40.758,
         longitude: -73.9855,
         stopType: "PICKUP",
         loadStatus: "LOADED"
@@ -109,10 +110,10 @@ export const mockTripsData: Trip[] = [
     updated: "2025-01-21T09:45:00Z",
     status: "PENDING",
     gleLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBsi..."
+      polyline: [Gle_polyline.substring(0, 800), Gle_polyline.substring(800, 1600), Gle_polyline.substring(1600, 2400)] // Split into 3 parts for testing multiple polylines
     },
     samsaraLocation: {
-      polyline: "BG2n-hxC_hhuoEq6b47gBk4C4nDgjB8pBs..."
+      polyline: Gle_polyline
     },
     tripStops: [
       {

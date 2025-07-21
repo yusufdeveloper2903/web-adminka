@@ -29,8 +29,8 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
 
-  // Get route calculation loading state
-  const { isCalculatingRoute, routeStops, isRouteVisible } = useRouteStore()
+  // Get route calculation loading state and current trip data
+  const { isCalculatingRoute, routeStops, isRouteVisible, currentTripData } = useRouteStore()
   const [showSuccessIndicator, setShowSuccessIndicator] = useState(false)
 
   // Show success indicator when route is calculated
@@ -50,9 +50,46 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
 
-  // Mock data for three trips - memoized to prevent recreation
-  const tripsData: TripMapData[] = useMemo(
-    () => [
+  // Generate trip data based on current trip or show default maps
+  const tripsData: TripMapData[] = useMemo(() => {
+    if (currentTripData) {
+      // Always show all 3 maps when trip data is available
+      const baseData = [
+        // HERE Trip - will use pickup/delivery locations for route calculation
+        {
+          id: "here",
+          title: `HERE Trip - ${currentTripData.loadNumber}`,
+          totalMiles: currentTripData.totalMiles * 0.95, // Slightly different for comparison
+          hours: Math.round((currentTripData.totalMiles * 0.95 / 65) * 100) / 100,
+          coordinates: { lat: 40.7128, lng: -74.0060 }, // NYC center
+          milesChange: -(currentTripData.totalMiles * 0.05),
+          hoursChange: -Math.round((currentTripData.totalMiles * 0.05 / 65) * 100) / 100
+        },
+        // Samsara Trip - will use polyline if available
+        {
+          id: "samsara",
+          title: `Samsara Trip - ${currentTripData.loadNumber}`,
+          totalMiles: currentTripData.totalMiles * 1.1,
+          hours: Math.round((currentTripData.totalMiles * 1.1 / 60) * 100) / 100,
+          coordinates: { lat: 40.7589, lng: -73.9851 }, // Times Square
+          milesChange: currentTripData.totalMiles * 0.1,
+          hoursChange: Math.round((currentTripData.totalMiles * 0.1 / 60) * 100) / 100
+        },
+        // GLE Trip - will use polyline if available
+        {
+          id: "gle",
+          title: `GLE Trip - ${currentTripData.loadNumber}`,
+          totalMiles: currentTripData.totalMiles,
+          hours: Math.round((currentTripData.totalMiles / 65) * 100) / 100,
+          coordinates: { lat: 40.7831, lng: -73.9712 } // Central Park
+        }
+      ]
+
+      return baseData
+    }
+
+    // Default mock data when no trip is selected
+    return [
       {
         id: "here",
         title: "HERE Trip",
@@ -78,9 +115,8 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
         milesChange: -64.4,
         hoursChange: 9.4
       }
-    ],
-    []
-  )
+    ]
+  }, [currentTripData])
 
   const handleToggleExpand = (mapId: string) => {
     // Only transition this specific map
@@ -186,6 +222,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                   initialCenter={trip.coordinates}
                   zoom={expandedMap === trip.id ? 8 : 6}
                   isDark={isDark}
+                  mapType={trip.id as "here" | "samsara" | "gle"}
                 />
 
                 {/* Zoom Controls */}

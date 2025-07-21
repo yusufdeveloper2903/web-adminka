@@ -8,6 +8,7 @@ interface LazyMapProps {
   isDark?: boolean
   isParentVisible?: boolean
   onMapReady?: (map: any) => void
+  mapType?: "here" | "samsara" | "gle"
 }
 
 export interface LazyMapRef {
@@ -18,7 +19,7 @@ export interface LazyMapRef {
 }
 
 const LazyMap = forwardRef<LazyMapRef, LazyMapProps>(
-  ({ initialCenter, zoom, isDark, isParentVisible, onMapReady }, ref) => {
+  ({ initialCenter, zoom, isDark, isParentVisible, onMapReady, mapType }, ref) => {
     const { isIntersecting, ref: intersectionRef } = useIntersectionObserver({
       threshold: 0.1,
       freezeOnceVisible: true
@@ -52,6 +53,7 @@ const LazyMap = forwardRef<LazyMapRef, LazyMapProps>(
             zoom={zoom}
             isDark={isDark}
             onMapReady={onMapReady}
+            mapType={mapType}
           />
         ) : (
           <div className="text-muted-foreground">Loading map...</div>
