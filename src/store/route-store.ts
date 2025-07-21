@@ -8,6 +8,12 @@ interface RouteSettings {
   distanceUnit: "miles" | "km"
 }
 
+interface RouteData {
+  totalMiles: number
+  hours: number
+  routeIndex: number
+}
+
 interface RouteState {
   currentRoute: TripCreateDto | null
   routeStops: TripStopCreateDto[]
@@ -16,8 +22,11 @@ interface RouteState {
   routeSettings: RouteSettings
   // Backend trip data for polyline visualization
   currentTripData: Trip | null
+  // HERE maps route data for dynamic updates
+  hereRouteData: RouteData | null
   setRoute: (route: TripCreateDto) => void
   setTripData: (trip: Trip) => void
+  setHereRouteData: (routeData: RouteData) => void
   clearRoute: () => void
   toggleRouteVisibility: () => void
   setCalculatingRoute: (isCalculating: boolean) => void
@@ -30,6 +39,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   isRouteVisible: false,
   isCalculatingRoute: false,
   currentTripData: null,
+  hereRouteData: null,
   routeSettings: {
     hasTrailer: true, // Default to 53' trailer
     routingMode: "practical", // Default to practical routing
@@ -50,7 +60,13 @@ export const useRouteStore = create<RouteState>((set) => ({
       currentTripData: trip,
       isRouteVisible: true,
       currentRoute: null, // Clear current route when setting trip data
-      routeStops: []
+      routeStops: [],
+      hereRouteData: null // Clear HERE route data when setting new trip
+    }),
+
+  setHereRouteData: (routeData) =>
+    set({
+      hereRouteData: routeData
     }),
 
   clearRoute: () =>

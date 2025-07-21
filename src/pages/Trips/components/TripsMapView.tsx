@@ -30,7 +30,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
 
   // Get route calculation loading state and current trip data
-  const { isCalculatingRoute, routeStops, isRouteVisible, currentTripData } = useRouteStore()
+  const { isCalculatingRoute, routeStops, isRouteVisible, currentTripData, hereRouteData } = useRouteStore()
   const [showSuccessIndicator, setShowSuccessIndicator] = useState(false)
 
   // Show success indicator when route is calculated
@@ -55,25 +55,29 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
     if (currentTripData) {
       // Always show all 3 maps when trip data is available
       const baseData = [
-        // HERE Trip - will use pickup/delivery locations for route calculation
+        // HERE Trip - use dynamic route data if available, otherwise fallback to trip data
         {
           id: "here",
           title: `HERE Trip - ${currentTripData.loadNumber}`,
-          totalMiles: currentTripData.totalMiles * 0.95, // Slightly different for comparison
-          hours: Math.round((currentTripData.totalMiles * 0.95 / 65) * 100) / 100,
-          coordinates: { lat: 40.7128, lng: -74.0060 }, // NYC center
-          milesChange: -(currentTripData.totalMiles * 0.05),
-          hoursChange: -Math.round((currentTripData.totalMiles * 0.05 / 65) * 100) / 100
+          totalMiles: hereRouteData?.totalMiles ?? currentTripData.totalMiles * 0.95,
+          hours: hereRouteData?.hours ?? Math.round(((currentTripData.totalMiles * 0.95) / 65) * 100) / 100,
+          coordinates: { lat: 40.7128, lng: -74.006 }, // NYC center
+          milesChange: hereRouteData
+            ? hereRouteData.totalMiles - currentTripData.totalMiles
+            : -(currentTripData.totalMiles * 0.05),
+          hoursChange: hereRouteData
+            ? hereRouteData.hours - Math.round((currentTripData.totalMiles / 65) * 100) / 100
+            : -Math.round(((currentTripData.totalMiles * 0.05) / 65) * 100) / 100
         },
         // Samsara Trip - will use polyline if available
         {
           id: "samsara",
           title: `Samsara Trip - ${currentTripData.loadNumber}`,
           totalMiles: currentTripData.totalMiles * 1.1,
-          hours: Math.round((currentTripData.totalMiles * 1.1 / 60) * 100) / 100,
+          hours: Math.round(((currentTripData.totalMiles * 1.1) / 60) * 100) / 100,
           coordinates: { lat: 40.7589, lng: -73.9851 }, // Times Square
           milesChange: currentTripData.totalMiles * 0.1,
-          hoursChange: Math.round((currentTripData.totalMiles * 0.1 / 60) * 100) / 100
+          hoursChange: Math.round(((currentTripData.totalMiles * 0.1) / 60) * 100) / 100
         },
         // GLE Trip - will use polyline if available
         {
@@ -116,7 +120,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
         hoursChange: 9.4
       }
     ]
-  }, [currentTripData])
+  }, [currentTripData, hereRouteData])
 
   const handleToggleExpand = (mapId: string) => {
     // Only transition this specific map
@@ -163,7 +167,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const formatChange = (change: number) => `${change > 0 ? "+" : ""}${change.toFixed(1)}`
 
   return (
-    <div className="h-full w-full p-4">
+    <div className="h-full w-full">
       <div
         className={cn(
           "grid h-full gap-4 transition-all duration-300 ease-in-out",
@@ -276,17 +280,6 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                     />
                   </div>
                 )}
-
-                {/* Route Markers (Mock) */}
-                <div className="absolute bottom-4 left-4 z-10 flex gap-2">
-                  <div className="rounded bg-teal-500 px-2 py-1 text-xs font-medium text-white">Pickup</div>
-                  {trip.id === "samsara" && (
-                    <div className="rounded bg-green-500 px-2 py-1 text-xs font-medium text-white">Home</div>
-                  )}
-                  {trip.id === "gle" && (
-                    <div className="rounded bg-green-500 px-2 py-1 text-xs font-medium text-white">Home</div>
-                  )}
-                </div>
               </div>
             </div>
           </div>

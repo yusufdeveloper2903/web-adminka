@@ -7,25 +7,24 @@ import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const polylineGroupRef = useRef<H.map.Group | null>(null)
 
-  // Create stop marker icon
+  // Create stop marker icon with A/B labels like HERE maps
   const createStopMarker = useCallback((stopType: string, index: number) => {
     const color =
       stopType === "PICKUP"
-        ? "#22c55e"
+        ? "#469946" // green for pickup (A)
         : stopType === "DELIVERY"
-          ? "#ef4444"
+          ? "#FF4646" // red for delivery (B)
           : stopType === "TRAILER"
             ? "#f59e0b"
             : "#6b7280"
 
-    return new H.map.Icon(
-      `<svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
-        <path fill="${color}" d="M12 0C5.4 0 0 5.4 0 12c0 7.2 12 20 12 20s12-12.8 12-20C24 5.4 18.6 0 12 0z"/>
-        <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">
-          ${index}
-        </text>
-      </svg>`,
-      { size: { w: 24, h: 32 } }
+    const label = String.fromCharCode(65 + index - 1) // A, B, C, etc. (index-1 because we pass index+1)
+
+    return new H.map.DomIcon(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+        <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
+        <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
+      </svg>`
     )
   }, [])
 
@@ -39,6 +38,52 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         <p style="margin: 4px 0;"><strong>Status:</strong> ${stop.loadStatus || "N/A"}</p>
       </div>
     `
+  }, [])
+
+  // Get pickup and delivery coordinates from location strings
+  const getPickupDeliveryCoords = useCallback((pickupLocation: string, deliveryLocation: string) => {
+    const locationToCoords = (location: string) => {
+      const lowerLocation = location.toLowerCase()
+
+      // Basic location mapping - extend this as needed
+      if (lowerLocation.includes("new york") || lowerLocation.includes("ny")) {
+        return { lat: 40.7128, lng: -74.006 }
+      } else if (lowerLocation.includes("dallas") || lowerLocation.includes("tx")) {
+        return { lat: 32.7767, lng: -96.797 }
+      } else if (lowerLocation.includes("los angeles") || lowerLocation.includes("ca")) {
+        return { lat: 34.0522, lng: -118.2437 }
+      } else if (lowerLocation.includes("chicago") || lowerLocation.includes("il")) {
+        return { lat: 41.8781, lng: -87.6298 }
+      } else if (lowerLocation.includes("miami") || lowerLocation.includes("fl")) {
+        return { lat: 25.7617, lng: -80.1918 }
+      } else if (lowerLocation.includes("seattle") || lowerLocation.includes("wa")) {
+        return { lat: 47.6062, lng: -122.3321 }
+      } else if (lowerLocation.includes("denver") || lowerLocation.includes("co")) {
+        return { lat: 39.7392, lng: -104.9903 }
+      } else if (lowerLocation.includes("atlanta") || lowerLocation.includes("ga")) {
+        return { lat: 33.749, lng: -84.388 }
+      } else if (lowerLocation.includes("phoenix") || lowerLocation.includes("az")) {
+        return { lat: 33.4484, lng: -112.074 }
+      } else if (lowerLocation.includes("boston") || lowerLocation.includes("ma")) {
+        return { lat: 42.3601, lng: -71.0589 }
+      } else if (lowerLocation.includes("houston")) {
+        return { lat: 29.7604, lng: -95.3698 }
+      } else if (lowerLocation.includes("detroit")) {
+        return { lat: 42.3314, lng: -83.0458 }
+      } else if (lowerLocation.includes("washington") || lowerLocation.includes("dc")) {
+        return { lat: 38.9072, lng: -77.0369 }
+      } else if (lowerLocation.includes("las vegas") || lowerLocation.includes("nv")) {
+        return { lat: 36.1699, lng: -115.1398 }
+      }
+
+      // Default fallback
+      return { lat: 39.8283, lng: -98.5795 } // Center of US
+    }
+
+    return [
+      locationToCoords(pickupLocation),
+      locationToCoords(deliveryLocation)
+    ]
   }, [])
 
   // Create polyline from encoded string or array of strings
@@ -114,12 +159,12 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
       let boundingBox: H.geo.Rect | null = null
 
       try {
-        // Draw specific route based on mapType
+        // Draw specific route based on mapType - all routes use blue color for consistency
         if (mapType === "gle" && trip.gleLocation?.polyline) {
           // Draw only GLE route
           const glePolyline = createPolylineFromString(
             trip.gleLocation.polyline,
-            "#22c55e", // green
+            "#4285F4", // blue for consistency with HERE maps
             "GLE"
           )
           if (glePolyline) {
@@ -130,7 +175,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
           // Draw only Samsara route
           const samsaraPolyline = createPolylineFromString(
             trip.samsaraLocation.polyline,
-            "#3b82f6", // blue
+            "#4285F4", // blue for consistency with HERE maps
             "Samsara"
           )
           if (samsaraPolyline) {
@@ -138,12 +183,12 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
             boundingBox = samsaraPolyline.getBoundingBox()
           }
         } else {
-          // Draw all routes (original behavior)
-          // Draw GLE route (green)
+          // Draw all routes (original behavior) - all use blue for consistency
+          // Draw GLE route (blue)
           if (trip.gleLocation?.polyline) {
             const glePolyline = createPolylineFromString(
               trip.gleLocation.polyline,
-              "#22c55e", // green
+              "#4285F4", // blue for consistency with HERE maps
               "GLE"
             )
             if (glePolyline) {
@@ -157,7 +202,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
           if (trip.samsaraLocation?.polyline) {
             const samsaraPolyline = createPolylineFromString(
               trip.samsaraLocation.polyline,
-              "#3b82f6", // blue
+              "#4285F4", // blue for consistency with HERE maps
               "Samsara"
             )
             if (samsaraPolyline) {
@@ -168,44 +213,67 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
           }
         }
 
-        // Add trip stops as markers if available (only for specific map types or all)
-        if (trip.tripStops && trip.tripStops.length > 0 && (!mapType || mapType === "gle")) {
-          trip.tripStops.forEach((stop, index) => {
+        // Add A/B markers for pickup and delivery locations (consistent with HERE maps)
+        if (mapType) {
+          // For specific map types, add simple A/B markers for pickup/delivery
+          const pickupCoords = getPickupDeliveryCoords(trip.pickupLocation, trip.deliveryLocation)
+          
+          pickupCoords.forEach((coord, index) => {
             try {
-              // Validate coordinates
-              if (
-                stop.latitude &&
-                stop.longitude &&
-                stop.latitude >= -90 &&
-                stop.latitude <= 90 &&
-                stop.longitude >= -180 &&
-                stop.longitude <= 180
-              ) {
-                const marker = new H.map.Marker(
-                  { lat: stop.latitude, lng: stop.longitude },
+              if (coord.lat && coord.lng) {
+                const stopType = index === 0 ? "PICKUP" : "DELIVERY"
+                const marker = new H.map.DomMarker(
+                  { lat: coord.lat, lng: coord.lng },
                   {
-                    icon: createStopMarker(stop.stopType, index + 1)
+                    icon: createStopMarker(stopType, index + 1)
                   }
                 )
-
-                // Add info bubble
-                marker.addEventListener("tap", () => {
-                  const bubble = new H.ui.InfoBubble(createStopInfoBubble(stop, index + 1), {
-                    lat: stop.latitude,
-                    lng: stop.longitude
-                  })
-
-                  // Remove existing bubbles
-                  map.getBubbles().forEach((b: any) => map.removeBubble(b))
-                  map.addBubble(bubble)
-                })
-
                 group.addObject(marker)
               }
             } catch (error) {
-              console.warn(`Error adding stop marker ${index}:`, error)
+              console.warn(`Error adding ${index === 0 ? 'pickup' : 'delivery'} marker:`, error)
             }
           })
+        } else {
+          // For general case, use trip stops if available
+          if (trip.tripStops && trip.tripStops.length > 0) {
+            trip.tripStops.forEach((stop, index) => {
+              try {
+                // Validate coordinates
+                if (
+                  stop.latitude &&
+                  stop.longitude &&
+                  stop.latitude >= -90 &&
+                  stop.latitude <= 90 &&
+                  stop.longitude >= -180 &&
+                  stop.longitude <= 180
+                ) {
+                  const marker = new H.map.Marker(
+                    { lat: stop.latitude, lng: stop.longitude },
+                    {
+                      icon: createStopMarker(stop.stopType, index + 1)
+                    }
+                  )
+
+                  // Add info bubble
+                  marker.addEventListener("tap", () => {
+                    const bubble = new H.ui.InfoBubble(createStopInfoBubble(stop, index + 1), {
+                      lat: stop.latitude,
+                      lng: stop.longitude
+                    })
+
+                    // Remove existing bubbles
+                    map.getBubbles().forEach((b: any) => map.removeBubble(b))
+                    map.addBubble(bubble)
+                  })
+
+                  group.addObject(marker)
+                }
+              } catch (error) {
+                console.warn(`Error adding stop marker ${index}:`, error)
+              }
+            })
+          }
         }
 
         // Add group to map
@@ -227,7 +295,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         console.error("Error drawing trip routes:", error)
       }
     },
-    [mapInstance, createPolylineFromString, createStopMarker, createStopInfoBubble]
+    [mapInstance, createPolylineFromString, getPickupDeliveryCoords, createStopMarker, createStopInfoBubble]
   )
 
   // Clear all polylines

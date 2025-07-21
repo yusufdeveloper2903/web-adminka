@@ -123,20 +123,19 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
             const map = mapInstance.current
             const routeGroup = new H.map.Group()
 
-            // Add markers
+            // Add markers with A/B labels (consistent with HERE routing)
             stops.forEach((stop, index) => {
-              const color = stop.stopType === "PICKUP" ? "#22c55e" : "#ef4444"
-              const marker = new H.map.Marker(
+              const color = stop.stopType === "PICKUP" ? "#469946" : "#FF4646"
+              const label = String.fromCharCode(65 + index) // A, B, C, etc.
+              
+              const marker = new H.map.DomMarker(
                 { lat: stop.latitude, lng: stop.longitude },
                 {
-                  icon: new H.map.Icon(
-                    `<svg width="24" height="32" viewBox="0 0 24 32">
-                      <path fill="${color}" d="M12 0C5.4 0 0 5.4 0 12c0 7.2 12 20 12 20s12-12.8 12-20C24 5.4 18.6 0 12 0z"/>
-                      <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">
-                        ${index + 1}
-                      </text>
-                    </svg>`,
-                    { size: { w: 24, h: 32 } }
+                  icon: new H.map.DomIcon(
+                    `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+                      <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
+                      <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
+                    </svg>`
                   )
                 }
               )
@@ -145,7 +144,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
 
             // Add simple line
             const lineString = new H.geo.LineString()
-            stops.forEach((stop) => lineString.pushPoint(stop.latitude, stop.longitude))
+            stops.forEach((stop) => lineString.pushPoint(Number(stop.latitude), Number(stop.longitude)))
 
             const routeLine = new H.map.Polyline(lineString, {
               style: {

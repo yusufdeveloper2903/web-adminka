@@ -20,7 +20,7 @@ interface CalculatedRoute {
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
   const routeGroupRef = useRef<H.map.Group | null>(null)
-  const { routeSettings } = useRouteStore()
+  const { routeSettings, setHereRouteData } = useRouteStore()
 
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
@@ -141,6 +141,27 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     )
   }, [])
 
+  // Calculate route metrics from route data
+  const calculateRouteMetrics = useCallback((route: CalculatedRoute, routeIndex: number) => {
+    let totalLength = 0 // in meters
+    let totalDuration = 0 // in seconds
+
+    route.sections.forEach((section) => {
+      totalLength += section.summary.length
+      totalDuration += section.summary.duration
+    })
+
+    // Convert to miles and hours
+    const totalMiles = totalLength * 0.000621371 // meters to miles
+    const hours = totalDuration / 3600 // seconds to hours
+
+    return {
+      totalMiles: Math.round(totalMiles * 10) / 10, // Round to 1 decimal
+      hours: Math.round(hours * 100) / 100, // Round to 2 decimals
+      routeIndex
+    }
+  }, [])
+
   // Draw routes on map - inspired by Vue project
   const drawRoutes = useCallback(
     async (routes: CalculatedRoute[], stops: TripStopCreateDto[]): Promise<void> => {
@@ -148,6 +169,10 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
       const map = mapInstance.current
       const validStops = getValidStops(stops)
+
+      // Calculate and store route data for the main route (index 0)
+      const mainRouteMetrics = calculateRouteMetrics(routes[0], 0)
+      setHereRouteData(mainRouteMetrics)
 
       // Clear existing route objects first - inspired by Vue project's removeMapObjectsExceptTruckMarker
       if (routeGroupRef.current) {
@@ -167,7 +192,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         routeGroupRef.current = group
         let boundingBox: H.geo.Rect | null = null
 
-        // Draw route polylines - inspired by Vue project
+        // Draw route polylines with different colors for alternatives
         routes.forEach((route, routeIndex) => {
           const routeLineStrings: H.geo.LineString[] = []
 
@@ -187,15 +212,55 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
           if (routeLineStrings.length > 0) {
             const routeMultiLineString = new H.geo.MultiLineString(routeLineStrings)
+            
+            // Use blue for main route (index 0), gray for alternatives
+            const strokeColor = routeIndex === 0 ? "#4285F4" : "#9CA3AF"
+            const lineWidth = routeIndex === 0 ? 5 : 3
+            const zIndex = routeIndex === 0 ? 20 : 10
+            
             const routeLine = new H.map.Polyline(routeMultiLineString, {
               style: {
-                strokeColor: "#4285F4", // Color taken from Vue project
-                lineWidth: 5,
+                strokeColor: strokeColor,
+                lineWidth: lineWidth,
                 lineTailCap: "round",
                 lineHeadCap: "round"
               },
-              zIndex: 20
+              zIndex: zIndex
             })
+
+            // Add click event to alternative routes for switching
+            if (routeIndex > 0) {
+              routeLine.addEventListener('tap', () => {
+                console.log(`Alternative route ${routeIndex} clicked, switching to main route`)
+                
+                // Calculate metrics for the new main route
+                const newMainRouteMetrics = calculateRouteMetrics(route, 0)
+                setHereRouteData(newMainRouteMetrics)
+                
+                // Re-draw routes with this route as the main one
+                const reorderedRoutes = [route, ...routes.filter((_, i) => i !== routeIndex)]
+                drawRoutes(reorderedRoutes, stops)
+              })
+              
+              // Add hover effect for alternative routes
+              routeLine.addEventListener('pointerenter', () => {
+                routeLine.setStyle({
+                  strokeColor: "#6B7280", // Darker gray on hover
+                  lineWidth: 4,
+                  lineTailCap: "round",
+                  lineHeadCap: "round"
+                })
+              })
+              
+              routeLine.addEventListener('pointerleave', () => {
+                routeLine.setStyle({
+                  strokeColor: "#9CA3AF", // Back to original gray
+                  lineWidth: 3,
+                  lineTailCap: "round",
+                  lineHeadCap: "round"
+                })
+              })
+            }
 
             routePolylinesRef.current.push(routeLine)
             group.addObject(routeLine)
@@ -232,7 +297,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         console.error("Error drawing routes:", error)
       }
     },
-    [mapInstance, getValidStops, createMarkerIcon]
+    [mapInstance, getValidStops, createMarkerIcon, calculateRouteMetrics, setHereRouteData]
   )
 
   // Remove all route objects - inspired by Vue project's removeMapObjectsExceptTruckMarker

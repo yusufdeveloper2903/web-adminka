@@ -17,7 +17,7 @@ const TripsPage = () => {
 
   const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
   const { view, setView } = useTripsViewStore()
-  const { setTripData } = useRouteStore()
+  const { setTripData, setCalculatingRoute } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // Memoized data from API
@@ -31,11 +31,19 @@ const TripsPage = () => {
   const handleRouteClick = (trip: Trip) => {
     console.log("Route clicked for trip:", trip)
 
+    // Start loading state
+    setCalculatingRoute(true)
+
     // Set trip data for polyline visualization
     setTripData(trip)
 
     // Switch to map view
     setView("map")
+
+    // Simulate route calculation delay (remove this in production if real API is used)
+    setTimeout(() => {
+      setCalculatingRoute(false)
+    }, 1500)
   }
 
   // Edit click handler - open drawer with trip data
