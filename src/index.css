@@ -194,6 +194,41 @@ h1 {
   @apply hidden;
 }
 
+/* HERE Maps loading icon yashirish */
+.here-map-container .H_ib_body,
+.here-map-container .H_ib_content,
+.here-map-container [class*="loading"],
+.here-map-container [class*="spinner"],
+.here-map-container [class*="H_ib"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* HERE Maps container background */
+.here-map-container {
+  background-color: var(--background) !important;
+}
+
+.here-map-container.dark {
+  background-color: #1a1a1a !important;
+}
+
+/* HERE Maps canvas background */
+.here-map-container canvas {
+  background-color: transparent !important;
+}
+
+/* Professional Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 
 @layer utilities {
 
