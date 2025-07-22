@@ -4,8 +4,11 @@ import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { SettingsIcon } from "lucide-react"
+import { useRouteStore } from "@/store"
 
 export const RouteSettingsPopover = () => {
+  const { routeSettings, updateRouteSettings } = useRouteStore()
+  
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -18,13 +21,21 @@ export const RouteSettingsPopover = () => {
           <div>
             <h4 className="leading-none font-medium">Route Settings</h4>
             <div className="flex items-center gap-2 pt-2">
-              <Checkbox id="trailer" defaultChecked />
+              <Checkbox
+                id="trailer"
+                checked={routeSettings.hasTrailer}
+                onCheckedChange={(checked) => updateRouteSettings({ hasTrailer: checked as boolean })}
+              />
               <Label htmlFor="trailer">53' Trailer</Label>
             </div>
           </div>
           <div>
             <h4 className="leading-none font-medium">Routing</h4>
-            <RadioGroup defaultValue="practical" className="pt-2">
+            <RadioGroup
+              value={routeSettings.routingMode}
+              onValueChange={(value) => updateRouteSettings({ routingMode: value as "practical" | "shortest" })}
+              className="pt-2"
+            >
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="practical" id="practical" />
                 <Label htmlFor="practical">Practical</Label>
@@ -37,7 +48,11 @@ export const RouteSettingsPopover = () => {
           </div>
           <div>
             <h4 className="leading-none font-medium">Distance in</h4>
-            <RadioGroup defaultValue="miles" className="pt-2">
+            <RadioGroup
+              value={routeSettings.distanceUnit}
+              onValueChange={(value) => updateRouteSettings({ distanceUnit: value as "miles" | "km" })}
+              className="pt-2"
+            >
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="miles" id="miles" />
                 <Label htmlFor="miles">Miles</Label>

@@ -12,11 +12,12 @@ type DrawerState = {
   content?: ReactNode
   headerActions?: DrawerAction[]
   width?: string
-  setConfig: (config: Partial<Omit<DrawerState, "setConfig" | "closeDrawer">>) => void
+  setConfig: (config: Partial<Omit<DrawerState, "setConfig" | "closeDrawer" | "openDrawer">>) => void
+  openDrawer: () => void
   closeDrawer: () => void
 }
 
-const initialState: Omit<DrawerState, "setConfig" | "closeDrawer"> = {
+const initialState: Omit<DrawerState, "setConfig" | "closeDrawer" | "openDrawer"> = {
   isOpen: false,
   title: undefined,
   content: undefined,
@@ -27,6 +28,7 @@ const initialState: Omit<DrawerState, "setConfig" | "closeDrawer"> = {
 export const useDrawerStore = create<DrawerState>((set) => ({
   ...initialState,
   setConfig: (config) => set({ ...initialState, isOpen: true, ...config }),
+  openDrawer: () => set({ isOpen: true }),
   closeDrawer: () => {
     // Smooth close animation
     set((state) => ({ ...state, isOpen: false }))

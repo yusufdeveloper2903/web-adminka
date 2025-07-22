@@ -1,117 +1,78 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CalendarIcon, Trash2 } from "lucide-react"
-
-const stops = [
-  { id: "start", type: "Start", postCode: "10702", city: "Yonkers, NY, Westchester", miles: "", total: "" },
-  { id: "stop1", type: "Stop 1", postCode: "11750", city: "ABMPS, NY, Suffolk", miles: "45.2", total: "45.2" },
-  { id: "stop2", type: "Stop 2", postCode: "12025", city: "Broadalbin, NY, Fulton", miles: "225.0", total: "270.2" },
-  { id: "stop3", type: "Stop 3", postCode: "12550", city: "Balmville, NY, Orange", miles: "127.2", total: "397.4" },
-  {
-    id: "delivery",
-    type: "Delivery",
-    postCode: "13051",
-    city: "Delphi Falls, NY, Onondaga",
-    miles: "203.7",
-    total: "601.1"
-  }
-]
+import { useDrawerStore } from "@/store"
+import { useTripForm } from "../hooks/useTripForm"
+import { useStopManagement } from "../hooks/useStopManagement"
+import TripFormFields from "./TripFormFields"
+import AddStopForm from "./AddStopForm"
+import StopsTable from "./StopsTable"
 
 const NewRouteForm = () => {
+  const { closeDrawer } = useDrawerStore()
+  const { form, stops, setStops, resetForm, tripFormSchema } = useTripForm()
+
+  const {
+    newStopForm,
+    setNewStopForm,
+    handleLocationSelect,
+    handleAddStop,
+    handleRemoveStop,
+    handleStopUpdate,
+    resetStopForm,
+    formatDistance,
+    formatDuration
+  } = useStopManagement(stops, setStops)
+
+  const handleDeleteTrip = () => {
+    resetForm()
+    resetStopForm()
+  }
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Truck" />
-          </SelectTrigger>
-          <SelectContent>{/* Add truck options here */}</SelectContent>
-        </Select>
-        <Input placeholder="Load Number" />
-      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          form.handleSubmit()
+        }}
+        className="space-y-6"
+      >
+        {/* Trip Form Fields */}
+        <TripFormFields form={form} tripFormSchema={tripFormSchema} />
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[120px]">City</TableHead>
-              <TableHead>Post Code</TableHead>
-              <TableHead>City</TableHead>
-              <TableHead>Miles</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Hours</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {stops.map((stop) => (
-              <TableRow key={stop.id}>
-                <TableCell className="font-medium">{stop.type}</TableCell>
-                <TableCell>{stop.postCode}</TableCell>
-                <TableCell>{stop.city}</TableCell>
-                <TableCell>{stop.miles}</TableCell>
-                <TableCell className="font-medium">{stop.total}</TableCell>
-                <TableCell>{/* Hours */}</TableCell>
-                <TableCell>
-                  <Select defaultValue="PICKUP">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PICKUP">PICKUP</SelectItem>
-                      <SelectItem value="DELIVERY">DELIVERY</SelectItem>
-                      <SelectItem value="TRAILER">TRAILER</SelectItem>
-                      <SelectItem value="SHOP">SHOP</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select defaultValue="LOADED">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LOADED">Loaded</SelectItem>
-                      <SelectItem value="EMPTY">Empty</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+        {/* Add Stop Form */}
+        <AddStopForm
+          newStopForm={newStopForm}
+          setNewStopForm={setNewStopForm}
+          onLocationSelect={handleLocationSelect}
+          onAddStop={handleAddStop}
+        />
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="relative">
-          <Input placeholder="Start DateTime" />
-          <CalendarIcon className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
+        {/* Stops Table */}
+        <StopsTable
+          stops={stops}
+          onRemoveStop={handleRemoveStop}
+          onStopUpdate={handleStopUpdate}
+          formatDistance={formatDistance}
+          formatDuration={formatDuration}
+        />
+
+        {/* Bottom buttons */}
+        <div className="flex justify-between">
+          <Button type="button" variant="destructive" onClick={handleDeleteTrip}>
+            Delete Trip
+          </Button>
+
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" onClick={closeDrawer}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={form.state.isSubmitting || stops.length === 0}>
+              {form.state.isSubmitting ? "Creating..." : "Submit"}
+            </Button>
+          </div>
         </div>
-        <div className="relative">
-          <Input placeholder="Delivery DateTime" />
-          <CalendarIcon className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
-        </div>
-        <div className="relative">
-          <Input placeholder="Start Odometer" />
-          <CalendarIcon className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
-        </div>
-        <div className="relative">
-          <Input placeholder="Delivery Odometer" />
-          <CalendarIcon className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2" />
-        </div>
-      </div>
-      <div className="flex justify-end">
-        <Button>Add Route</Button>
-      </div>
+      </form>
     </div>
   )
 }
