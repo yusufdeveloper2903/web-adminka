@@ -1,45 +1,17 @@
-# Stage 1: Build the application
-FROM node:20-bookworm AS builder
+FROM node:20-bookworm
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy package files
 COPY package.json ./
-COPY pnpm-lock.yaml ./
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN pnpm build
-
-# Stage 2: Serve the application
-FROM node:22-bookworm AS runner
-
-WORKDIR /app
-
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy package files
-COPY package.json ./
-COPY pnpm-lock.yaml ./
+COPY yarn.lock ./
 COPY .env.production ./.env
 
-# Install only production dependencies
-RUN pnpm install --frozen-lockfile --prod
+RUN yarn install --frozen-lockfile
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/vite.config.ts ./
+COPY dist ./dist
+COPY public ./public
+COPY vite.config.ts ./
 
-EXPOSE 3000
+EXPOSE 5173
 
-CMD ["pnpm", "start", "--port", "3000"]
+CMD ["yarn", "start", "--port", "5173"]
