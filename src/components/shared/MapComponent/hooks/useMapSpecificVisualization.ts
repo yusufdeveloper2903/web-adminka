@@ -73,11 +73,11 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
           distance: 0,
           totalDistance: 0,
           durationMs: 0,
-          loadStatus: "LOADED" as const,
+          loadStatus: "LOADED" as any,
           orderIndex: 0,
           latitude: pickupCoords.lat,
           longitude: pickupCoords.lng,
-          stopType: "PICKUP" as const
+          stopType: "PICKUP" as any
         },
         {
           postCode: "",
@@ -85,11 +85,11 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
           distance: 0,
           totalDistance: 0,
           durationMs: 0,
-          loadStatus: "EMPTY" as const,
+          loadStatus: "EMPTY" as any,
           orderIndex: 1,
           latitude: deliveryCoords.lat,
           longitude: deliveryCoords.lng,
-          stopType: "DELIVERY" as const
+          stopType: "DELIVERY" as any
         }
       ]
     },
