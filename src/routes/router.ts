@@ -10,18 +10,10 @@ import {
   UsersPage
 } from "@/pages"
 import { ResetPasswordPage } from "@/pages/ResetPassword"
-import { createRoute, createRouter, redirect, type RouteComponent } from "@tanstack/react-router"
+import { createRoute, createRouter, redirect } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
 import { AuthenticatedRoute } from "./_authenticated"
 import { Layout } from "@/components/shared"
-
-// Helper function to create routes
-const r = (parent: any, path: string, component: RouteComponent) =>
-  createRoute({
-    path,
-    getParentRoute: () => parent,
-    component
-  })
 
 // Layout route that wraps authenticated pages
 const AppLayoutRoute = createRoute({
@@ -29,18 +21,6 @@ const AppLayoutRoute = createRoute({
   getParentRoute: () => AuthenticatedRoute,
   component: Layout
 })
-
-// All main application routes (protected)
-const mainRoutes = [
-  r(AppLayoutRoute, "/trips", TripsPage),
-  r(AppLayoutRoute, "/companies", CompaniesPage),
-  r(AppLayoutRoute, "/profile", ProfilePage),
-  r(AppLayoutRoute, "/trucks", TrucksPage),
-  r(AppLayoutRoute, "/users", UsersPage),
-  r(AppLayoutRoute, "/system", SystemPage),
-  r(AppLayoutRoute, "/routes", RoutesPage),
-  r(AppLayoutRoute, "/reports", ReportsPage)
-]
 
 // Login route (public)
 const loginRoute = createRoute({
@@ -70,11 +50,71 @@ const indexRoute = createRoute({
   }
 })
 
+// Main application routes (protected)
+const tripsRoute = createRoute({
+  path: "/trips",
+  getParentRoute: () => AppLayoutRoute,
+  component: TripsPage
+})
+
+const companiesRoute = createRoute({
+  path: "/companies",
+  getParentRoute: () => AppLayoutRoute,
+  component: CompaniesPage
+})
+
+const profileRoute = createRoute({
+  path: "/profile",
+  getParentRoute: () => AppLayoutRoute,
+  component: ProfilePage
+})
+
+const trucksRoute = createRoute({
+  path: "/trucks",
+  getParentRoute: () => AppLayoutRoute,
+  component: TrucksPage
+})
+
+const usersRoute = createRoute({
+  path: "/users",
+  getParentRoute: () => AppLayoutRoute,
+  component: UsersPage
+})
+
+const systemRoute = createRoute({
+  path: "/system",
+  getParentRoute: () => AppLayoutRoute,
+  component: SystemPage
+})
+
+const routesRoute = createRoute({
+  path: "/routes",
+  getParentRoute: () => AppLayoutRoute,
+  component: RoutesPage
+})
+
+const reportsRoute = createRoute({
+  path: "/reports",
+  getParentRoute: () => AppLayoutRoute,
+  component: ReportsPage
+})
+
 const routeTree = RootRoute.addChildren([
   indexRoute,
   loginRoute,
   resetPasswordRoute,
-  AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren(mainRoutes)])
+  AuthenticatedRoute.addChildren([
+    AppLayoutRoute.addChildren([
+      tripsRoute,
+      companiesRoute,
+      profileRoute,
+      trucksRoute,
+      usersRoute,
+      systemRoute,
+      routesRoute,
+      reportsRoute
+    ])
+  ])
 ])
 
 export const router = createRouter({ routeTree })
