@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
     server: serverOptions,
     preview: {
       ...serverOptions,
-      allowedHosts: ["dev-admin.glmiler.com", "admin.glmiler.com"]
+      allowedHosts: ["dev.glmiler.com", "glmiler.com"]
     },
 
     plugins: [
