@@ -138,7 +138,7 @@ const Login = () => {
               <div
                 className="relative overflow-hidden"
                 style={{
-                  height: showForgotPassword ? "170px" : "250px",
+                  height: showForgotPassword ? "190px" : "300px",
                   transition: "height 500ms ease-in-out"
                 }}
               >

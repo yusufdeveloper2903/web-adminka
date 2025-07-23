@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EyeIcon, EyeOffIcon, LockIcon, TruckIcon, ArrowLeftIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, LockIcon, TruckIcon, ArrowLeftIcon, CheckIcon } from "lucide-react"
 import { z } from "zod"
 import { useResetPasswordFinishMutation } from "@/hooks/auth"
 import { toast } from "sonner"
@@ -110,24 +110,48 @@ const ResetPassword = () => {
 
           <Card className="border-slate-200 bg-white/95 shadow-xl backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/95">
             <CardHeader className="text-center">
-              <div className="transition-all duration-300 ease-in-out">
-                <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">
-                  {isRedirecting ? "Success!" : "Reset Password"}
-                </CardTitle>
-                <CardDescription className="text-slate-600 dark:text-slate-300">
-                  {isRedirecting
-                    ? "Password reset successfully. Redirecting to login..."
-                    : "Enter your new password below"}
-                </CardDescription>
+              <div className="relative overflow-hidden">
+                {/* Reset Password Title */}
+                <div
+                  className={cn(
+                    "transform transition-all duration-500 ease-in-out",
+                    isRedirecting ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
+                  )}
+                >
+                  <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">Reset Password</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-300">
+                    Enter your new password below
+                  </CardDescription>
+                </div>
+
+                {/* Success Title */}
+                <div
+                  className={cn(
+                    "absolute inset-0 transform transition-all duration-500 ease-in-out",
+                    isRedirecting ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+                  )}
+                >
+                  <CardTitle className="text-2xl font-bold text-green-600 dark:text-green-400">Success!</CardTitle>
+                  <CardDescription className="text-slate-600 dark:text-slate-300">
+                    Password reset successfully. Redirecting to login...
+                  </CardDescription>
+                </div>
               </div>
             </CardHeader>
 
             <CardContent className="space-y-6">
-              <div className="relative overflow-hidden">
+              <div
+                className="relative"
+                style={{
+                  height: isRedirecting ? "150px" : "300px",
+                  transition: "height 500ms ease-in-out"
+                }}
+              >
+                {/* Reset Password Form */}
                 <div
                   className={cn(
                     "transform transition-all duration-500 ease-in-out",
-                    isRedirecting ? "pointer-events-none scale-95 opacity-50" : "scale-100 opacity-100"
+                    isRedirecting ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
                   )}
                 >
                   <form
@@ -256,7 +280,7 @@ const ResetPassword = () => {
                     <Button
                       type="submit"
                       variant="default"
-                      className="h-11 w-full bg-[#0E416C] hover:bg-[#0E416C]/90"
+                      className="h-11 w-full"
                       disabled={form.state.isSubmitting || resetPasswordMutation.isPending}
                     >
                       {form.state.isSubmitting || resetPasswordMutation.isPending
@@ -276,6 +300,37 @@ const ResetPassword = () => {
                       </button>
                     </div>
                   </form>
+                </div>
+
+                {/* Success State Content */}
+                <div
+                  className={cn(
+                    "absolute inset-0 flex transform items-center justify-center transition-all duration-500 ease-in-out",
+                    isRedirecting ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+                  )}
+                >
+                  <div className="space-y-4 text-center">
+                    {/* Success Icon */}
+                    <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                      <CheckIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    </div>
+
+                    {/* Success Message */}
+                    <div className="space-y-2">
+                      <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                        Password Reset Complete!
+                      </p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        You can now sign in with your new password
+                      </p>
+                    </div>
+
+                    {/* Countdown or Loading */}
+                    <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600 dark:border-slate-600 dark:border-t-blue-400"></div>
+                      <span>Redirecting to login...</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
