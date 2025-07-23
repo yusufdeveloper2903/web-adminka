@@ -5,24 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EyeIcon, EyeOffIcon, MailIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, MailIcon, AlertCircle } from "lucide-react"
 import { z } from "zod"
+import { useAuthenticateMutation } from "@/hooks/mutations"
+import type { IAuthenticateRequest } from "@/types"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
   const navigate = useNavigate()
+  
+  const authenticateMutation = useAuthenticateMutation()
 
   // Zod schema for validation
   const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(1, "Password is required")
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/\d/, "Password must contain at least one number")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character")
+    password: z.string().min(1, "Password is required")
   })
 
   const form = useForm({
@@ -32,16 +30,29 @@ const Login = () => {
     },
     onSubmit: async ({ value }) => {
       try {
+        // Clear previous auth errors
+        setAuthError(null)
+        
         // Validate form data with Zod
         const validatedData = loginSchema.parse(value)
-        console.log("Form submitted:", validatedData)
-
-        // Bu yerda authentication logic bo'ladi
-        // Hozircha dashboard ga yo'naltiraman
-        navigate({ to: "/trips" as any })
-      } catch (error) {
+        
+        // Authenticate user
+        const credentials: IAuthenticateRequest = {
+          email: validatedData.email,
+          password: validatedData.password
+        }
+        
+        await authenticateMutation.mutateAsync(credentials)
+        
+        // Navigate to trips page on success
+        navigate({ to: "/trips" })
+      } catch (error: any) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
+        } else {
+          // Handle authentication errors
+          const errorMessage = error?.response?.data?.message || error?.message || "Authentication failed. Please try again."
+          setAuthError(errorMessage)
         }
       }
     }
@@ -137,14 +148,27 @@ const Login = () => {
               </div>
             </div>
 
+            {/* Authentication Error Display */}
+            {authError && (
+              <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-600">
+                <AlertCircle className="h-4 w-4" />
+                <span>{authError}</span>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <a href="#" className="text-sm text-blue-600 hover:underline">
                 Forgot Password?
               </a>
             </div>
 
-            <Button type="submit" variant="default" className="w-full" disabled={form.state.isSubmitting}>
-              {form.state.isSubmitting ? "Signing In..." : "Sign In"}
+            <Button 
+              type="submit" 
+              variant="default" 
+              className="w-full" 
+              disabled={form.state.isSubmitting || authenticateMutation.isPending}
+            >
+              {form.state.isSubmitting || authenticateMutation.isPending ? "Signing In..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
