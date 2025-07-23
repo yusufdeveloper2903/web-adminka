@@ -37,9 +37,7 @@ const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-            </div>
+            <AlertTriangle className="h-5 w-5 text-red-600" />
             <div>
               <DialogTitle>Confirm Logout</DialogTitle>
               <DialogDescription>
@@ -49,7 +47,7 @@ const LogoutDialog = ({ open, onOpenChange }: LogoutDialogProps) => {
           </div>
         </DialogHeader>
 
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoggingOut}>
             Cancel
           </Button>

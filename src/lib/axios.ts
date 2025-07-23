@@ -32,57 +32,69 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     // Skip token refresh for authentication endpoints
-    const isAuthEndpoint = originalRequest.url?.includes('/authenticate') || 
-                          originalRequest.url?.includes('/auth/refresh')
+    const isAuthEndpoint =
+      originalRequest.url?.includes("/authenticate") || originalRequest.url?.includes("/auth/refresh")
 
-    // If 401 and we haven't already tried to refresh and it's not an auth endpoint
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      originalRequest._retry = true
+    // Handle 401 (Unauthorized) or 403 (Forbidden) - token expired or invalid
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint) {
+      // If we haven't tried to refresh yet, try refresh token
+      if (!originalRequest._retry && error.response?.status === 401) {
+        originalRequest._retry = true
 
-      const refreshToken = localStorage.getItem("refresh_token")
+        const refreshToken = localStorage.getItem("refresh_token")
 
-      if (refreshToken) {
-        try {
-          // Try to refresh the token
-          const response = await axios.post("/auth/refresh", {
-            refreshToken
-          })
+        if (refreshToken) {
+          try {
+            // Try to refresh the token
+            const response = await axios.post("/auth/refresh", {
+              refreshToken
+            })
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data.data
+            const { accessToken, refreshToken: newRefreshToken } = response.data.data
 
-          // Update tokens in localStorage
-          localStorage.setItem("access_token", accessToken)
-          localStorage.setItem("refresh_token", newRefreshToken)
+            // Update tokens in localStorage
+            localStorage.setItem("access_token", accessToken)
+            localStorage.setItem("refresh_token", newRefreshToken)
 
-          // Retry the original request with new token
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`
-          return api(originalRequest)
-        } catch (refreshError) {
-          // Refresh failed, clear tokens and redirect to login
-          localStorage.removeItem("access_token")
-          localStorage.removeItem("refresh_token")
-          
-          // Only redirect if we're not already on the login page
-          if (window.location.pathname !== '/login') {
-            window.location.href = "/login"
+            // Retry the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`
+            return api(originalRequest)
+          } catch (refreshError) {
+            // Refresh failed, logout user
+            console.error("Token refresh failed:", refreshError)
+            handleLogout()
+            return Promise.reject(refreshError)
           }
-          
-          return Promise.reject(refreshError)
+        } else {
+          // No refresh token, logout user
+          handleLogout()
         }
       } else {
-        // No refresh token, clear tokens and redirect to login
-        localStorage.removeItem("access_token")
-        localStorage.removeItem("refresh_token")
-        
-        // Only redirect if we're not already on the login page
-        if (window.location.pathname !== '/login') {
-          window.location.href = "/login"
-        }
+        // 403 or refresh already tried, logout user
+        handleLogout()
       }
     }
 
     return Promise.reject(error)
   }
 )
+
+// Helper function to handle logout
+const handleLogout = () => {
+  // Clear tokens
+  localStorage.removeItem("access_token")
+  localStorage.removeItem("refresh_token")
+
+  // Update auth store
+  import("@/store/auth-store").then(({ useAuthStore }) => {
+    const { setUser } = useAuthStore.getState()
+    setUser(null)
+  })
+
+  // Only redirect if we're not already on the login page
+  if (window.location.pathname !== "/login") {
+    window.location.href = "/login"
+  }
+}
 
 export default api
