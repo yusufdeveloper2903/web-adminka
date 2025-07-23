@@ -9,36 +9,112 @@ import {
   TrucksPage,
   UsersPage
 } from "@/pages"
-import { createRoute, createRouter, type RouteComponent } from "@tanstack/react-router"
+import { ResetPasswordPage } from "@/pages/ResetPassword"
+import { createRoute, createRouter, redirect } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
+import { AuthenticatedRoute } from "./_authenticated"
 import { Layout } from "@/components/shared"
 
+// Layout route that wraps authenticated pages
 const AppLayoutRoute = createRoute({
-  path: "/",
-  getParentRoute: () => RootRoute,
+  id: "layout",
+  getParentRoute: () => AuthenticatedRoute,
   component: Layout
 })
 
-const r = (parent: any, path: string, component: RouteComponent) =>
-  createRoute({
-    path,
-    getParentRoute: () => parent,
-    component
-  })
+// Login route (public)
+const loginRoute = createRoute({
+  path: "/login",
+  getParentRoute: () => RootRoute,
+  component: LoginPage
+})
 
-const mainRoutes = [
-  r(AppLayoutRoute, "trips", TripsPage),
-  r(AppLayoutRoute, "companies", CompaniesPage),
-  r(AppLayoutRoute, "profile", ProfilePage),
-  r(AppLayoutRoute, "trucks", TrucksPage),
-  r(AppLayoutRoute, "users", UsersPage),
-  r(AppLayoutRoute, "system", SystemPage),
-  r(AppLayoutRoute, "routes", RoutesPage),
-  r(AppLayoutRoute, "reports", ReportsPage)
-]
+// Reset Password route (public)
+const resetPasswordRoute = createRoute({
+  path: "/reset-password",
+  getParentRoute: () => RootRoute,
+  component: ResetPasswordPage
+})
 
-const loginRoute = r(RootRoute, "login", LoginPage)
+// Index route - redirect to trips if authenticated, otherwise to login
+const indexRoute = createRoute({
+  path: "/",
+  getParentRoute: () => RootRoute,
+  beforeLoad: () => {
+    const token = localStorage.getItem("access_token")
+    if (token) {
+      throw redirect({ to: "/trips" })
+    } else {
+      throw redirect({ to: "/login" })
+    }
+  }
+})
 
-const routeTree = RootRoute.addChildren([AppLayoutRoute.addChildren(mainRoutes), loginRoute])
+// Main application routes (protected)
+const tripsRoute = createRoute({
+  path: "/trips",
+  getParentRoute: () => AppLayoutRoute,
+  component: TripsPage
+})
+
+const companiesRoute = createRoute({
+  path: "/companies",
+  getParentRoute: () => AppLayoutRoute,
+  component: CompaniesPage
+})
+
+const profileRoute = createRoute({
+  path: "/profile",
+  getParentRoute: () => AppLayoutRoute,
+  component: ProfilePage
+})
+
+const trucksRoute = createRoute({
+  path: "/trucks",
+  getParentRoute: () => AppLayoutRoute,
+  component: TrucksPage
+})
+
+const usersRoute = createRoute({
+  path: "/users",
+  getParentRoute: () => AppLayoutRoute,
+  component: UsersPage
+})
+
+const systemRoute = createRoute({
+  path: "/system",
+  getParentRoute: () => AppLayoutRoute,
+  component: SystemPage
+})
+
+const routesRoute = createRoute({
+  path: "/routes",
+  getParentRoute: () => AppLayoutRoute,
+  component: RoutesPage
+})
+
+const reportsRoute = createRoute({
+  path: "/reports",
+  getParentRoute: () => AppLayoutRoute,
+  component: ReportsPage
+})
+
+const routeTree = RootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  resetPasswordRoute,
+  AuthenticatedRoute.addChildren([
+    AppLayoutRoute.addChildren([
+      tripsRoute,
+      companiesRoute,
+      profileRoute,
+      trucksRoute,
+      usersRoute,
+      systemRoute,
+      routesRoute,
+      reportsRoute
+    ])
+  ])
+])
 
 export const router = createRouter({ routeTree })

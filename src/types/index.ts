@@ -2,3 +2,5 @@
 
 export * from './trip'
 export * from './here-maps'
+export * from './api'
+export * from './authenticate'
