@@ -9,6 +9,7 @@ import {
   TrucksPage,
   UsersPage
 } from "@/pages"
+import { ResetPasswordPage } from "@/pages/ResetPassword"
 import { createRoute, createRouter, redirect, type RouteComponent } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
 import { AuthenticatedRoute } from "./_authenticated"
@@ -48,6 +49,13 @@ const loginRoute = createRoute({
   component: LoginPage
 })
 
+// Reset Password route (public)
+const resetPasswordRoute = createRoute({
+  path: "/reset-password",
+  getParentRoute: () => RootRoute,
+  component: ResetPasswordPage
+})
+
 // Index route - redirect to trips if authenticated, otherwise to login
 const indexRoute = createRoute({
   path: "/",
@@ -65,6 +73,7 @@ const indexRoute = createRoute({
 const routeTree = RootRoute.addChildren([
   indexRoute,
   loginRoute,
+  resetPasswordRoute,
   AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren(mainRoutes)])
 ])
 

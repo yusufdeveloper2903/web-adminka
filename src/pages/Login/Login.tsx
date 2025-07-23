@@ -7,21 +7,27 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { EyeIcon, EyeOffIcon, MailIcon, TruckIcon, LockIcon, LockOpenIcon } from "lucide-react"
 import { z } from "zod"
-import { useAuthenticateMutation } from "@/hooks/mutations"
+import { useAuthenticateMutation, useResetPasswordInitMutation } from "@/hooks/auth"
 import type { IAuthenticateRequest } from "@/types"
 import { toast } from "sonner"
 import { cn } from "@/lib"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
   const navigate = useNavigate()
 
   const authenticateMutation = useAuthenticateMutation()
+  const resetPasswordInitMutation = useResetPasswordInitMutation()
 
   // Zod schema for validation
   const loginSchema = z.object({
     email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
     password: z.string().min(1, "Password is required")
+  })
+
+  const forgotPasswordSchema = z.object({
+    email: z.string().min(1, "Email is required").email("Please enter a valid email address")
   })
 
   const form = useForm({
@@ -44,11 +50,36 @@ const Login = () => {
         authenticateMutation.mutate(credentials, {
           onSuccess: () => {
             // Navigate to trips page on success
-            window.location.href = "/trips"
+            navigate({ to: "/trips" })
           },
           onError: (error) => {
             // Additional error handling if needed
             console.error("Login failed:", error)
+          }
+        })
+      } catch (error: any) {
+        if (error instanceof z.ZodError) {
+          console.error("Validation errors:", error.errors)
+          toast.error("Please check your input and try again.")
+        }
+      }
+    }
+  })
+
+  const forgotPasswordForm = useForm({
+    defaultValues: {
+      email: ""
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        // Validate form data with Zod
+        const validatedData = forgotPasswordSchema.parse(value)
+
+        // Send reset password email
+        resetPasswordInitMutation.mutate(validatedData, {
+          onSuccess: () => {
+            // Switch back to login form
+            setShowForgotPassword(false)
           }
         })
       } catch (error: any) {
@@ -75,129 +106,204 @@ const Login = () => {
 
           <Card className="border-slate-200 bg-white/95 shadow-xl backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/95">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">Welcome Back!</CardTitle>
+              <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                {showForgotPassword ? "Reset Password" : "Welcome Back!"}
+              </CardTitle>
               <CardDescription className="text-slate-600 dark:text-slate-300">
-                Please enter your credentials to sign in!
+                {showForgotPassword
+                  ? "Enter your email to receive a password reset link"
+                  : "Please enter your credentials to sign in!"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  form.handleSubmit()
-                }}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <form.Field
-                      name="email"
-                      children={(field) => {
-                        const emailResult = loginSchema.shape.email.safeParse(field.state.value)
-                        const hasError = field.state.meta.isTouched && !emailResult.success
+              {!showForgotPassword ? (
+                // Login Form
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    form.handleSubmit()
+                  }}
+                  className="space-y-4"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">
+                      Email Address
+                    </Label>
+                    <div className="relative">
+                      <form.Field
+                        name="email"
+                        children={(field) => {
+                          const emailResult = loginSchema.shape.email.safeParse(field.state.value)
+                          const hasError = field.state.meta.isTouched && !emailResult.success
 
-                        return (
-                          <>
-                            <MailIcon
-                              className={cn(
-                                "absolute top-3.5 left-3 h-4 w-4 text-slate-400 dark:text-slate-500"
-                                // hasError ? "top-4" : "top-4"
-                              )}
-                            />
-                            <Input
-                              id="email"
-                              type="email"
-                              placeholder="example@domain.com"
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              className={`h-11 pl-10 ${hasError ? "border-red-500" : ""}`}
-                              required
-                            />
-                            {hasError && (
-                              <div className="mt-1 text-sm text-red-500">
-                                {emailResult.success ? "" : emailResult.error.errors[0]?.message}
-                              </div>
-                            )}
-                          </>
-                        )
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">
-                    Password
-                  </Label>
-                  <div className="relative">
-                    <form.Field
-                      name="password"
-                      children={(field) => {
-                        const passwordResult = loginSchema.shape.password.safeParse(field.state.value)
-                        const hasError = field.state.meta.isTouched && !passwordResult.success
-
-                        return (
-                          <>
-                            {showPassword ? (
-                              <LockOpenIcon
-                                className={cn(
-                                  "absolute left-3 h-4 w-4 text-slate-400 dark:text-slate-500",
-                                  hasError ? "top-3" : "top-1/2 -translate-y-1/2"
-                                )}
+                          return (
+                            <>
+                              <MailIcon
+                                className={cn("absolute top-3.5 left-3 h-4 w-4 text-slate-400 dark:text-slate-500")}
                               />
-                            ) : (
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="example@domain.com"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                className={`h-11 pl-10 ${hasError ? "border-red-500" : ""}`}
+                                required
+                              />
+                              {hasError && (
+                                <div className="mt-1 text-sm text-red-500">
+                                  {emailResult.success ? "" : emailResult.error.errors[0]?.message}
+                                </div>
+                              )}
+                            </>
+                          )
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <form.Field
+                        name="password"
+                        children={(field) => {
+                          const passwordResult = loginSchema.shape.password.safeParse(field.state.value)
+                          const hasError = field.state.meta.isTouched && !passwordResult.success
+
+                          return (
+                            <>
                               <LockIcon
                                 className={cn(
                                   "absolute left-3 h-4 w-4 text-slate-400 dark:text-slate-500",
                                   hasError ? "top-3" : "top-1/2 -translate-y-1/2"
                                 )}
                               />
-                            )}
-                            <Input
-                              id="password"
-                              type={showPassword ? "text" : "password"}
-                              placeholder="4-16 characters"
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              className={`h-11 pr-10 pl-10 ${hasError ? "border-red-500" : ""}`}
-                              required
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className={cn(
-                                "absolute top-3.5 right-3 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                              <Input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                className={`h-11 pr-10 pl-10 ${hasError ? "border-red-500" : ""}`}
+                                required
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className={cn(
+                                  "absolute right-3 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300",
+                                  hasError ? "top-3" : "top-1/2 -translate-y-1/2"
+                                )}
+                              >
+                                {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                              </button>
+                              {hasError && (
+                                <div className="mt-1 text-sm text-red-500">
+                                  {passwordResult.success ? "" : passwordResult.error.errors[0]?.message}
+                                </div>
                               )}
-                            >
-                              {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
-                            </button>
-                            {hasError && (
-                              <div className="mt-1 text-sm text-red-500">
-                                {passwordResult.success ? "" : passwordResult.error.errors[0]?.message}
-                              </div>
-                            )}
-                          </>
-                        )
-                      }}
-                    />
+                            </>
+                          )
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <Button
-                  type="submit"
-                  variant="default"
-                  className="h-11 w-full"
-                  disabled={form.state.isSubmitting || authenticateMutation.isPending}
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="default"
+                    className="h-11 w-full"
+                    disabled={form.state.isSubmitting || authenticateMutation.isPending}
+                  >
+                    {form.state.isSubmitting || authenticateMutation.isPending ? "Signing In..." : "Sign In"}
+                  </Button>
+                </form>
+              ) : (
+                // Forgot Password Form
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    forgotPasswordForm.handleSubmit()
+                  }}
+                  className="space-y-4"
                 >
-                  {form.state.isSubmitting || authenticateMutation.isPending ? "Signing In..." : "Sign In"}
-                </Button>
-              </form>
+                  <div className="space-y-2">
+                    <Label htmlFor="resetEmail" className="text-slate-700 dark:text-slate-300">
+                      Email Address
+                    </Label>
+                    <div className="relative">
+                      <forgotPasswordForm.Field
+                        name="email"
+                        children={(field) => {
+                          const emailResult = forgotPasswordSchema.shape.email.safeParse(field.state.value)
+                          const hasError = field.state.meta.isTouched && !emailResult.success
+
+                          return (
+                            <>
+                              <MailIcon
+                                className={cn("absolute top-3.5 left-3 h-4 w-4 text-slate-400 dark:text-slate-500")}
+                              />
+                              <Input
+                                id="resetEmail"
+                                type="email"
+                                placeholder="Enter your email address"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                className={`h-11 pl-10 ${hasError ? "border-red-500" : ""}`}
+                                required
+                              />
+                              {hasError && (
+                                <div className="mt-1 text-sm text-red-500">
+                                  {emailResult.success ? "" : emailResult.error.errors[0]?.message}
+                                </div>
+                              )}
+                            </>
+                          )
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="default"
+                    className="h-11 w-full"
+                    disabled={forgotPasswordForm.state.isSubmitting || resetPasswordInitMutation.isPending}
+                  >
+                    {forgotPasswordForm.state.isSubmitting || resetPasswordInitMutation.isPending
+                      ? "Sending Reset Link..."
+                      : "Send Reset Link"}
+                  </Button>
+
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotPassword(false)}
+                      className="cursor-pointer text-sm text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                    >
+                      Back to Login
+                    </button>
+                  </div>
+                </form>
+              )}
             </CardContent>
           </Card>
 
