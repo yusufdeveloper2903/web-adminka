@@ -30,18 +30,20 @@ const useResetPasswordFinishMutation = () => {
     onError: (error: any) => {
       console.error('Reset password finish failed:', error)
       
-      // Get user-friendly error message
-      let errorMessage = getErrorMessage(error)
+      // Prioritize server error message, then fallback to generic messages
+      let errorMessage = error?.response?.data?.message || getErrorMessage(error)
       
       // For reset password finish, provide more specific messages based on status
       if (error?.response?.status) {
         const status = error.response.status
         if (status === 400) {
-          errorMessage = "Invalid or expired reset token. Please request a new password reset."
+          errorMessage = error?.response?.data?.message || "Invalid or expired reset token. Please request a new password reset."
         } else if (status === 422) {
-          errorMessage = "Passwords do not match or do not meet requirements."
+          errorMessage = error?.response?.data?.message || "Passwords do not match or do not meet requirements."
+        } else if (status === 500) {
+          errorMessage = error?.response?.data?.message || "Server error. Please try again later."
         } else {
-          errorMessage = getStatusErrorMessage(status)
+          errorMessage = error?.response?.data?.message || getStatusErrorMessage(status)
         }
       }
       

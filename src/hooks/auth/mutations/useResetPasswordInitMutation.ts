@@ -31,18 +31,20 @@ const useResetPasswordInitMutation = () => {
     onError: (error: any) => {
       console.error("Reset password init failed:", error)
 
-      // Get user-friendly error message
-      let errorMessage = getErrorMessage(error)
+      // Prioritize server error message, then fallback to generic messages
+      let errorMessage = error?.response?.data?.message || getErrorMessage(error)
 
       // For reset password, provide more specific messages based on status
       if (error?.response?.status) {
         const status = error.response.status
         if (status === 404) {
-          errorMessage = "Email address not found. Please check and try again."
+          errorMessage = error?.response?.data?.message || "Email address not found. Please check and try again."
         } else if (status === 429) {
-          errorMessage = "Too many requests. Please wait a moment and try again."
+          errorMessage = error?.response?.data?.message || "Too many requests. Please wait a moment and try again."
+        } else if (status === 500) {
+          errorMessage = error?.response?.data?.message || "Server error. Please try again later."
         } else {
-          errorMessage = getStatusErrorMessage(status)
+          errorMessage = error?.response?.data?.message || getStatusErrorMessage(status)
         }
       }
 

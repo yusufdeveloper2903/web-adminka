@@ -106,19 +106,25 @@ const Login = () => {
 
           <Card className="border-slate-200 bg-white/95 shadow-xl backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/95">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">
-                {showForgotPassword ? "Reset Password" : "Welcome Back!"}
-              </CardTitle>
-              <CardDescription className="text-slate-600 dark:text-slate-300">
-                {showForgotPassword
-                  ? "Enter your email to receive a password reset link"
-                  : "Please enter your credentials to sign in!"}
-              </CardDescription>
+              <div className="transition-all duration-300 ease-in-out">
+                <CardTitle className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                  {showForgotPassword ? "Reset Password" : "Welcome Back!"}
+                </CardTitle>
+                <CardDescription className="text-slate-600 dark:text-slate-300">
+                  {showForgotPassword
+                    ? "Enter your email to receive a password reset link"
+                    : "Please enter your credentials to sign in!"}
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              {!showForgotPassword ? (
-                // Login Form
-                <form
+              <div className="relative overflow-hidden">
+                <div className={cn(
+                  "transition-all duration-500 ease-in-out transform",
+                  showForgotPassword ? "-translate-x-full opacity-0" : "translate-x-0 opacity-100"
+                )}>
+                  {/* Login Form */}
+                  <form
                   onSubmit={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -233,10 +239,15 @@ const Login = () => {
                   >
                     {form.state.isSubmitting || authenticateMutation.isPending ? "Signing In..." : "Sign In"}
                   </Button>
-                </form>
-              ) : (
-                // Forgot Password Form
-                <form
+                  </form>
+                </div>
+                
+                <div className={cn(
+                  "absolute inset-0 transition-all duration-500 ease-in-out transform",
+                  showForgotPassword ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+                )}>
+                  {/* Forgot Password Form */}
+                  <form
                   onSubmit={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -302,8 +313,9 @@ const Login = () => {
                       Back to Login
                     </button>
                   </div>
-                </form>
-              )}
+                  </form>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
