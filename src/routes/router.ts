@@ -9,16 +9,19 @@ import {
   TrucksPage,
   UsersPage
 } from "@/pages"
-import { createRoute, createRouter, type RouteComponent } from "@tanstack/react-router"
+import { createRoute, createRouter, redirect, type RouteComponent } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
+import { AuthenticatedRoute } from "./_authenticated"
 import { Layout } from "@/components/shared"
 
+// Layout route that wraps authenticated pages
 const AppLayoutRoute = createRoute({
   path: "/",
-  getParentRoute: () => RootRoute,
+  getParentRoute: () => AuthenticatedRoute,
   component: Layout
 })
 
+// Helper function to create routes
 const r = (parent: any, path: string, component: RouteComponent) =>
   createRoute({
     path,
@@ -26,6 +29,7 @@ const r = (parent: any, path: string, component: RouteComponent) =>
     component
   })
 
+// All main application routes (protected)
 const mainRoutes = [
   r(AppLayoutRoute, "trips", TripsPage),
   r(AppLayoutRoute, "companies", CompaniesPage),
@@ -37,8 +41,31 @@ const mainRoutes = [
   r(AppLayoutRoute, "reports", ReportsPage)
 ]
 
-const loginRoute = r(RootRoute, "login", LoginPage)
+// Login route (public)
+const loginRoute = createRoute({
+  path: "/login",
+  getParentRoute: () => RootRoute,
+  component: LoginPage
+})
 
-const routeTree = RootRoute.addChildren([AppLayoutRoute.addChildren(mainRoutes), loginRoute])
+// Index route - redirect to trips if authenticated, otherwise to login
+const indexRoute = createRoute({
+  path: "/",
+  getParentRoute: () => RootRoute,
+  beforeLoad: () => {
+    const token = localStorage.getItem("access_token")
+    if (token) {
+      throw redirect({ to: "/trips" })
+    } else {
+      throw redirect({ to: "/login" })
+    }
+  }
+})
+
+const routeTree = RootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren(mainRoutes)])
+])
 
 export const router = createRouter({ routeTree })
