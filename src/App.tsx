@@ -7,6 +7,7 @@ import { StrictMode } from "react"
 import { RouterProvider } from "@tanstack/react-router"
 import { router } from "@/routes/router"
 import "./index.css"
+import { Toaster } from "./components/ui/sonner"
 
 const App = () => {
   const { isOpen, toggleSidebar } = useSidebarStore()
@@ -19,6 +20,7 @@ const App = () => {
             <RouterProvider router={router} />
           </SidebarProvider>
         </QueryClientProvider>
+        <Toaster position="top-right" closeButton richColors />
       </ThemeProvider>
     </StrictMode>
   )

@@ -57,13 +57,13 @@ api.interceptors.response.use(
           // Refresh failed, redirect to login
           localStorage.removeItem("access_token")
           localStorage.removeItem("refresh_token")
-          window.location.href = "/login"
+          //   window.location.href = "/login"
           return Promise.reject(refreshError)
         }
       } else {
         // No refresh token, redirect to login
         localStorage.removeItem("access_token")
-        window.location.href = "/login"
+        // window.location.href = "/login"
       }
     }
 

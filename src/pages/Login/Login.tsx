@@ -9,12 +9,13 @@ import { EyeIcon, EyeOffIcon, MailIcon, AlertCircle } from "lucide-react"
 import { z } from "zod"
 import { useAuthenticateMutation } from "@/hooks/mutations"
 import type { IAuthenticateRequest } from "@/types"
+import { toast } from "sonner"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const navigate = useNavigate()
-  
+
   const authenticateMutation = useAuthenticateMutation()
 
   // Zod schema for validation
@@ -32,18 +33,18 @@ const Login = () => {
       try {
         // Clear previous auth errors
         setAuthError(null)
-        
+
         // Validate form data with Zod
         const validatedData = loginSchema.parse(value)
-        
+
         // Authenticate user
         const credentials: IAuthenticateRequest = {
           email: validatedData.email,
           password: validatedData.password
         }
-        
+
         await authenticateMutation.mutateAsync(credentials)
-        
+
         // Navigate to trips page on success
         navigate({ to: "/trips" })
       } catch (error: any) {
@@ -51,7 +52,8 @@ const Login = () => {
           console.error("Validation errors:", error.errors)
         } else {
           // Handle authentication errors
-          const errorMessage = error?.response?.data?.message || error?.message || "Authentication failed. Please try again."
+          const errorMessage =
+            error?.response?.data?.message || error?.message || "Authentication failed. Please try again."
           setAuthError(errorMessage)
         }
       }
@@ -74,6 +76,7 @@ const Login = () => {
             }}
             className="space-y-4"
           >
+            <button onClick={() => toast.error('qwefwef')}>toaster</button>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
@@ -162,10 +165,10 @@ const Login = () => {
               </a>
             </div>
 
-            <Button 
-              type="submit" 
-              variant="default" 
-              className="w-full" 
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
               disabled={form.state.isSubmitting || authenticateMutation.isPending}
             >
               {form.state.isSubmitting || authenticateMutation.isPending ? "Signing In..." : "Sign In"}
