@@ -31,8 +31,12 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // If 401 and we haven't already tried to refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Skip token refresh for authentication endpoints
+    const isAuthEndpoint = originalRequest.url?.includes('/authenticate') || 
+                          originalRequest.url?.includes('/auth/refresh')
+
+    // If 401 and we haven't already tried to refresh and it's not an auth endpoint
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true
 
       const refreshToken = localStorage.getItem("refresh_token")
@@ -54,16 +58,26 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`
           return api(originalRequest)
         } catch (refreshError) {
-          // Refresh failed, redirect to login
+          // Refresh failed, clear tokens and redirect to login
           localStorage.removeItem("access_token")
           localStorage.removeItem("refresh_token")
-          //   window.location.href = "/login"
+          
+          // Only redirect if we're not already on the login page
+          if (window.location.pathname !== '/login') {
+            window.location.href = "/login"
+          }
+          
           return Promise.reject(refreshError)
         }
       } else {
-        // No refresh token, redirect to login
+        // No refresh token, clear tokens and redirect to login
         localStorage.removeItem("access_token")
-        // window.location.href = "/login"
+        localStorage.removeItem("refresh_token")
+        
+        // Only redirect if we're not already on the login page
+        if (window.location.pathname !== '/login') {
+          window.location.href = "/login"
+        }
       }
     }
 

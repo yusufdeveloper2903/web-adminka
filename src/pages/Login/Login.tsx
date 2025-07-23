@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EyeIcon, EyeOffIcon, MailIcon, AlertCircle } from "lucide-react"
+import { EyeIcon, EyeOffIcon, MailIcon } from "lucide-react"
 import { z } from "zod"
 import { useAuthenticateMutation } from "@/hooks/mutations"
 import type { IAuthenticateRequest } from "@/types"
@@ -13,7 +13,6 @@ import { toast } from "sonner"
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
-  const [authError, setAuthError] = useState<string | null>(null)
   const navigate = useNavigate()
 
   const authenticateMutation = useAuthenticateMutation()
@@ -31,9 +30,6 @@ const Login = () => {
     },
     onSubmit: async ({ value }) => {
       try {
-        // Clear previous auth errors
-        setAuthError(null)
-
         // Validate form data with Zod
         const validatedData = loginSchema.parse(value)
 
@@ -43,18 +39,21 @@ const Login = () => {
           password: validatedData.password
         }
 
-        await authenticateMutation.mutateAsync(credentials)
-
-        // Navigate to trips page on success
-        navigate({ to: "/trips" })
+        // Use mutate instead of mutateAsync to avoid handling the promise here
+        authenticateMutation.mutate(credentials, {
+          onSuccess: () => {
+            // Navigate to trips page on success
+            navigate({ to: "/trips" })
+          },
+          onError: (error) => {
+            // Additional error handling if needed
+            console.error("Login failed:", error)
+          }
+        })
       } catch (error: any) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
-        } else {
-          // Handle authentication errors
-          const errorMessage =
-            error?.response?.data?.message || error?.message || "Authentication failed. Please try again."
-          setAuthError(errorMessage)
+          toast.error("Please check your input and try again.")
         }
       }
     }
@@ -76,7 +75,7 @@ const Login = () => {
             }}
             className="space-y-4"
           >
-            <button onClick={() => toast.error('qwefwef')}>toaster</button>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
@@ -151,13 +150,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Authentication Error Display */}
-            {authError && (
-              <div className="flex items-center gap-2 rounded-md bg-red-50 p-3 text-sm text-red-600">
-                <AlertCircle className="h-4 w-4" />
-                <span>{authError}</span>
-              </div>
-            )}
+
 
             <div className="flex items-center justify-between">
               <a href="#" className="text-sm text-blue-600 hover:underline">

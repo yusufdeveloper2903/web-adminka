@@ -14,13 +14,6 @@ import { Route as RootRoute } from "./__root"
 import { AuthenticatedRoute } from "./_authenticated"
 import { Layout } from "@/components/shared"
 
-// Layout route that wraps authenticated pages
-const AppLayoutRoute = createRoute({
-  path: "/",
-  getParentRoute: () => AuthenticatedRoute,
-  component: Layout
-})
-
 // Helper function to create routes
 const r = (parent: any, path: string, component: RouteComponent) =>
   createRoute({
@@ -29,16 +22,23 @@ const r = (parent: any, path: string, component: RouteComponent) =>
     component
   })
 
+// Layout route that wraps authenticated pages
+const AppLayoutRoute = createRoute({
+  id: "layout",
+  getParentRoute: () => AuthenticatedRoute,
+  component: Layout
+})
+
 // All main application routes (protected)
 const mainRoutes = [
-  r(AppLayoutRoute, "trips", TripsPage),
-  r(AppLayoutRoute, "companies", CompaniesPage),
-  r(AppLayoutRoute, "profile", ProfilePage),
-  r(AppLayoutRoute, "trucks", TrucksPage),
-  r(AppLayoutRoute, "users", UsersPage),
-  r(AppLayoutRoute, "system", SystemPage),
-  r(AppLayoutRoute, "routes", RoutesPage),
-  r(AppLayoutRoute, "reports", ReportsPage)
+  r(AppLayoutRoute, "/trips", TripsPage),
+  r(AppLayoutRoute, "/companies", CompaniesPage),
+  r(AppLayoutRoute, "/profile", ProfilePage),
+  r(AppLayoutRoute, "/trucks", TrucksPage),
+  r(AppLayoutRoute, "/users", UsersPage),
+  r(AppLayoutRoute, "/system", SystemPage),
+  r(AppLayoutRoute, "/routes", RoutesPage),
+  r(AppLayoutRoute, "/reports", ReportsPage)
 ]
 
 // Login route (public)
