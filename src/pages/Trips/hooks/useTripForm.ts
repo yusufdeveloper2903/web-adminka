@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
-import { useDrawerStore, useRouteStore, useTripsViewStore } from "@/store"
-import type { TripCreateDto, TripStopCreateDto } from "@/types"
+import { useDrawerStore } from "@/store"
+import { useCreateTripMutation } from "@/hooks/trips"
+import type { ITripStopResponse, ICreateTripRequest } from "@/types"
+import { INPUT_DATETIME_LOCAL_FORMAT, BACKEND_DATETIME_FORMAT, DEFAULT_WORK_HOURS } from "@/constants"
 import dayjs from "dayjs"
 
 // Zod validation schema - all fields optional for testing
@@ -31,26 +33,22 @@ const tripFormSchema = z
 
 export const useTripForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { setRoute, clearRoute, setCalculatingRoute } = useRouteStore()
-  const { setView } = useTripsViewStore()
-  const [stops, setStops] = useState<TripStopCreateDto[]>([])
+  const createTripMutation = useCreateTripMutation()
+  const [stops, setStops] = useState<ITripStopResponse[]>([])
 
   // Format datetime for backend
-  const formatDateTime = (dateTimeLocal: string): string => {
-    if (!dateTimeLocal) return ""
-    return dayjs(dateTimeLocal).format("YYYY-MM-DD HH:mm:ss")
-  }
 
   const form = useForm({
     defaultValues: {
       truckId: "626", // Default truck
       dispatcherId: "1", // Default dispatcher
       loadNumber: "TEST-" + Date.now().toString().slice(-6), // Auto-generated load number
-      startDateTime: dayjs().format("YYYY-MM-DDTHH:mm"), // Current time
-      endDateTime: dayjs().add(8, "hours").format("YYYY-MM-DDTHH:mm"), // 8 hours later
+      startDateTime: dayjs().format(INPUT_DATETIME_LOCAL_FORMAT), // Current time
+      endDateTime: dayjs().add(DEFAULT_WORK_HOURS, "hours").format(INPUT_DATETIME_LOCAL_FORMAT), // 8 hours later
       startOdometer: "100000",
       endOdometer: "100500"
     },
+
     onSubmit: async ({ value }) => {
       try {
         const validatedData = tripFormSchema.parse(value)
@@ -60,12 +58,12 @@ export const useTripForm = () => {
           return
         }
 
-        const tripData: TripCreateDto = {
+        const tripData: ICreateTripRequest = {
           truckId: validatedData.truckId ? parseInt(validatedData.truckId) : 626,
           dispatcherId: validatedData.dispatcherId ? parseInt(validatedData.dispatcherId) : 1,
           loadNumber: validatedData.loadNumber || "TEST-" + Date.now().toString().slice(-6),
-          startDateTime: formatDateTime(validatedData.startDateTime || dayjs().format("YYYY-MM-DDTHH:mm")),
-          endDateTime: formatDateTime(validatedData.endDateTime || dayjs().add(8, "hours").format("YYYY-MM-DDTHH:mm")),
+          startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
+          endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
           startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : 100000,
           endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : 100500,
           tripStops: stops
@@ -73,27 +71,19 @@ export const useTripForm = () => {
 
         console.log("Trip data for backend:", tripData)
 
-        // Clear any existing route first to prevent overlap
-        clearRoute()
+        // Create trip using mutation
+        await createTripMutation.mutateAsync(tripData)
 
-        // Switch to map view immediately for better UX
-        setView("map")
-
-        // Start loading state for route calculation
-        setCalculatingRoute(true)
-
-        // Small delay to ensure clearing is complete, then set new route
-        setTimeout(() => {
-          setRoute(tripData)
-        }, 150)
-
-        // TODO: Send to backend API
-        // await createTrip(tripData)
-
+        // Close drawer on success
         closeDrawer()
+
+        // Reset form after successful creation
+        resetForm()
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
+        } else {
+          console.error("Failed to create trip:", error)
         }
       }
     }
@@ -109,6 +99,7 @@ export const useTripForm = () => {
     stops,
     setStops,
     resetForm,
-    tripFormSchema
+    tripFormSchema,
+    isSubmitting: createTripMutation.isPending
   }
 }

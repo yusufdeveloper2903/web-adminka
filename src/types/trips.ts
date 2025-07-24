@@ -18,7 +18,7 @@ export interface ITripStopResponse {
   address: string
   distance: number
   totalDistance: number
-  durationMs: number
+  duration: number
   loadStatus: LoadStatus
   orderIndex: number
   latitude: number

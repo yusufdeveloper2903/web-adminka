@@ -8,7 +8,7 @@ import StopsTable from "./StopsTable"
 
 const NewRouteForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { form, stops, setStops, resetForm, tripFormSchema } = useTripForm()
+  const { form, stops, setStops, resetForm, tripFormSchema, isSubmitting } = useTripForm()
 
   const {
     newStopForm,
@@ -67,8 +67,8 @@ const NewRouteForm = () => {
             <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
-            <Button type="submit" disabled={form.state.isSubmitting || stops.length === 0}>
-              {form.state.isSubmitting ? "Creating..." : "Submit"}
+            <Button type="submit" disabled={isSubmitting || stops.length === 0}>
+              {isSubmitting ? "Creating..." : "Submit"}
             </Button>
           </div>
         </div>

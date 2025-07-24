@@ -15,8 +15,10 @@ interface IResetPasswordFinishResponse {
   message: string
 }
 
-const resetPasswordFinish = async (data: IResetPasswordFinishRequest): Promise<IApiResponse<IResetPasswordFinishResponse>> => {
-  const response = await api.post('/reset-password/finish', data)
+const resetPasswordFinish = async (
+  data: IResetPasswordFinishRequest
+): Promise<IApiResponse<IResetPasswordFinishResponse>> => {
+  const response = await api.post("/reset-password/finish", data)
   return response.data
 }
 
@@ -28,16 +30,17 @@ const useResetPasswordFinishMutation = () => {
       toast.success("Password has been reset successfully. You can now sign in with your new password.")
     },
     onError: (error: any) => {
-      console.error('Reset password finish failed:', error)
-      
+      console.error("Reset password finish failed:", error)
+
       // Prioritize server error message, then fallback to generic messages
       let errorMessage = error?.response?.data?.message || getErrorMessage(error)
-      
+
       // For reset password finish, provide more specific messages based on status
       if (error?.response?.status) {
         const status = error.response.status
         if (status === 400) {
-          errorMessage = error?.response?.data?.message || "Invalid or expired reset token. Please request a new password reset."
+          errorMessage =
+            error?.response?.data?.message || "Invalid or expired reset token. Please request a new password reset."
         } else if (status === 422) {
           errorMessage = error?.response?.data?.message || "Passwords do not match or do not meet requirements."
         } else if (status === 500) {
@@ -46,7 +49,7 @@ const useResetPasswordFinishMutation = () => {
           errorMessage = error?.response?.data?.message || getStatusErrorMessage(status)
         }
       }
-      
+
       // Show error toast
       toast.error(errorMessage)
     }

@@ -5,7 +5,7 @@ import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
 import { usePolylineVisualization } from "./usePolylineVisualization"
-import type { TripStopCreateDto } from "@/types"
+import type { ITripStopResponse } from "@/types"
 
 interface UseMapSpecificVisualizationProps {
   mapInstance: React.RefObject<H.Map | null>
@@ -23,7 +23,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
 
   // Convert pickup/delivery locations to stops format for HERE routing
   const createStopsFromLocations = useCallback(
-    (pickupLocation: string, deliveryLocation: string): TripStopCreateDto[] => {
+    (pickupLocation: string, deliveryLocation: string): ITripStopResponse[] => {
       // Simple geocoding approximation - in real app you'd use HERE Geocoding API
       const locationToCoords = (location: string) => {
         const lowerLocation = location.toLowerCase()
@@ -68,11 +68,10 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
 
       return [
         {
-          postCode: "",
           address: pickupLocation,
           distance: 0,
           totalDistance: 0,
-          durationMs: 0,
+          duration: 0,
           loadStatus: "LOADED" as any,
           orderIndex: 0,
           latitude: pickupCoords.lat,
@@ -80,11 +79,10 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
           stopType: "PICKUP" as any
         },
         {
-          postCode: "",
           address: deliveryLocation,
           distance: 0,
           totalDistance: 0,
-          durationMs: 0,
+          duration: 0,
           loadStatus: "EMPTY" as any,
           orderIndex: 1,
           latitude: deliveryCoords.lat,
@@ -115,7 +113,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
       try {
         if (mapType === "here") {
           // HERE map: calculate route from stops or pickup/delivery locations
-          let stops: TripStopCreateDto[]
+          let stops: ITripStopResponse[]
 
           if (currentRoute && currentRoute.tripStops.length > 0) {
             // Use stops from newly created route
@@ -131,20 +129,20 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType }: UseMapSpec
 
           // Start loading state for HERE route calculation
           setCalculatingRoute(true)
-          
+
           // Add minimum loading time for better UX (at least 800ms)
           const startTime = Date.now()
-          
+
           // Calculate and draw route using HERE API
           const routes = await calculateRoute(stops)
-          
+
           // Ensure minimum loading time
           const elapsedTime = Date.now() - startTime
           const minLoadingTime = 800 // 800ms minimum
           if (elapsedTime < minLoadingTime) {
-            await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime))
+            await new Promise((resolve) => setTimeout(resolve, minLoadingTime - elapsedTime))
           }
-          
+
           if (routes && routes.length > 0) {
             await drawRoutes(routes, stops)
           } else {

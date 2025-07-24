@@ -4,20 +4,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { X } from "lucide-react"
 import { useRouteStore } from "@/store"
-import type { TripStopCreateDto, LoadStatus, StopType } from "@/types"
+import type { ITripStopResponse, LoadStatus, StopType } from "@/types"
 
 interface StopsTableProps {
-  stops: TripStopCreateDto[]
+  stops: ITripStopResponse[]
   onRemoveStop: (index: number) => void
-  onStopUpdate: (index: number, field: keyof TripStopCreateDto, value: any) => void
+  onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
   formatDistance: (distance: number) => string
-  formatDuration: (durationMs: number) => string
+  formatDuration: (duration: number) => string
 }
 
 const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatDuration }: StopsTableProps) => {
   const { routeSettings } = useRouteStore()
-  const distanceUnit = routeSettings.distanceUnit === 'km' ? 'KM' : 'Miles'
-  
+  const distanceUnit = routeSettings.distanceUnit === "km" ? "KM" : "Miles"
+
   if (stops.length === 0) return null
 
   return (
@@ -45,10 +45,9 @@ const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatD
                 <TableCell className="max-w-xs truncate" title={stop.address}>
                   {stop.address}
                 </TableCell>
-                <TableCell>{stop.postCode}</TableCell>
                 <TableCell>{formatDistance(stop.distance)}</TableCell>
                 <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
-                <TableCell>{formatDuration(stop.durationMs)}</TableCell>
+                <TableCell>{formatDuration(stop.duration)}</TableCell>
                 <TableCell>
                   <Select
                     value={stop.stopType}

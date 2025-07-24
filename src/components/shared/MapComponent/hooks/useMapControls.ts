@@ -1,8 +1,8 @@
-import { useImperativeHandle } from 'react'
+import { useImperativeHandle } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
-import type { MapComponentRef } from '../MapComponent'
+import type { MapComponentRef } from "../MapComponent"
 
 export const useMapControls = (
   ref: React.ForwardedRef<MapComponentRef>,

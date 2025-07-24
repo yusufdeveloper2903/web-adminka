@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react"
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
-import type { TripStopCreateDto } from "@/types"
+import type { ITripStopResponse } from "@/types"
 
 interface RouteSection {
   polyline: string
@@ -40,7 +40,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
   // Get valid stops only
   const getValidStops = useCallback(
-    (stops: TripStopCreateDto[]) => {
+    (stops: ITripStopResponse[]) => {
       return stops.filter((stop) => isValidCoordinate(stop.latitude, stop.longitude))
     },
     [isValidCoordinate]
@@ -48,7 +48,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
   // Calculate route using HERE Maps API - inspired by Vue project
   const calculateRoute = useCallback(
-    async (stops: TripStopCreateDto[]): Promise<CalculatedRoute[] | null> => {
+    async (stops: ITripStopResponse[]): Promise<CalculatedRoute[] | null> => {
       if (!mapInstance.current) return null
 
       const validStops = getValidStops(stops)
@@ -164,7 +164,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
   // Draw routes on map - inspired by Vue project
   const drawRoutes = useCallback(
-    async (routes: CalculatedRoute[], stops: TripStopCreateDto[]): Promise<void> => {
+    async (routes: CalculatedRoute[], stops: ITripStopResponse[]): Promise<void> => {
       if (!mapInstance.current || !routes.length) return
 
       const map = mapInstance.current
