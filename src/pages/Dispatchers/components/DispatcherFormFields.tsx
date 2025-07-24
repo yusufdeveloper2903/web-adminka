@@ -15,9 +15,14 @@ interface TeamOption extends SearchableSelectOption {
 
 const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
   const [teamSearchKeyword, setTeamSearchKeyword] = useState("")
-  
+
   // Fetch teams with search
-  const { data: teamsData, fetchNextPage, hasNextPage, isFetchingNextPage } = useTeamsInfiniteQuery({
+  const {
+    data: teamsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useTeamsInfiniteQuery({
     keyword: teamSearchKeyword,
     active: true,
     size: 20
@@ -26,10 +31,10 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
   // Convert teams data to SearchableSelect options
   const teamOptions: TeamOption[] = useMemo(() => {
     if (!teamsData?.pages) return []
-    
+
     return teamsData.pages
-      .flatMap(page => page.content)
-      .map(team => ({
+      .flatMap((page) => page.content)
+      .map((team) => ({
         value: team.id.toString(),
         label: team.name,
         data: team
@@ -39,14 +44,14 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
-    
+
     const error = field.state.meta.errors[0]
     // Handle Zod validation error objects
-    if (typeof error === 'object' && error.message) {
+    if (typeof error === "object" && error.message) {
       return error.message
     }
     // Handle string errors
-    if (typeof error === 'string') {
+    if (typeof error === "string") {
       return error
     }
     return "Invalid value"
@@ -66,12 +71,10 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
               />
               {field.state.meta.errors.length > 0 && (
-                <div className="text-red-500 text-sm mt-1">
-                  {getErrorMessage(field)}
-                </div>
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
               )}
             </div>
           )}
@@ -90,12 +93,10 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
               />
               {field.state.meta.errors.length > 0 && (
-                <div className="text-red-500 text-sm mt-1">
-                  {getErrorMessage(field)}
-                </div>
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
               )}
             </div>
           )}
@@ -111,7 +112,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
             <div>
               <SearchableSelect
                 options={teamOptions}
-                value={teamOptions.find(option => option.value === field.state.value) || null}
+                value={teamOptions.find((option) => option.value === field.state.value) || null}
                 onChange={(selectedOption: TeamOption | null) => {
                   field.handleChange(selectedOption?.value || "")
                 }}
@@ -128,17 +129,14 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
                 isSearchable
                 error={field.state.meta.errors.length > 0}
                 className="w-full"
-                debounceMs={300}
-                noOptionsMessage={({ inputValue }: { inputValue: string }) => 
+                noOptionsMessage={({ inputValue }: { inputValue: string }) =>
                   inputValue ? `No teams found for "${inputValue}"` : "No teams available"
                 }
                 loadingMessage={() => "Loading teams..."}
                 isLoading={isFetchingNextPage}
               />
               {field.state.meta.errors.length > 0 && (
-                <div className="text-red-500 text-sm mt-1">
-                  {getErrorMessage(field)}
-                </div>
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
               )}
             </div>
           )}
