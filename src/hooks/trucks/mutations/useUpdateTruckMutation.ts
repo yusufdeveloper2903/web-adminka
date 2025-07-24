@@ -14,8 +14,8 @@ export const useUpdateTruckMutation = () => {
   return useMutation(
     createMutationConfig(
       ({ id, data }: { id: number; data: IUpdateTruckRequest }) => updateTruck(id, data),
-      'truck',
-      'update',
+      "truck",
+      "update",
       (data, variables) => {
         // Invalidate and update specific truck query
         queryClient.invalidateQueries({ queryKey: ["truck", variables.id] })

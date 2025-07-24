@@ -12,14 +12,9 @@ export const useCreateDispatcherMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
-    createMutationConfig(
-      createDispatcher,
-      'dispatcher',
-      'create',
-      () => {
-        // Invalidate dispatchers queries to refetch data
-        queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
-      }
-    )
+    createMutationConfig(createDispatcher, "dispatcher", "create", () => {
+      // Invalidate dispatchers queries to refetch data
+      queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
+    })
   )
 }

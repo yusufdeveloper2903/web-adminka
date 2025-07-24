@@ -14,8 +14,8 @@ export const useUpdateDispatcherMutation = () => {
   return useMutation(
     createMutationConfig(
       ({ id, data }: { id: number; data: IUpdateDispatcherRequest }) => updateDispatcher(id, data),
-      'dispatcher',
-      'update',
+      "dispatcher",
+      "update",
       (data, variables) => {
         // Invalidate and update specific dispatcher query
         queryClient.invalidateQueries({ queryKey: ["dispatcher", variables.id] })

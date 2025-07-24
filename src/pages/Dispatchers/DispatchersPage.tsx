@@ -1,35 +1,73 @@
 import { useMemo, useState } from "react"
-import useDispatchersHeader from "./hooks/useDispatchersHeader"
-import useDispatchersColumns from "./hooks/useDispatchersColumns"
+import { useDispatchersHeader, useDispatchersColumns, useTeamsColumns, useDispatchersTab } from "./hooks"
 import { DataTable } from "@/components/shared"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
-import type { IDispatchersFiltersRequest } from "@/types"
+import { useTeamsInfiniteQuery } from "@/hooks/teams"
+import type { IDispatchersFiltersRequest, ITeamsFiltersRequest } from "@/types"
 
 const DispatchersPage = () => {
-  const [filters] = useState<IDispatchersFiltersRequest>({
+  const { currentTab } = useDispatchersTab()
+
+  // Filters for dispatchers
+  const [dispatchersFilters] = useState<IDispatchersFiltersRequest>({
     size: 20,
     active: true
   })
 
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } =
-    useDispatchersInfiniteQuery(filters)
+  // Filters for teams
+  const [teamsFilters] = useState<ITeamsFiltersRequest>({
+    size: 20,
+    active: true
+  })
+
+  // Dispatchers data
+  const {
+    data: dispatchersData,
+    fetchNextPage: fetchNextDispatchersPage,
+    isLoading: isDispatchersLoading,
+    refetch: refetchDispatchers,
+    hasNextPage: hasNextDispatchersPage,
+    isFetchingNextPage: isFetchingNextDispatchersPage
+  } = useDispatchersInfiniteQuery(dispatchersFilters)
+
+  // Teams data
+  const {
+    data: teamsData,
+    fetchNextPage: fetchNextTeamsPage,
+    isLoading: isTeamsLoading,
+    refetch: refetchTeams,
+    hasNextPage: hasNextTeamsPage,
+    isFetchingNextPage: isFetchingNextTeamsPage
+  } = useTeamsInfiniteQuery(teamsFilters)
+
+  // Current data based on active tab
+  const isDispatchersTab = currentTab === "dispatchers"
+  const currentData = isDispatchersTab ? dispatchersData : teamsData
+  const isLoading = isDispatchersTab ? isDispatchersLoading : isTeamsLoading
+  const fetchNextPage = isDispatchersTab ? fetchNextDispatchersPage : fetchNextTeamsPage
+  const refetch = isDispatchersTab ? refetchDispatchers : refetchTeams
+  const hasNextPage = isDispatchersTab ? hasNextDispatchersPage : hasNextTeamsPage
+  const isFetchingNextPage = isDispatchersTab ? isFetchingNextDispatchersPage : isFetchingNextTeamsPage
 
   // Memoized data from API
   const flatData = useMemo(() => {
-    return data?.pages?.flatMap((page) => page.content) ?? []
-  }, [data])
+    return currentData?.pages?.flatMap((page) => page.content) ?? []
+  }, [currentData])
 
-  const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
+  const totalDBRowCount = currentData?.pages?.[0]?.totalElements ?? flatData.length
 
   // Header Configuration Hook
   useDispatchersHeader({
     isLoading,
     totalDBRowCount,
-    refetch
+    refetch,
+    currentTab
   })
 
-  // Columns
-  const columns = useDispatchersColumns()
+  // Columns based on current tab
+  const dispatchersColumns = useDispatchersColumns()
+  const teamsColumns = useTeamsColumns()
+  const columns = isDispatchersTab ? dispatchersColumns : teamsColumns
 
   return (
     <DataTable

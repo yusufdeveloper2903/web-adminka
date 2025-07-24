@@ -14,16 +14,11 @@ export const useChangeTripStatusMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
-    createMutationConfig(
-      changeStatus,
-      'trip',
-      'status',
-      (data, variables) => {
-        // Invalidate related queries
-        queryClient.invalidateQueries({ queryKey: ["trip", variables.id] })
-        queryClient.invalidateQueries({ queryKey: ["trip-info", variables.id] })
-        queryClient.invalidateQueries({ queryKey: ["trips"] })
-      }
-    )
+    createMutationConfig(changeStatus, "trip", "status", (data, variables) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["trip", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["trip-info", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["trips"] })
+    })
   )
 }

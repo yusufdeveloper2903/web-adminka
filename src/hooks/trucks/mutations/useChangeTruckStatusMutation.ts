@@ -14,15 +14,10 @@ export const useChangeTruckStatusMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
-    createMutationConfig(
-      changeTruckStatus,
-      'truck',
-      'status',
-      (data, variables) => {
-        // Invalidate related queries
-        queryClient.invalidateQueries({ queryKey: ["truck", variables.id] })
-        queryClient.invalidateQueries({ queryKey: ["trucks"] })
-      }
-    )
+    createMutationConfig(changeTruckStatus, "truck", "status", (data, variables) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["truck", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["trucks"] })
+    })
   )
 }

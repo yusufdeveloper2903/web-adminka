@@ -46,7 +46,7 @@ const useResetPasswordFinishMutation = () => {
         toast.error(errorMessage)
       } else {
         // Fallback to generic error handling
-        handleMutationError(error, 'dispatcher', 'create') // Using dispatcher as fallback
+        handleMutationError(error, "dispatcher", "create") // Using dispatcher as fallback
       }
     }
   })

@@ -101,9 +101,14 @@ const reportsRoute = createRoute({
 })
 
 const dispatchersRoute = createRoute({
-  path: "/dispatchers",
+  path: "dispatchers",
   getParentRoute: () => AppLayoutRoute,
-  component: DispatchersPage
+  component: DispatchersPage,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tab: (search.tab as string) || 'dispatchers'
+    }
+  }
 })
 
 const routeTree = RootRoute.addChildren([

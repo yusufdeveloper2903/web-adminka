@@ -14,15 +14,10 @@ export const useChangeDispatcherStatusMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
-    createMutationConfig(
-      changeDispatcherStatus,
-      'dispatcher',
-      'status',
-      (data, variables) => {
-        // Invalidate related queries
-        queryClient.invalidateQueries({ queryKey: ["dispatcher", variables.id] })
-        queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
-      }
-    )
+    createMutationConfig(changeDispatcherStatus, "dispatcher", "status", (data, variables) => {
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["dispatcher", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
+    })
   )
 }

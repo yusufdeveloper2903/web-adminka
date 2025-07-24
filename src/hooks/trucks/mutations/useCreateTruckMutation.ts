@@ -12,14 +12,9 @@ export const useCreateTruckMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
-    createMutationConfig(
-      createTruck,
-      'truck',
-      'create',
-      () => {
-        // Invalidate trucks queries to refetch data
-        queryClient.invalidateQueries({ queryKey: ["trucks"] })
-      }
-    )
+    createMutationConfig(createTruck, "truck", "create", () => {
+      // Invalidate trucks queries to refetch data
+      queryClient.invalidateQueries({ queryKey: ["trucks"] })
+    })
   )
 }
