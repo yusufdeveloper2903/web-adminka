@@ -33,8 +33,8 @@ export interface ITruckData {
   unitNumber: string
   samsaraVin: string
   homeLocation: string
-  homeLatitude: number
-  homeLongitude: number
+  homeLatitude?: number
+  homeLongitude?: number
   licencePlate: string
 }
 

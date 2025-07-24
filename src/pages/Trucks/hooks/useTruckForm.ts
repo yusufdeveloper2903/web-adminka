@@ -1,8 +1,8 @@
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore } from "@/store"
-import { useCreateTruckMutation } from "@/hooks/trucks"
-import type { ICreateTruckRequest } from "@/types"
+import { useCreateTruckMutation, useUpdateTruckMutation } from "@/hooks/trucks"
+import type { ICreateTruckRequest, ITruckResponse } from "@/types"
 
 // Zod validation schema
 const truckFormSchema = z.object({
@@ -10,26 +10,30 @@ const truckFormSchema = z.object({
   unitNumber: z.string().min(1, "Unit Number is required"),
   samsaraVin: z.string().min(1, "Samsara VIN is required"),
   homeLocation: z.string().min(1, "Home Location is required"),
-  homeLatitude: z.string().min(1, "Home Latitude is required"),
-  homeLongitude: z.string().min(1, "Home Longitude is required"),
-  licencePlate: z.string().min(1, "License Plate is required"),
-  dispatcherId: z.string().min(1, "Dispatcher is required")
+  licencePlate: z.string().min(1, "License Plate is required")
 })
 
-export const useTruckForm = () => {
+interface UseTruckFormProps {
+  truck?: ITruckResponse
+}
+
+export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
   const { closeDrawer } = useDrawerStore()
   const createTruckMutation = useCreateTruckMutation()
+  const updateTruckMutation = useUpdateTruckMutation()
+
+  const isEditing = !!truck
 
   const form = useForm({
     defaultValues: {
-      vinNumber: "",
-      unitNumber: "",
-      samsaraVin: "",
-      homeLocation: "",
-      homeLatitude: "",
-      homeLongitude: "",
-      licencePlate: "",
-      dispatcherId: ""
+      vinNumber: truck?.vinNumber || "",
+      unitNumber: truck?.unitNumber || "",
+      samsaraVin: truck?.samsaraVin || "",
+      homeLocation: truck?.homeLocation || "",
+      licencePlate: truck?.licencePlate || ""
+    },
+    validators: {
+      onChange: truckFormSchema
     },
     onSubmit: async ({ value }) => {
       try {
@@ -40,26 +44,34 @@ export const useTruckForm = () => {
           unitNumber: validatedData.unitNumber,
           samsaraVin: validatedData.samsaraVin,
           homeLocation: validatedData.homeLocation,
-          homeLatitude: parseFloat(validatedData.homeLatitude),
-          homeLongitude: parseFloat(validatedData.homeLongitude),
           licencePlate: validatedData.licencePlate
         }
 
         console.log("Truck data for backend:", truckData)
 
-        // Create truck using mutation
-        await createTruckMutation.mutateAsync(truckData)
+        if (isEditing && truck) {
+          // Update truck
+          await updateTruckMutation.mutateAsync({
+            id: truck.id,
+            data: truckData
+          })
+        } else {
+          // Create truck
+          await createTruckMutation.mutateAsync(truckData)
+        }
 
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation
-        resetForm()
+        // Reset form after successful creation (not for editing)
+        if (!isEditing) {
+          resetForm()
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
         } else {
-          console.error("Failed to create truck:", error)
+          console.error("Failed to save truck:", error)
         }
       }
     }
@@ -73,6 +85,7 @@ export const useTruckForm = () => {
     form,
     resetForm,
     truckFormSchema,
-    isSubmitting: createTruckMutation.isPending
+    isSubmitting: isEditing ? updateTruckMutation.isPending : createTruckMutation.isPending,
+    isEditing
   }
 }

@@ -1,19 +1,27 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Mock data - keyinchalik backend dan keladi
-const dispatcherOptions = [
-  { value: "1", label: "John Doe" },
-  { value: "2", label: "Jane Smith" },
-  { value: "3", label: "Mike Johnson" }
-]
 
 interface TruckFormFieldsProps {
   form: any // TanStack form instance
 }
 
 const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
+  // Helper function to get error message from field
+  const getErrorMessage = (field: any): string => {
+    if (field.state.meta.errors.length === 0) return ""
+
+    const error = field.state.meta.errors[0]
+    // Handle Zod validation error objects
+    if (typeof error === "object" && error.message) {
+      return error.message
+    }
+    // Handle string errors
+    if (typeof error === "string") {
+      return error
+    }
+    return "Invalid value"
+  }
+
   return (
     <div className="space-y-4">
       {/* VIN Number */}
@@ -22,13 +30,18 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         <form.Field
           name="vinNumber"
           children={(field: any) => (
-            <Input
-              placeholder="Enter VIN Number"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
+            <div>
+              <Input
+                placeholder="Enter VIN Number"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
           )}
         />
       </div>
@@ -39,13 +52,18 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         <form.Field
           name="unitNumber"
           children={(field: any) => (
-            <Input
-              placeholder="Enter Unit Number"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
+            <div>
+              <Input
+                placeholder="Enter Unit Number"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
           )}
         />
       </div>
@@ -56,13 +74,18 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         <form.Field
           name="samsaraVin"
           children={(field: any) => (
-            <Input
-              placeholder="Enter Samsara VIN"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
+            <div>
+              <Input
+                placeholder="Enter Samsara VIN"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
           )}
         />
       </div>
@@ -73,13 +96,18 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         <form.Field
           name="homeLocation"
           children={(field: any) => (
-            <Input
-              placeholder="Enter Home Location"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
+            <div>
+              <Input
+                placeholder="Enter Home Location"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
           )}
         />
       </div>
@@ -90,35 +118,18 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         <form.Field
           name="licencePlate"
           children={(field: any) => (
-            <Input
-              placeholder="Enter License Plate"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
-          )}
-        />
-      </div>
-
-      {/* Dispatcher (Select) */}
-      <div className="space-y-2">
-        <Label htmlFor="dispatcher">Dispatcher</Label>
-        <form.Field
-          name="dispatcherId"
-          children={(field: any) => (
-            <Select value={field.state.value} onValueChange={field.handleChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Dispatcher" />
-              </SelectTrigger>
-              <SelectContent>
-                {dispatcherOptions.map((dispatcher) => (
-                  <SelectItem key={dispatcher.value} value={dispatcher.value}>
-                    {dispatcher.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div>
+              <Input
+                placeholder="Enter License Plate"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
           )}
         />
       </div>

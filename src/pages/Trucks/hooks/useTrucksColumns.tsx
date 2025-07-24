@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Edit } from "lucide-react"
 import { useDrawerStore } from "@/store"
-import TruckEditForm from "@/pages/Trips/components/TruckEditForm"
+import { NewTruckForm } from "../components"
 import type { ITruckResponse } from "@/types"
 import dayjs from "dayjs"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
@@ -81,7 +81,9 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[10%] text-center"
       },
-      cell: () => {
+      cell: ({ row }) => {
+        const truck = row.original
+
         return (
           <div className="flex justify-center">
             <Button
@@ -89,17 +91,8 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
               size="icon"
               onClick={() => {
                 setDrawerConfig({
-                  title: "Edit Truck",
-                  width: "sm:max-w-md",
-                  content: (
-                    <TruckEditForm
-                      onClose={closeDrawer}
-                      onSubmit={(data) => {
-                        console.log("Truck data:", data)
-                        closeDrawer()
-                      }}
-                    />
-                  )
+                  title: `Edit Truck: ${truck.unitNumber}`,
+                  content: <NewTruckForm truck={truck} onClose={closeDrawer} />
                 })
               }}
             >
