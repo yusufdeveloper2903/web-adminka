@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import { useMemo, useState } from "react"
-import Select from "react-select"
 import { useTeamsInfiniteQuery } from "@/hooks/teams"
 import type { ITeamResponse } from "@/types"
 
@@ -9,9 +9,7 @@ interface DispatcherFormFieldsProps {
   form: any // TanStack form instance
 }
 
-interface TeamOption {
-  value: string
-  label: string
+interface TeamOption extends SearchableSelectOption {
   data: ITeamResponse
 }
 
@@ -25,7 +23,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
     size: 20
   })
 
-  // Convert teams data to react-select options
+  // Convert teams data to SearchableSelect options
   const teamOptions: TeamOption[] = useMemo(() => {
     if (!teamsData?.pages) return []
     
@@ -38,50 +36,20 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
       }))
   }, [teamsData])
 
-  // Custom styles for react-select to match shadcn/ui design
-  const selectStyles = {
-    control: (provided: any, state: any) => ({
-      ...provided,
-      minHeight: '40px',
-      border: state.isFocused ? '2px solid hsl(var(--ring))' : '1px solid hsl(var(--border))',
-      borderRadius: '6px',
-      backgroundColor: 'hsl(var(--background))',
-      boxShadow: state.isFocused ? '0 0 0 2px hsl(var(--ring))' : 'none',
-      '&:hover': {
-        border: '1px solid hsl(var(--border))'
-      }
-    }),
-    menu: (provided: any) => ({
-      ...provided,
-      backgroundColor: 'hsl(var(--popover))',
-      border: '1px solid hsl(var(--border))',
-      borderRadius: '6px',
-      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)'
-    }),
-    option: (provided: any, state: any) => ({
-      ...provided,
-      backgroundColor: state.isSelected 
-        ? 'hsl(var(--accent))' 
-        : state.isFocused 
-        ? 'hsl(var(--accent))' 
-        : 'transparent',
-      color: 'hsl(var(--foreground))',
-      '&:hover': {
-        backgroundColor: 'hsl(var(--accent))'
-      }
-    }),
-    placeholder: (provided: any) => ({
-      ...provided,
-      color: 'hsl(var(--muted-foreground))'
-    }),
-    singleValue: (provided: any) => ({
-      ...provided,
-      color: 'hsl(var(--foreground))'
-    }),
-    input: (provided: any) => ({
-      ...provided,
-      color: 'hsl(var(--foreground))'
-    })
+  // Helper function to get error message from field
+  const getErrorMessage = (field: any): string => {
+    if (field.state.meta.errors.length === 0) return ""
+    
+    const error = field.state.meta.errors[0]
+    // Handle Zod validation error objects
+    if (typeof error === 'object' && error.message) {
+      return error.message
+    }
+    // Handle string errors
+    if (typeof error === 'string') {
+      return error
+    }
+    return "Invalid value"
   }
 
   return (
@@ -102,7 +70,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="text-red-500 text-sm mt-1">
-                  {field.state.meta.errors[0]}
+                  {getErrorMessage(field)}
                 </div>
               )}
             </div>
@@ -126,7 +94,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="text-red-500 text-sm mt-1">
-                  {field.state.meta.errors[0]}
+                  {getErrorMessage(field)}
                 </div>
               )}
             </div>
@@ -134,21 +102,21 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
         />
       </div>
 
-      {/* Team (React Select with search and infinite scroll) */}
+      {/* Team (SearchableSelect with search and infinite scroll) */}
       <div className="space-y-2">
         <Label htmlFor="teamId">Team</Label>
         <form.Field
           name="teamId"
           children={(field: any) => (
             <div>
-              <Select
+              <SearchableSelect
                 options={teamOptions}
                 value={teamOptions.find(option => option.value === field.state.value) || null}
-                onChange={(selectedOption) => {
+                onChange={(selectedOption: TeamOption | null) => {
                   field.handleChange(selectedOption?.value || "")
                 }}
-                onInputChange={(inputValue) => {
-                  setTeamSearchKeyword(inputValue)
+                onDebouncedInputChange={(debouncedValue: string) => {
+                  setTeamSearchKeyword(debouncedValue)
                 }}
                 onMenuScrollToBottom={() => {
                   if (hasNextPage && !isFetchingNextPage) {
@@ -158,9 +126,10 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
                 placeholder="Search and select team..."
                 isClearable
                 isSearchable
-                styles={selectStyles}
-                className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
-                noOptionsMessage={({ inputValue }) => 
+                error={field.state.meta.errors.length > 0}
+                className="w-full"
+                debounceMs={300}
+                noOptionsMessage={({ inputValue }: { inputValue: string }) => 
                   inputValue ? `No teams found for "${inputValue}"` : "No teams available"
                 }
                 loadingMessage={() => "Loading teams..."}
@@ -168,7 +137,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="text-red-500 text-sm mt-1">
-                  {field.state.meta.errors[0]}
+                  {getErrorMessage(field)}
                 </div>
               )}
             </div>
