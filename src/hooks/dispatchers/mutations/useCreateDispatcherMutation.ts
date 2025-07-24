@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
 import api from "@/lib/axios"
-import { getErrorMessage, getStatusErrorMessage } from "@/lib/error-utils"
+import { createMutationConfig } from "@/lib/mutation-utils"
 import type { IApiResponse, ICreateDispatcherRequest, IDispatcherResponse } from "@/types"
 
 const createDispatcher = async (data: ICreateDispatcherRequest): Promise<IDispatcherResponse> => {
@@ -12,38 +11,15 @@ const createDispatcher = async (data: ICreateDispatcherRequest): Promise<IDispat
 export const useCreateDispatcherMutation = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
-    mutationFn: createDispatcher,
-    onSuccess: (data) => {
-      // Invalidate dispatchers queries to refetch data
-      queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
-
-      // Show success toast
-      toast.success("Dispatcher created successfully!")
-    },
-    onError: (error: any) => {
-      console.error("Create dispatcher failed:", error)
-
-      // Prioritize server error message, then fallback to generic messages
-      let errorMessage = error?.response?.data?.message || getErrorMessage(error)
-
-      // Provide more specific messages based on status
-      if (error?.response?.status) {
-        const status = error.response.status
-        if (status === 400) {
-          errorMessage =
-            error?.response?.data?.message || "Invalid dispatcher data. Please check your input and try again."
-        } else if (status === 409) {
-          errorMessage = error?.response?.data?.message || "Dispatcher with this name already exists."
-        } else if (status === 500) {
-          errorMessage = error?.response?.data?.message || "Server error. Please try again later."
-        } else {
-          errorMessage = error?.response?.data?.message || getStatusErrorMessage(status)
-        }
+  return useMutation(
+    createMutationConfig(
+      createDispatcher,
+      'dispatcher',
+      'create',
+      () => {
+        // Invalidate dispatchers queries to refetch data
+        queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
       }
-
-      // Show error toast
-      toast.error(errorMessage)
-    }
-  })
+    )
+  )
 }

@@ -1,23 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/axios"
 import { createMutationConfig } from "@/lib/mutation-utils"
-import type { IApiResponse, IUpdateTripRequest, ITripResponse } from "@/types"
+import type { IApiResponse, IChangeStatusRequest, IChangeStatusResponse } from "@/types"
 
-const updateTrip = async (id: number, data: IUpdateTripRequest): Promise<ITripResponse> => {
-  const response = await api.put<IApiResponse<ITripResponse>>(`/trips/${id}`, data)
+const changeStatus = async ({ id, active }: IChangeStatusRequest): Promise<IChangeStatusResponse> => {
+  const response = await api.patch<IApiResponse<IChangeStatusResponse>>(`/trips/change-status/${id}`, null, {
+    params: { active }
+  })
   return response.data.data
 }
 
-export const useUpdateTripMutation = () => {
+export const useChangeTripStatusMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation(
     createMutationConfig(
-      ({ id, data }: { id: number; data: IUpdateTripRequest }) => updateTrip(id, data),
-      "trip",
-      "update",
+      changeStatus,
+      'trip',
+      'status',
       (data, variables) => {
-        // Invalidate and update specific trip query
+        // Invalidate related queries
         queryClient.invalidateQueries({ queryKey: ["trip", variables.id] })
         queryClient.invalidateQueries({ queryKey: ["trip-info", variables.id] })
         queryClient.invalidateQueries({ queryKey: ["trips"] })
