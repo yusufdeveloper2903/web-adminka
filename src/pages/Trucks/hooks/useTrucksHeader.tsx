@@ -1,6 +1,7 @@
-import { useHeaderStore, useTripsViewStore } from "@/store"
-import { Loader2, RefreshCw } from "lucide-react"
+import { useHeaderStore, useTripsViewStore, useDrawerStore } from "@/store"
+import { Loader2, Plus, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
+import { NewTruckForm } from "../components"
 
 interface UseTrucksHeaderParams {
   isLoading: boolean
@@ -10,6 +11,7 @@ interface UseTrucksHeaderParams {
 
 const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
   const { view, setView } = useTripsViewStore()
 
   // State for each filter
@@ -18,11 +20,31 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
   const [loadFilter] = useState<string | undefined>()
 
   useEffect(() => {
+    const addTruckIcon = <Plus className="mr-2 h-4 w-4" />
     const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
 
     setHeaderConfig({
       title: "Trucks",
       metadata: `Total: ${totalDBRowCount} trucks`,
+      actions: [
+        {
+          id: "add_truck",
+          label: "Add Truck",
+          icon: addTruckIcon,
+          onClick: () =>
+            setDrawerConfig({
+              title: "Add New Truck",
+              content: <NewTruckForm />
+            })
+        },
+        {
+          id: "refresh_trucks",
+          icon: refreshIcon,
+          onClick: () => refetch(),
+          variant: "outline",
+          disabled: isLoading
+        }
+      ],
       filters: [
         {
           id: "unit",
@@ -43,15 +65,6 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
             { value: "driver-2", label: "Driver 2" }
           ],
           onValueChange: setDriverFilter
-        }
-      ],
-      actions: [
-        {
-          id: "refresh_trips",
-          icon: refreshIcon,
-          onClick: () => refetch(),
-          variant: "outline",
-          disabled: isLoading
         }
       ]
     })

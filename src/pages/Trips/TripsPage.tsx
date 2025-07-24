@@ -30,8 +30,6 @@ const TripsPage = () => {
 
   // Route click handler - switch to map view and show trip route
   const handleRouteClick = (trip: any) => {
-    console.log("Route clicked for trip:", trip)
-
     // Start loading state
     setCalculatingRoute(true)
 
@@ -49,8 +47,6 @@ const TripsPage = () => {
 
   // Edit click handler - open drawer with trip data
   const handleEditClick = (trip: ITripResponse) => {
-    console.log("Edit clicked for trip:", trip)
-
     // Open drawer with edit form
     setDrawerConfig({
       title: `Edit Trip: ${trip.loadNumber}`,
@@ -84,9 +80,6 @@ const TripsPage = () => {
     onRouteClick: handleRouteClick,
     onEditClick: handleEditClick
   })
-
-  console.log("columns", columns)
-  console.log("flatData", flatData)
 
   return (
     <div className="relative h-full w-full">
