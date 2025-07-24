@@ -14,13 +14,20 @@ const TeamFormFields = ({ form }: TeamFormFieldsProps) => {
         <form.Field
           name="name"
           children={(field: any) => (
-            <Input
-              placeholder="Enter Team Name"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
+            <div>
+              <Input
+                placeholder="Enter Team Name"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+              />
+              {field.state.meta.errors.length > 0 && (
+                <div className="text-red-500 text-sm mt-1">
+                  {field.state.meta.errors[0]}
+                </div>
+              )}
+            </div>
           )}
         />
       </div>

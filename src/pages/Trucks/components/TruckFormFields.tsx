@@ -84,44 +84,6 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
         />
       </div>
 
-      {/* Home Latitude */}
-      <div className="space-y-2">
-        <Label htmlFor="homeLatitude">Home Latitude</Label>
-        <form.Field
-          name="homeLatitude"
-          children={(field: any) => (
-            <Input
-              placeholder="Enter Home Latitude"
-              type="number"
-              step="any"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
-          )}
-        />
-      </div>
-
-      {/* Home Longitude */}
-      <div className="space-y-2">
-        <Label htmlFor="homeLongitude">Home Longitude</Label>
-        <form.Field
-          name="homeLongitude"
-          children={(field: any) => (
-            <Input
-              placeholder="Enter Home Longitude"
-              type="number"
-              step="any"
-              value={field.state.value}
-              onChange={(e) => field.handleChange(e.target.value)}
-              onBlur={field.handleBlur}
-              className="w-full"
-            />
-          )}
-        />
-      </div>
-
       {/* License Plate */}
       <div className="space-y-2">
         <Label htmlFor="licencePlate">License Plate</Label>

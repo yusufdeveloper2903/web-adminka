@@ -28,6 +28,9 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
       lastName: dispatcher?.lastName || "",
       teamId: dispatcher?.teamId?.toString() || ""
     },
+    validators: {
+      onChange: dispatcherFormSchema
+    },
     onSubmit: async ({ value }) => {
       try {
         const validatedData = dispatcherFormSchema.parse(value)

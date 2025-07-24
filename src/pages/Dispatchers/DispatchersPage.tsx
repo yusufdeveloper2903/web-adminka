@@ -71,6 +71,7 @@ const DispatchersPage = () => {
 
   return (
     <DataTable
+      key={currentTab} // Force re-render when tab changes
       columns={columns}
       data={flatData}
       isLoading={isLoading}

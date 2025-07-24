@@ -37,6 +37,15 @@ const NewTeamForm = ({ team, onClose }: NewTeamFormProps) => {
       >
         {/* Team Form Fields */}
         <TeamFormFields form={form} />
+        
+        {/* Show validation errors */}
+        {form.state.errors && form.state.errors.length > 0 && (
+          <div className="text-red-500 text-sm">
+            {form.state.errors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </div>
+        )}
 
         {/* Bottom buttons */}
         <div className="flex justify-between">

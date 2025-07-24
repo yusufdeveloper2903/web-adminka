@@ -24,6 +24,9 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
     defaultValues: {
       name: team?.name || ""
     },
+    validators: {
+      onChange: teamFormSchema
+    },
     onSubmit: async ({ value }) => {
       try {
         const validatedData = teamFormSchema.parse(value)

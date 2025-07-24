@@ -37,6 +37,15 @@ const NewDispatcherForm = ({ dispatcher, onClose }: NewDispatcherFormProps) => {
       >
         {/* Dispatcher Form Fields */}
         <DispatcherFormFields form={form} />
+        
+        {/* Show validation errors */}
+        {form.state.errors && form.state.errors.length > 0 && (
+          <div className="text-red-500 text-sm">
+            {form.state.errors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </div>
+        )}
 
         {/* Bottom buttons */}
         <div className="flex justify-between">
@@ -49,13 +58,7 @@ const NewDispatcherForm = ({ dispatcher, onClose }: NewDispatcherFormProps) => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEditing
-                  ? "Updating..."
-                  : "Creating..."
-                : isEditing
-                  ? "Update Dispatcher"
-                  : "Create Dispatcher"}
+              {isSubmitting ? (isEditing ? "Updating..." : "Creating...") : isEditing ? "Submit" : "Submit"}
             </Button>
           </div>
         </div>

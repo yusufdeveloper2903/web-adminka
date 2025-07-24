@@ -5,7 +5,7 @@ import TruckFormFields from "./TruckFormFields"
 
 const NewTruckForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { form, resetForm, truckFormSchema, isSubmitting } = useTruckForm()
+  const { form, resetForm, isSubmitting } = useTruckForm()
 
   const handleDeleteTruck = () => {
     resetForm()
