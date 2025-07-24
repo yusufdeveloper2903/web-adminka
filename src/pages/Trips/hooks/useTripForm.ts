@@ -4,7 +4,7 @@ import { z } from "zod"
 import { useDrawerStore } from "@/store"
 import { useCreateTripMutation } from "@/hooks/trips"
 import type { ITripStopResponse, ICreateTripRequest } from "@/types"
-import { INPUT_DATETIME_LOCAL_FORMAT, BACKEND_DATETIME_FORMAT, DEFAULT_WORK_HOURS } from "@/constants"
+import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
 
 // Zod validation schema - only start/end odometer optional
@@ -49,7 +49,7 @@ export const useTripForm = () => {
       endOdometer: ""
     },
     validators: {
-      onChange: tripFormSchema
+      onChange: tripFormSchema as any
     },
 
     onSubmit: async ({ value }) => {
@@ -67,8 +67,8 @@ export const useTripForm = () => {
           loadNumber: validatedData.loadNumber,
           startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
           endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
-          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : undefined,
-          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : undefined,
+          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : (undefined as any),
+          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : (undefined as any),
           tripStops: stops
         }
 

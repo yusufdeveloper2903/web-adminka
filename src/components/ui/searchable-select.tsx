@@ -10,13 +10,15 @@ export interface SearchableSelectOption {
   data?: any
 }
 
-interface SearchableSelectProps extends Omit<ReactSelectProps<SearchableSelectOption>, "styles" | "components" | "onChange"> {
+interface SearchableSelectProps
+  extends Omit<ReactSelectProps<SearchableSelectOption>, "styles" | "components" | "onChange"> {
   className?: string
   error?: boolean
   onMenuScrollToBottom?: () => void
   onDebouncedInputChange?: (value: string) => void
   debounceMs?: number
-  onChange?: (value: SearchableSelectOption | null) => void
+  // onChange?: (value: SearchableSelectOption | null) => void
+  onChange?: any
 }
 
 // Custom components to match shadcn/ui design

@@ -45,6 +45,13 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       }
     },
     {
+      accessorKey: "team",
+      header: "Team",
+      meta: {
+        className: "min-w-[80px] w-[8%]"
+      }
+    },
+    {
       accessorKey: "teamId",
       header: "Team ID",
       meta: {

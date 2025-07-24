@@ -78,7 +78,7 @@ const TripsPage = () => {
   // Columns with handlers
   const columns = useTripsColumns({
     onRouteClick: handleRouteClick,
-    onEditClick: handleEditClick
+    onEditClick: handleEditClick as any
   })
 
   return (
@@ -92,7 +92,7 @@ const TripsPage = () => {
       >
         <DataTable
           columns={columns}
-          data={flatData}
+          data={flatData as any}
           isLoading={isLoading}
           isFetching={isFetchingNextPage}
           fetchNextPage={fetchNextPage}
@@ -118,7 +118,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        {/* <TripsMapView isVisible={view === "map"} /> */}
+        <TripsMapView isVisible={view === "map"} />
       </div>
     </div>
   )

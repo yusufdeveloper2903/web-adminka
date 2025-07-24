@@ -37,12 +37,12 @@ const NewTeamForm = ({ team, onClose }: NewTeamFormProps) => {
       >
         {/* Team Form Fields */}
         <TeamFormFields form={form} />
-        
+
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
-          <div className="text-red-500 text-sm">
+          <div className="text-sm text-red-500">
             {form.state.errors.map((error, index) => (
-              <div key={index}>{error}</div>
+              <div key={index}>{error as any}</div>
             ))}
           </div>
         )}

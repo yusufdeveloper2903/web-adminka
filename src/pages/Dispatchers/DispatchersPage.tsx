@@ -51,7 +51,7 @@ const DispatchersPage = () => {
 
   // Memoized data from API
   const flatData = useMemo(() => {
-    return currentData?.pages?.flatMap((page) => page.content) ?? []
+    return currentData?.pages?.flatMap((page) => page.content as any) ?? []
   }, [currentData])
 
   const totalDBRowCount = currentData?.pages?.[0]?.totalElements ?? flatData.length
@@ -72,7 +72,7 @@ const DispatchersPage = () => {
   return (
     <DataTable
       key={currentTab} // Force re-render when tab changes
-      columns={columns}
+      columns={columns as any}
       data={flatData}
       isLoading={isLoading}
       isFetching={isFetchingNextPage}

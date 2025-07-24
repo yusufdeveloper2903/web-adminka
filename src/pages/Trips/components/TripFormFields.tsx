@@ -23,16 +23,26 @@ interface DispatcherOption extends SearchableSelectOption {
 const TripFormFields = ({ form }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
-  
+
   // Fetch trucks with search
-  const { data: trucksData, fetchNextPage: fetchNextTrucksPage, hasNextPage: hasNextTrucksPage, isFetchingNextPage: isFetchingNextTrucksPage } = useTrucksInfiniteQuery({
+  const {
+    data: trucksData,
+    fetchNextPage: fetchNextTrucksPage,
+    hasNextPage: hasNextTrucksPage,
+    isFetchingNextPage: isFetchingNextTrucksPage
+  } = useTrucksInfiniteQuery({
     keyword: truckSearchKeyword,
     active: true,
     size: 20
   })
 
   // Fetch dispatchers with search
-  const { data: dispatchersData, fetchNextPage: fetchNextDispatchersPage, hasNextPage: hasNextDispatchersPage, isFetchingNextPage: isFetchingNextDispatchersPage } = useDispatchersInfiniteQuery({
+  const {
+    data: dispatchersData,
+    fetchNextPage: fetchNextDispatchersPage,
+    hasNextPage: hasNextDispatchersPage,
+    isFetchingNextPage: isFetchingNextDispatchersPage
+  } = useDispatchersInfiniteQuery({
     keyword: dispatcherSearchKeyword,
     active: true,
     size: 20
@@ -41,10 +51,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Convert trucks data to SearchableSelect options
   const truckOptions: TruckOption[] = useMemo(() => {
     if (!trucksData?.pages) return []
-    
+
     return trucksData.pages
-      .flatMap(page => page.content)
-      .map(truck => ({
+      .flatMap((page) => page.content)
+      .map((truck) => ({
         value: truck.id.toString(),
         label: `${truck.unitNumber} - ${truck.licencePlate}`,
         data: truck
@@ -54,10 +64,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Convert dispatchers data to SearchableSelect options
   const dispatcherOptions: DispatcherOption[] = useMemo(() => {
     if (!dispatchersData?.pages) return []
-    
+
     return dispatchersData.pages
-      .flatMap(page => page.content)
-      .map(dispatcher => ({
+      .flatMap((page) => page.content)
+      .map((dispatcher) => ({
         value: dispatcher.id.toString(),
         label: `${dispatcher.firstName} ${dispatcher.lastName}`,
         data: dispatcher
@@ -67,14 +77,14 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
-    
+
     const error = field.state.meta.errors[0]
     // Handle Zod validation error objects
-    if (typeof error === 'object' && error.message) {
+    if (typeof error === "object" && error.message) {
       return error.message
     }
     // Handle string errors
-    if (typeof error === 'string') {
+    if (typeof error === "string") {
       return error
     }
     return "Invalid value"
@@ -92,8 +102,8 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
               <div>
                 <SearchableSelect
                   options={truckOptions}
-                  value={truckOptions.find(option => option.value === field.state.value) || null}
-                  onChange={(selectedOption: TruckOption | null) => {
+                  value={truckOptions.find((option) => option.value === field.state.value) || null}
+                  onChange={(selectedOption: any) => {
                     field.handleChange(selectedOption?.value || "")
                   }}
                   onDebouncedInputChange={(debouncedValue: string) => {
@@ -110,16 +120,14 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   error={field.state.meta.errors.length > 0}
                   className="w-full"
                   debounceMs={300}
-                  noOptionsMessage={({ inputValue }: { inputValue: string }) => 
+                  noOptionsMessage={({ inputValue }: { inputValue: string }) =>
                     inputValue ? `No trucks found for "${inputValue}"` : "No trucks available"
                   }
                   loadingMessage={() => "Loading trucks..."}
                   isLoading={isFetchingNextTrucksPage}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
@@ -137,12 +145,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
@@ -159,8 +165,8 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
             <div>
               <SearchableSelect
                 options={dispatcherOptions}
-                value={dispatcherOptions.find(option => option.value === field.state.value) || null}
-                onChange={(selectedOption: DispatcherOption | null) => {
+                value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
+                onChange={(selectedOption: any) => {
                   field.handleChange(selectedOption?.value || "")
                 }}
                 onDebouncedInputChange={(debouncedValue: string) => {
@@ -177,16 +183,14 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                 error={field.state.meta.errors.length > 0}
                 className="w-full"
                 debounceMs={300}
-                noOptionsMessage={({ inputValue }: { inputValue: string }) => 
+                noOptionsMessage={({ inputValue }: { inputValue: string }) =>
                   inputValue ? `No dispatchers found for "${inputValue}"` : "No dispatchers available"
                 }
                 loadingMessage={() => "Loading dispatchers..."}
                 isLoading={isFetchingNextDispatchersPage}
               />
               {field.state.meta.errors.length > 0 && (
-                <div className="text-red-500 text-sm mt-1">
-                  {getErrorMessage(field)}
-                </div>
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
               )}
             </div>
           )}
@@ -205,12 +209,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   value={field.state.value}
                   onChange={field.handleChange}
                   placeholder="Select start date and time"
-                  className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
@@ -227,12 +229,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   value={field.state.value}
                   onChange={field.handleChange}
                   placeholder="Select end date and time"
-                  className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
@@ -255,12 +255,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
@@ -280,12 +278,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {getErrorMessage(field)}
-                  </div>
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
                 )}
               </div>
             )}
