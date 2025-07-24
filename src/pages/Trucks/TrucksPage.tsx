@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import useTrucksHeader from "./hooks/useTrucksHeader"
 import useTrucksColumns from "./hooks/useTrucksColumns"
 import { DataTable } from "@/components/shared"
-import useTrucksInfiniteQuery from "@/hooks/queries/useTrucksInfiniteQuery"
+import useTrucksInfiniteQuery from "@/hooks/trucks/queries/useTrucksInfiniteQuery"
 import type { SortingState } from "@tanstack/react-table"
 import type { TripAPIResponse } from "./api"
 
@@ -33,7 +33,6 @@ const TrucksPage = () => {
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
       hasNextPage={!!hasNextPage}
-      
     />
   )
 }

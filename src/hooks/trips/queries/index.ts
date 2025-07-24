@@ -1,5 +1,6 @@
+export { useTripsInfiniteQuery } from "./useTripsInfiniteQuery"
 export { useTripsQuery } from "./useTripsQuery"
-export { useTripQuery } from "./useTripQuery"
 export { useTripSummaryQuery } from "./useTripSummaryQuery"
 export { useLoadNumbersQuery } from "./useLoadNumbersQuery"
 export { useTripInfoQuery } from "./useTripInfoQuery"
+export { useHereAutosuggestQuery } from "./useHereAutosuggestQuery"

@@ -1,28 +1,16 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import api from "@/lib/axios"
-import type { IApiResponse, ITripsFiltersRequest, ITripsResponse } from "@/types"
+import type { IApiResponse, ITripResponse } from "@/types"
 
-const fetchTrips = async (filters: ITripsFiltersRequest, pageParam: number): Promise<ITripsResponse> => {
-  const params = {
-    ...filters,
-    page: pageParam,
-    size: filters.size || 20
-  }
-
-  const response = await api.get<IApiResponse<ITripsResponse>>("/trips", { params })
+const fetchTrip = async (id: number): Promise<ITripResponse> => {
+  const response = await api.get<IApiResponse<ITripResponse>>(`/trips/${id}`)
   return response.data.data
 }
 
-export const useTripsQuery = (filters: ITripsFiltersRequest = {}) => {
-  return useInfiniteQuery({
-    queryKey: ["trips", filters],
-    queryFn: ({ pageParam = 0 }) => fetchTrips(filters, pageParam),
-    getNextPageParam: (lastPage) => {
-      if (lastPage.number < lastPage.totalPages - 1) {
-        return lastPage.number + 1
-      }
-      return undefined
-    },
-    initialPageParam: 0
+export const useTripsQuery = (id: number, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["trip", id],
+    queryFn: () => fetchTrip(id),
+    enabled: enabled && !!id
   })
 }

@@ -2,33 +2,34 @@ import { useMemo, useState } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { DataTable } from "@/components/shared"
-import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
-import type { SortingState } from "@tanstack/react-table"
-import type { TripAPIResponse } from "./api"
 import { TripsMapView, NewRouteForm, RouteSettingsPopover } from "./components"
 import { useTripsViewStore, useRouteStore, useDrawerStore } from "@/store"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { RouteIcon } from "lucide-react"
-import type { Trip } from "./hooks/useTripsColumns"
+import { useTripsInfiniteQuery } from "@/hooks/trips"
+import type { ITripResponse, ITripsFiltersRequest } from "@/types"
 
 const TripsPage = () => {
-  const [sorting] = useState<SortingState>([])
+  const [filters] = useState<ITripsFiltersRequest>({
+    size: 20,
+    active: true
+  })
 
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
+  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(filters)
   const { view, setView } = useTripsViewStore()
   const { setTripData, setCalculatingRoute } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // Memoized data from API
   const flatData = useMemo(() => {
-    return data?.pages?.flatMap((page: TripAPIResponse) => page.data) ?? []
+    return data?.pages?.flatMap((page) => page.content) ?? []
   }, [data])
 
-  const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? flatData.length
+  const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
 
   // Route click handler - switch to map view and show trip route
-  const handleRouteClick = (trip: Trip) => {
+  const handleRouteClick = (trip: any) => {
     console.log("Route clicked for trip:", trip)
 
     // Start loading state
@@ -47,7 +48,7 @@ const TripsPage = () => {
   }
 
   // Edit click handler - open drawer with trip data
-  const handleEditClick = (trip: Trip) => {
+  const handleEditClick = (trip: ITripResponse) => {
     console.log("Edit clicked for trip:", trip)
 
     // Open drawer with edit form
@@ -124,7 +125,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        <TripsMapView isVisible={view === "map"} />
+        {/* <TripsMapView isVisible={view === "map"} /> */}
       </div>
     </div>
   )
