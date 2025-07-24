@@ -1,14 +1,28 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
-import { fetchTrucks, type TripAPIResponse } from "@/pages/Trucks/api"
-import type { SortingState } from "@tanstack/react-table"
+import api from "@/lib/axios"
+import type { IApiResponse, ITrucksFiltersRequest, ITrucksResponse } from "@/types"
 
-const useTrucksInfiniteQuery = (sorting: SortingState) => {
-  return useInfiniteQuery<TripAPIResponse>({
-    queryKey: ["trucks", sorting],
-    queryFn: (context) => fetchTrucks({ pageParam: context.pageParam as number, sorting }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.meta.nextOffset
-  })
+const fetchTrucks = async (filters: ITrucksFiltersRequest, pageParam: number): Promise<ITrucksResponse> => {
+  const params = {
+    ...filters,
+    page: pageParam,
+    size: filters.size || 20
+  }
+
+  const response = await api.get<IApiResponse<ITrucksResponse>>("/trucks", { params })
+  return response.data.data
 }
 
-export default useTrucksInfiniteQuery
+export const useTrucksInfiniteQuery = (filters: ITrucksFiltersRequest = {}) => {
+  return useInfiniteQuery({
+    queryKey: ["trucks", filters],
+    queryFn: ({ pageParam = 0 }) => fetchTrucks(filters, pageParam),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.number < lastPage.totalPages - 1) {
+        return lastPage.number + 1
+      }
+      return undefined
+    },
+    initialPageParam: 0
+  })
+}

@@ -1,1 +1,2 @@
-export { default as useTrucksInfiniteQuery } from "./useTrucksInfiniteQuery"
+export { useTrucksInfiniteQuery } from "./useTrucksInfiniteQuery"
+export { useTruckQuery } from "./useTruckQuery"

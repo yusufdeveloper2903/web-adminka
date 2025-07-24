@@ -200,6 +200,7 @@ export const TableVirtualized = <TData,>({
               {rows[virtualRow.index].getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
+                  title={cell.getValue() != null ? String(cell.getValue()) : undefined}
                   className={cn("flex items-center px-1 py-1.5", cell.column.columnDef.meta?.className)}
                 >
                   <div className="w-full truncate p-1">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>

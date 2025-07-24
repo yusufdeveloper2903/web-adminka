@@ -2,17 +2,23 @@ import { useMemo, useState } from "react"
 import useTrucksHeader from "./hooks/useTrucksHeader"
 import useTrucksColumns from "./hooks/useTrucksColumns"
 import { DataTable } from "@/components/shared"
-import useTrucksInfiniteQuery from "@/hooks/trucks/queries/useTrucksInfiniteQuery"
-import type { SortingState } from "@tanstack/react-table"
-import type { TripAPIResponse } from "./api"
+import { useTrucksInfiniteQuery } from "@/hooks/trucks"
+import type { ITrucksFiltersRequest } from "@/types"
 
 const TrucksPage = () => {
-  const [sorting] = useState<SortingState>([])
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTrucksInfiniteQuery(sorting)
+  const [filters] = useState<ITrucksFiltersRequest>({
+    size: 20,
+    active: true
+  })
 
-  // Memoized data
-  const flatData = useMemo(() => data?.pages?.flatMap((page: TripAPIResponse) => page.data) ?? [], [data])
-  const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? 0
+  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTrucksInfiniteQuery(filters)
+
+  // Memoized data from API
+  const flatData = useMemo(() => {
+    return data?.pages?.flatMap((page) => page.content) ?? []
+  }, [data])
+
+  const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
 
   // Header Configuration Hook
   useTrucksHeader({
