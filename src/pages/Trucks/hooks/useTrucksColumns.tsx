@@ -2,23 +2,12 @@ import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Edit } from "lucide-react"
 import { useDrawerStore } from "@/store"
-import TruckEditForm from "@/pages/Trips/components/TruckEditForm"
+import { NewTruckForm } from "../components"
+import type { ITruckResponse } from "@/types"
+import dayjs from "dayjs"
+import { BACKEND_DATETIME_FORMAT } from "@/constants"
 
-export type Trucks = {
-  id: string
-  unit: string
-  driver: string
-  company: string
-  dispatcher: string
-  license_plate: string
-  samsara_vin: string
-  gle_vin: string
-  home_location: string
-  current_location: string
-  updated: string
-}
-
-const useTrucksColumns = (): ColumnDef<Trucks>[] => {
+const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
 
   return [
@@ -30,74 +19,61 @@ const useTrucksColumns = (): ColumnDef<Trucks>[] => {
       }
     },
     {
-      accessorKey: "unit",
+      accessorKey: "unitNumber",
       header: "Unit",
       meta: {
         className: "min-w-[100px] w-[8%]"
       }
     },
     {
-      accessorKey: "driver",
+      accessorKey: "driverNames",
       header: "Driver",
       meta: {
         className: "min-w-[180px] w-[15%]"
       }
     },
     {
-      accessorKey: "company",
+      accessorKey: "companyName",
       header: "Company",
       meta: {
-        className: "min-w-[120px] w-[10%]"
+        className: "min-w-[200px]"
       }
     },
     {
-      accessorKey: "dispatcher",
-      header: "Dispatcher",
-      meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
-    },
-    {
-      accessorKey: "license_plate",
+      accessorKey: "licencePlate",
       header: "License Plate",
       meta: {
         className: "min-w-[120px] w-[10%]"
       }
     },
     {
-      accessorKey: "samsara_vin",
+      accessorKey: "samsaraVin",
       header: "Samsara VIN",
       meta: {
         className: "min-w-[180px] w-[15%]"
       }
     },
     {
-      accessorKey: "gle_vin",
+      accessorKey: "vinNumber",
       header: "GLE VIN",
       meta: {
-        className: "min-w-[120px] w-[10%]"
+        className: "min-w-[180px] w-[15%]"
       }
     },
     {
-      accessorKey: "home_location",
+      accessorKey: "homeLocation",
       header: "Home Location",
       meta: {
         className: "min-w-[120px] w-[10%]"
       }
     },
     {
-      accessorKey: "current_location",
-      header: "Current Location",
-      meta: {
-        className: "min-w-[180px] w-[15%]"
-      }
-    },
-    {
       accessorKey: "updated",
       header: "Updated",
       meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
+        className: "min-w-[160px] w-[12%]"
+      },
+      cell: ({ getValue }) => dayjs(getValue() as string).format(BACKEND_DATETIME_FORMAT)
     },
     {
       id: "actions",
@@ -105,7 +81,9 @@ const useTrucksColumns = (): ColumnDef<Trucks>[] => {
       meta: {
         className: "min-w-[120px] w-[10%] text-center"
       },
-      cell: () => {
+      cell: ({ row }) => {
+        const truck = row.original
+
         return (
           <div className="flex justify-center">
             <Button
@@ -113,17 +91,8 @@ const useTrucksColumns = (): ColumnDef<Trucks>[] => {
               size="icon"
               onClick={() => {
                 setDrawerConfig({
-                  title: "Edit Truck",
-                  width: "sm:max-w-md",
-                  content: (
-                    <TruckEditForm
-                      onClose={closeDrawer}
-                      onSubmit={(data) => {
-                        console.log("Truck data:", data)
-                        closeDrawer()
-                      }}
-                    />
-                  )
+                  title: `Edit Truck: ${truck.unitNumber}`,
+                  content: <NewTruckForm truck={truck} onClose={closeDrawer} />
                 })
               }}
             >

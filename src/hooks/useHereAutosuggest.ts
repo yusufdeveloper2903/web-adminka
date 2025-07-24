@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react"
 import { useDebounceValue } from "usehooks-ts"
 import type { HereAutosuggestResult, UseAutosuggestOptions } from "@/types"
-import { useHereAutosuggestQuery } from "./queries"
+import { useHereAutosuggestQuery } from "@/hooks/trips"
 
 const DEFAULT_OPTIONS: Required<UseAutosuggestOptions> = {
   debounceMs: 300,

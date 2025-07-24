@@ -2,35 +2,34 @@ import { useMemo, useState } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { DataTable } from "@/components/shared"
-import useTripsInfiniteQuery from "@/hooks/queries/useTripsInfiniteQuery"
-import type { SortingState } from "@tanstack/react-table"
-import type { TripAPIResponse } from "./api"
 import { TripsMapView, NewRouteForm, RouteSettingsPopover } from "./components"
 import { useTripsViewStore, useRouteStore, useDrawerStore } from "@/store"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { RouteIcon } from "lucide-react"
-import type { Trip } from "./hooks/useTripsColumns"
+import { useTripsInfiniteQuery } from "@/hooks/trips"
+import type { ITripResponse, ITripsFiltersRequest } from "@/types"
 
 const TripsPage = () => {
-  const [sorting] = useState<SortingState>([])
+  const [filters] = useState<ITripsFiltersRequest>({
+    size: 20,
+    active: true
+  })
 
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(sorting)
+  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(filters)
   const { view, setView } = useTripsViewStore()
   const { setTripData, setCalculatingRoute } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // Memoized data from API
   const flatData = useMemo(() => {
-    return data?.pages?.flatMap((page: TripAPIResponse) => page.data) ?? []
+    return data?.pages?.flatMap((page) => page.content) ?? []
   }, [data])
 
-  const totalDBRowCount = data?.pages?.[0]?.meta?.totalRowCount ?? flatData.length
+  const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
 
   // Route click handler - switch to map view and show trip route
-  const handleRouteClick = (trip: Trip) => {
-    console.log("Route clicked for trip:", trip)
-
+  const handleRouteClick = (trip: any) => {
     // Start loading state
     setCalculatingRoute(true)
 
@@ -47,9 +46,7 @@ const TripsPage = () => {
   }
 
   // Edit click handler - open drawer with trip data
-  const handleEditClick = (trip: Trip) => {
-    console.log("Edit clicked for trip:", trip)
-
+  const handleEditClick = (trip: ITripResponse) => {
     // Open drawer with edit form
     setDrawerConfig({
       title: `Edit Trip: ${trip.loadNumber}`,
@@ -81,11 +78,8 @@ const TripsPage = () => {
   // Columns with handlers
   const columns = useTripsColumns({
     onRouteClick: handleRouteClick,
-    onEditClick: handleEditClick
+    onEditClick: handleEditClick as any
   })
-
-  console.log("columns", columns)
-  console.log("flatData", flatData)
 
   return (
     <div className="relative h-full w-full">
@@ -98,7 +92,7 @@ const TripsPage = () => {
       >
         <DataTable
           columns={columns}
-          data={flatData}
+          data={flatData as any}
           isLoading={isLoading}
           isFetching={isFetchingNextPage}
           fetchNextPage={fetchNextPage}

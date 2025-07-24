@@ -21,7 +21,7 @@ const initialState = {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   ...initialState,
-  
+
   login: (user: IUser) => {
     set({
       isAuthenticated: true,
@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isLoading: false
     })
   },
-  
+
   logout: () => {
     set({
       isAuthenticated: false,
@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     })
     performLogout()
   },
-  
+
   setUser: (user: IUser | null) => {
     set({
       user,
@@ -46,14 +46,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isLoading: false
     })
   },
-  
+
   setLoading: (loading: boolean) => {
     set({ isLoading: loading })
   },
-  
+
   checkAuthStatus: () => {
-    const token = localStorage.getItem('access_token')
-    
+    const token = localStorage.getItem("access_token")
+
     if (!token) {
       set({
         isAuthenticated: false,
@@ -64,36 +64,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     // Import token validation
-    import('@/lib/token-utils').then(({ validateToken }) => {
-      const validation = validateToken(token)
-      
-      if (validation.isValid) {
-        set({
-          isAuthenticated: true,
-          user: get().user, // Keep existing user data
-          isLoading: false
-        })
-      } else {
-        console.warn('Token validation failed in store:', validation.reason)
-        
-        // Clear invalid tokens
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-        
-        set({
-          isAuthenticated: false,
-          user: null,
-          isLoading: false
-        })
-      }
-    }).catch(() => {
-      // Fallback to basic check if import fails
-      const authStatus = checkIsAuthenticated()
-      set({
-        isAuthenticated: authStatus,
-        user: authStatus ? get().user : null,
-        isLoading: false
+    import("@/lib/token-utils")
+      .then(({ validateToken }) => {
+        const validation = validateToken(token)
+
+        if (validation.isValid) {
+          set({
+            isAuthenticated: true,
+            user: get().user, // Keep existing user data
+            isLoading: false
+          })
+        } else {
+          console.warn("Token validation failed in store:", validation.reason)
+
+          // Clear invalid tokens
+          localStorage.removeItem("access_token")
+          localStorage.removeItem("refresh_token")
+
+          set({
+            isAuthenticated: false,
+            user: null,
+            isLoading: false
+          })
+        }
       })
-    })
+      .catch(() => {
+        // Fallback to basic check if import fails
+        const authStatus = checkIsAuthenticated()
+        set({
+          isAuthenticated: authStatus,
+          user: authStatus ? get().user : null,
+          isLoading: false
+        })
+      })
   }
 }))

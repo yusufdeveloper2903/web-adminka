@@ -102,11 +102,7 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
       meta: {
         className: "min-w-[80px] w-[6%] bg-gray-50 dark:bg-gray-800"
       },
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {(row.original.miles || 0).toLocaleString()}
-        </span>
-      )
+      cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
     },
 
     // Total Empty column (gray background, sortable)
@@ -116,11 +112,7 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
       meta: {
         className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
       },
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {(row.original.totalEmpty || 0).toLocaleString()}
-        </span>
-      )
+      cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
     },
 
     // PU column (gray background, sortable)
@@ -130,11 +122,7 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
       meta: {
         className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
       },
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {(row.original.pu || 0).toLocaleString()}
-        </span>
-      )
+      cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
     },
 
     // TRL column (gray background, sortable)
@@ -144,11 +132,7 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
       meta: {
         className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
       },
-      cell: ({ row }) => (
-        <span className="font-medium">
-          {(row.original.trl || 0).toLocaleString()}
-        </span>
-      )
+      cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
     },
 
     // Total Miles column (gray background, sortable)
@@ -159,9 +143,7 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
         className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
       },
       cell: ({ row }) => (
-        <span className="font-medium text-blue-600">
-          {(row.original.totalMiles || 0).toLocaleString()}
-        </span>
+        <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>
       )
     },
 
@@ -206,28 +188,6 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
           <span className="text-muted-foreground text-sm">
             {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </span>
-        )
-      }
-    },
-
-    // Status column
-    {
-      accessorKey: "status",
-      header: "Status",
-      meta: {
-        className: "min-w-[100px] w-[8%]"
-      },
-      cell: ({ row }) => {
-        const variant: "secondary" | "outline" | "default" =
-          row.original.status === "COMPLETED"
-            ? "secondary"
-            : row.original.status === "IN_TRANSIT"
-              ? "outline"
-              : "default"
-        return (
-          <Badge variant={variant} className="capitalize">
-            {row.original.status.replace("_", " ").toLowerCase()}
-          </Badge>
         )
       }
     },

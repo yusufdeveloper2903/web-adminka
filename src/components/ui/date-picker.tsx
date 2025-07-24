@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import {
+  UI_DATE_FORMAT,
+  UI_DATETIME_FORMAT,
+  INPUT_DATETIME_LOCAL_FORMAT,
+  DEFAULT_START_TIME,
+  MIN_DATE
+} from "@/constants"
 
 interface DatePickerProps {
   value?: Date
@@ -34,7 +41,7 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? dayjs(value).format("MMMM D, YYYY") : <span>{placeholder}</span>}
+          {value ? dayjs(value).format(UI_DATE_FORMAT) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -45,7 +52,7 @@ export function DatePicker({
             onChange(date)
             setOpen(false)
           }}
-          disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+          disabled={(date) => date > new Date() || date < new Date(MIN_DATE)}
           initialFocus
         />
       </PopoverContent>
@@ -70,7 +77,7 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(value ? new Date(value) : undefined)
-  const [timeValue, setTimeValue] = React.useState(value ? dayjs(value).format("HH:mm") : "09:00")
+  const [timeValue, setTimeValue] = React.useState(value ? dayjs(value).format("HH:mm") : DEFAULT_START_TIME)
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -80,7 +87,7 @@ export function DateTimePicker({
       newDateTime.setHours(parseInt(hours), parseInt(minutes))
 
       // Format to datetime-local string
-      const formattedDateTime = dayjs(newDateTime).format("YYYY-MM-DDTHH:mm")
+      const formattedDateTime = dayjs(newDateTime).format(INPUT_DATETIME_LOCAL_FORMAT)
       onChange(formattedDateTime)
     }
   }
@@ -92,7 +99,7 @@ export function DateTimePicker({
       const newDateTime = new Date(selectedDate)
       newDateTime.setHours(parseInt(hours), parseInt(minutes))
 
-      const formattedDateTime = dayjs(newDateTime).format("YYYY-MM-DDTHH:mm")
+      const formattedDateTime = dayjs(newDateTime).format(INPUT_DATETIME_LOCAL_FORMAT)
       onChange(formattedDateTime)
     }
   }
@@ -106,7 +113,7 @@ export function DateTimePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? dayjs(value).format("MMMM D, YYYY [at] HH:mm") : <span>{placeholder}</span>}
+          {value ? dayjs(value).format(UI_DATETIME_FORMAT) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -115,7 +122,7 @@ export function DateTimePicker({
             mode="single"
             selected={selectedDate}
             onSelect={handleDateSelect}
-            disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+            disabled={(date) => date > new Date() || date < new Date(MIN_DATE)}
             initialFocus
           />
           <div className="flex items-center gap-2 border-t pt-2">

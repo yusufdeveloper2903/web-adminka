@@ -1,5 +1,6 @@
 import {
   CompaniesPage,
+  DispatchersPage,
   LoginPage,
   ProfilePage,
   ReportsPage,
@@ -99,6 +100,17 @@ const reportsRoute = createRoute({
   component: ReportsPage
 })
 
+const dispatchersRoute = createRoute({
+  path: "dispatchers",
+  getParentRoute: () => AppLayoutRoute,
+  component: DispatchersPage,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tab: (search.tab as string) || 'dispatchers'
+    }
+  }
+})
+
 const routeTree = RootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -109,6 +121,7 @@ const routeTree = RootRoute.addChildren([
       companiesRoute,
       profileRoute,
       trucksRoute,
+      dispatchersRoute,
       usersRoute,
       systemRoute,
       routesRoute,

@@ -27,7 +27,7 @@ const AppDrawer = () => {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeDrawer()}>
-      <SheetContent 
+      <SheetContent
         className={`custom-sheet-content w-full overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
         side="right"
       >

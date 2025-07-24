@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { TripCreateDto, TripStopCreateDto } from "@/types"
+import type { ICreateTripRequest, ITripStopResponse } from "@/types"
 import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 
 interface RouteSettings {
@@ -15,8 +15,8 @@ interface RouteData {
 }
 
 interface RouteState {
-  currentRoute: TripCreateDto | null
-  routeStops: TripStopCreateDto[]
+  currentRoute: ICreateTripRequest | null
+  routeStops: ITripStopResponse[]
   isRouteVisible: boolean
   isCalculatingRoute: boolean
   routeSettings: RouteSettings
@@ -24,7 +24,7 @@ interface RouteState {
   currentTripData: Trip | null
   // HERE maps route data for dynamic updates
   hereRouteData: RouteData | null
-  setRoute: (route: TripCreateDto) => void
+  setRoute: (route: ICreateTripRequest) => void
   setTripData: (trip: Trip) => void
   setHereRouteData: (routeData: RouteData) => void
   clearRoute: () => void

@@ -8,7 +8,7 @@ import { useRouteStore } from "@/store"
 
 export const RouteSettingsPopover = () => {
   const { routeSettings, updateRouteSettings } = useRouteStore()
-  
+
   return (
     <Popover>
       <PopoverTrigger asChild>

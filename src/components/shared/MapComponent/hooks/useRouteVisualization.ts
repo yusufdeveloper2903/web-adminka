@@ -5,7 +5,7 @@ import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
 import { usePolylineVisualization } from "./usePolylineVisualization"
-import type { TripStopCreateDto } from "@/types"
+import type { ITripStopResponse } from "@/types"
 
 export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute, currentTripData } = useRouteStore()
@@ -38,7 +38,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
   }, [])
 
   // Create info bubble content
-  const createInfoBubbleContent = useCallback((stop: TripStopCreateDto, index: number) => {
+  const createInfoBubbleContent = useCallback((stop: ITripStopResponse, index: number) => {
     return `
       <div style="padding: 8px; min-width: 200px;">
         <h4 style="margin: 0 0 8px 0; font-weight: bold;">Stop ${index + 1}</h4>
