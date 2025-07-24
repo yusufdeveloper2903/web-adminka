@@ -1,6 +1,6 @@
 import { useLocation } from "@tanstack/react-router"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
-import { Car, Route as RouteIcon, BarChart3, Monitor, Building, Truck, User, Users } from "lucide-react"
+import { Car, Route as RouteIcon, BarChart3, Monitor, Building, Truck, User, Users, UserCheck } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
 import { AppSidebarFooter, AppSidebarNav } from "./components"
@@ -26,6 +26,11 @@ const menuItems = {
       title: "Trucks",
       url: "/trucks",
       icon: Truck
+    },
+    {
+      title: "Dispatchers",
+      url: "/dispatchers",
+      icon: UserCheck
     }
   ],
   settings: [

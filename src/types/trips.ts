@@ -72,8 +72,8 @@ export interface ITripResponse {
 // Trips List Response (paginated)
 export type ITripsResponse = IPaginatedResponse<ITripResponse>
 
-// Create Trip Request (POST /trips)
-export interface ICreateTripRequest {
+// Base Trip Data (common fields for create/update)
+export interface ITripData {
   truckId: number
   dispatcherId: number
   loadNumber: string
@@ -84,17 +84,11 @@ export interface ICreateTripRequest {
   tripStops: ITripStopResponse[]
 }
 
+// Create Trip Request (POST /trips)
+export type ICreateTripRequest = ITripData
+
 // Update Trip Request (PUT /trips/{id})
-export interface IUpdateTripRequest {
-  truckId: number
-  dispatcherId: number
-  loadNumber: string
-  startDateTime: string
-  endDateTime: string
-  startOdometer: number
-  endOdometer: number
-  tripStops: ITripStopResponse[]
-}
+export type IUpdateTripRequest = ITripData
 
 // Trip Summary Request (GET /trips/summary)
 export interface ITripSummaryRequest {

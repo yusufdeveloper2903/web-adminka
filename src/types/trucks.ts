@@ -27,8 +27,8 @@ export interface ITruckResponse {
 // Trucks List Response (paginated)
 export type ITrucksResponse = IPaginatedResponse<ITruckResponse>
 
-// Create Truck Request (POST /api/v1/trucks)
-export interface ICreateTruckRequest {
+// Base Truck Data (common fields for create/update)
+export interface ITruckData {
   vinNumber: string
   unitNumber: string
   samsaraVin: string
@@ -38,13 +38,8 @@ export interface ICreateTruckRequest {
   licencePlate: string
 }
 
+// Create Truck Request (POST /api/v1/trucks)
+export type ICreateTruckRequest = ITruckData
+
 // Update Truck Request (PUT /api/v1/trucks/{id})
-export interface IUpdateTruckRequest {
-  vinNumber: string
-  unitNumber: string
-  samsaraVin: string
-  homeLocation: string
-  homeLatitude: number
-  homeLongitude: number
-  licencePlate: string
-}
+export type IUpdateTruckRequest = ITruckData

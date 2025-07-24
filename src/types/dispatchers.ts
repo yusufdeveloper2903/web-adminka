@@ -21,16 +21,15 @@ export interface IDispatcherResponse {
 // Dispatchers List Response (paginated)
 export type IDispatchersResponse = IPaginatedResponse<IDispatcherResponse>
 
-// Create Dispatcher Request (POST /api/v1/dispatchers)
-export interface ICreateDispatcherRequest {
+// Base Dispatcher Data (common fields for create/update)
+export interface IDispatcherData {
   firstName: string
   lastName: string
   teamId: number
 }
 
+// Create Dispatcher Request (POST /api/v1/dispatchers)
+export type ICreateDispatcherRequest = IDispatcherData
+
 // Update Dispatcher Request (PUT /api/v1/dispatchers/{id})
-export interface IUpdateDispatcherRequest {
-  firstName: string
-  lastName: string
-  teamId: number
-}
+export type IUpdateDispatcherRequest = IDispatcherData
