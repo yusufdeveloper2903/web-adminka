@@ -1,4 +1,5 @@
 import type { HereAutosuggestResult } from "./here-maps"
+import type { IBaseFiltersRequest, IPaginatedResponse, IChangeStatusRequest, IChangeStatusResponse } from "./api"
 
 // Enums
 export enum LoadStatus {
@@ -48,14 +49,7 @@ export interface TripFormData {
 // Trip API Request/Response interfaces with I prefix
 
 // GET /trips filters
-export interface ITripsFiltersRequest {
-  id?: number
-  keyword?: string
-  active?: boolean
-  page?: number
-  size?: number
-  sortName?: string
-  sortDir?: string
+export interface ITripsFiltersRequest extends IBaseFiltersRequest {
   truckId?: number
   driverId?: number
   loadNumber?: string
@@ -76,13 +70,7 @@ export interface ITripResponse {
 }
 
 // Trips List Response (paginated)
-export interface ITripsResponse {
-  content: ITripResponse[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
+export type ITripsResponse = IPaginatedResponse<ITripResponse>
 
 // Create Trip Request (POST /trips)
 export interface ICreateTripRequest {
@@ -108,18 +96,6 @@ export interface IUpdateTripRequest {
   tripStops: ITripStopResponse[]
 }
 
-// Change Status Request (PATCH /trips/change-status/{id})
-export interface IChangeStatusRequest {
-  id: number
-  active: boolean
-}
-
-export interface IChangeStatusResponse {
-  id: number
-  active: boolean
-  message: string
-}
-
 // Trip Summary Request (GET /trips/summary)
 export interface ITripSummaryRequest {
   truckId: number
@@ -136,15 +112,7 @@ export interface ITripSummaryResponse {
 }
 
 // Load Numbers Request (GET /trips/load-numbers)
-export interface ILoadNumbersFiltersRequest {
-  id?: number
-  keyword?: string
-  active?: boolean
-  page?: number
-  size?: number
-  sortName?: string
-  sortDir?: string
-}
+export type ILoadNumbersFiltersRequest = IBaseFiltersRequest
 
 export interface ILoadNumberResponse {
   id: number
@@ -152,13 +120,7 @@ export interface ILoadNumberResponse {
   active: boolean
 }
 
-export interface ILoadNumbersResponse {
-  content: ILoadNumberResponse[]
-  totalElements: number
-  totalPages: number
-  size: number
-  number: number
-}
+export type ILoadNumbersResponse = IPaginatedResponse<ILoadNumberResponse>
 
 // Trip Info Response (GET /trips/info/{id})
 export interface ITripInfoResponse {

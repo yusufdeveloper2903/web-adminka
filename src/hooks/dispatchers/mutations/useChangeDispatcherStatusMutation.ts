@@ -4,29 +4,29 @@ import api from "@/lib/axios"
 import { getErrorMessage, getStatusErrorMessage } from "@/lib/error-utils"
 import type { IApiResponse, IChangeStatusRequest, IChangeStatusResponse } from "@/types"
 
-const changeTruckStatus = async ({ id, active }: IChangeStatusRequest): Promise<IChangeStatusResponse> => {
-  const response = await api.patch<IApiResponse<IChangeStatusResponse>>(`/trucks/change-status/${id}`, null, {
+const changeDispatcherStatus = async ({ id, active }: IChangeStatusRequest): Promise<IChangeStatusResponse> => {
+  const response = await api.patch<IApiResponse<IChangeStatusResponse>>(`/dispatchers/change-status/${id}`, null, {
     params: { active }
   })
   return response.data.data
 }
 
-export const useChangeTruckStatusMutation = () => {
+export const useChangeDispatcherStatusMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: changeTruckStatus,
+    mutationFn: changeDispatcherStatus,
     onSuccess: (data, variables) => {
       // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ["truck", variables.id] })
-      queryClient.invalidateQueries({ queryKey: ["trucks"] })
+      queryClient.invalidateQueries({ queryKey: ["dispatcher", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
 
       // Show success toast
       const statusText = data.active ? "activated" : "deactivated"
-      toast.success(`Truck ${statusText} successfully!`)
+      toast.success(`Dispatcher ${statusText} successfully!`)
     },
     onError: (error: any) => {
-      console.error("Change truck status failed:", error)
+      console.error("Change dispatcher status failed:", error)
 
       // Prioritize server error message, then fallback to generic messages
       let errorMessage = error?.response?.data?.message || getErrorMessage(error)
@@ -37,7 +37,7 @@ export const useChangeTruckStatusMutation = () => {
         if (status === 400) {
           errorMessage = error?.response?.data?.message || "Invalid status change request."
         } else if (status === 404) {
-          errorMessage = error?.response?.data?.message || "Truck not found."
+          errorMessage = error?.response?.data?.message || "Dispatcher not found."
         } else if (status === 500) {
           errorMessage = error?.response?.data?.message || "Server error. Please try again later."
         } else {

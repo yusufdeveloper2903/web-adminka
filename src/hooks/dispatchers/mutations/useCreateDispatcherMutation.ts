@@ -2,31 +2,27 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import api from "@/lib/axios"
 import { getErrorMessage, getStatusErrorMessage } from "@/lib/error-utils"
-import type { IApiResponse, IChangeStatusRequest, IChangeStatusResponse } from "@/types"
+import type { IApiResponse, ICreateDispatcherRequest, IDispatcherResponse } from "@/types"
 
-const changeTruckStatus = async ({ id, active }: IChangeStatusRequest): Promise<IChangeStatusResponse> => {
-  const response = await api.patch<IApiResponse<IChangeStatusResponse>>(`/trucks/change-status/${id}`, null, {
-    params: { active }
-  })
+const createDispatcher = async (data: ICreateDispatcherRequest): Promise<IDispatcherResponse> => {
+  const response = await api.post<IApiResponse<IDispatcherResponse>>("/dispatchers", data)
   return response.data.data
 }
 
-export const useChangeTruckStatusMutation = () => {
+export const useCreateDispatcherMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: changeTruckStatus,
-    onSuccess: (data, variables) => {
-      // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ["truck", variables.id] })
-      queryClient.invalidateQueries({ queryKey: ["trucks"] })
+    mutationFn: createDispatcher,
+    onSuccess: (data) => {
+      // Invalidate dispatchers queries to refetch data
+      queryClient.invalidateQueries({ queryKey: ["dispatchers"] })
 
       // Show success toast
-      const statusText = data.active ? "activated" : "deactivated"
-      toast.success(`Truck ${statusText} successfully!`)
+      toast.success("Dispatcher created successfully!")
     },
     onError: (error: any) => {
-      console.error("Change truck status failed:", error)
+      console.error("Create dispatcher failed:", error)
 
       // Prioritize server error message, then fallback to generic messages
       let errorMessage = error?.response?.data?.message || getErrorMessage(error)
@@ -35,9 +31,10 @@ export const useChangeTruckStatusMutation = () => {
       if (error?.response?.status) {
         const status = error.response.status
         if (status === 400) {
-          errorMessage = error?.response?.data?.message || "Invalid status change request."
-        } else if (status === 404) {
-          errorMessage = error?.response?.data?.message || "Truck not found."
+          errorMessage =
+            error?.response?.data?.message || "Invalid dispatcher data. Please check your input and try again."
+        } else if (status === 409) {
+          errorMessage = error?.response?.data?.message || "Dispatcher with this name already exists."
         } else if (status === 500) {
           errorMessage = error?.response?.data?.message || "Server error. Please try again later."
         } else {
