@@ -7,14 +7,14 @@ import type { ITripStopResponse, ICreateTripRequest } from "@/types"
 import { INPUT_DATETIME_LOCAL_FORMAT, BACKEND_DATETIME_FORMAT, DEFAULT_WORK_HOURS } from "@/constants"
 import dayjs from "dayjs"
 
-// Zod validation schema - all fields optional for testing
+// Zod validation schema - only start/end odometer optional
 const tripFormSchema = z
   .object({
-    truckId: z.string().optional(),
-    dispatcherId: z.string().optional(),
-    loadNumber: z.string().optional(),
-    startDateTime: z.string().optional(),
-    endDateTime: z.string().optional(),
+    truckId: z.string().min(1, "Truck is required"),
+    dispatcherId: z.string().min(1, "Dispatcher is required"),
+    loadNumber: z.string().min(1, "Load Number is required"),
+    startDateTime: z.string().min(1, "Start Date/Time is required"),
+    endDateTime: z.string().min(1, "End Date/Time is required"),
     startOdometer: z.string().optional(),
     endOdometer: z.string().optional()
   })
@@ -40,13 +40,16 @@ export const useTripForm = () => {
 
   const form = useForm({
     defaultValues: {
-      truckId: "626", // Default truck
-      dispatcherId: "1", // Default dispatcher
-      loadNumber: "TEST-" + Date.now().toString().slice(-6), // Auto-generated load number
-      startDateTime: dayjs().format(INPUT_DATETIME_LOCAL_FORMAT), // Current time
-      endDateTime: dayjs().add(DEFAULT_WORK_HOURS, "hours").format(INPUT_DATETIME_LOCAL_FORMAT), // 8 hours later
-      startOdometer: "100000",
-      endOdometer: "100500"
+      truckId: "",
+      dispatcherId: "",
+      loadNumber: "",
+      startDateTime: "",
+      endDateTime: "",
+      startOdometer: "",
+      endOdometer: ""
+    },
+    validators: {
+      onChange: tripFormSchema
     },
 
     onSubmit: async ({ value }) => {
@@ -59,13 +62,13 @@ export const useTripForm = () => {
         }
 
         const tripData: ICreateTripRequest = {
-          truckId: validatedData.truckId ? parseInt(validatedData.truckId) : 626,
-          dispatcherId: validatedData.dispatcherId ? parseInt(validatedData.dispatcherId) : 1,
-          loadNumber: validatedData.loadNumber || "TEST-" + Date.now().toString().slice(-6),
+          truckId: parseInt(validatedData.truckId),
+          dispatcherId: parseInt(validatedData.dispatcherId),
+          loadNumber: validatedData.loadNumber,
           startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
           endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
-          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : 100000,
-          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : 100500,
+          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : undefined,
+          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : undefined,
           tripStops: stops
         }
 

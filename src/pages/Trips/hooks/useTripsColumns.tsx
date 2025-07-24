@@ -192,28 +192,6 @@ const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): C
       }
     },
 
-    // Status column
-    {
-      accessorKey: "status",
-      header: "Status",
-      meta: {
-        className: "min-w-[100px] w-[8%]"
-      },
-      cell: ({ row }) => {
-        const variant: "secondary" | "outline" | "default" =
-          row.original.status === "COMPLETED"
-            ? "secondary"
-            : row.original.status === "IN_TRANSIT"
-              ? "outline"
-              : "default"
-        return (
-          <Badge variant={variant} className="capitalize">
-            {row.original.status.replace("_", " ").toLowerCase()}
-          </Badge>
-        )
-      }
-    },
-
     // Actions column
     {
       id: "actions",
