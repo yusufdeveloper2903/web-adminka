@@ -50,17 +50,36 @@ export const useStopManagement = (
   const handleAddStop = useCallback(() => {
     if (!newStopForm.selectedLocation) return
 
+    // Determine correct stopType based on position
+    const getCorrectStopType = (): StopType => {
+      if (stops.length === 0) return "START" as StopType
+      // For now, all middle stops are PICKUP, but this could be changed later
+      return newStopForm.stopType
+    }
+
     const newStop: Omit<ITripStopResponse, "distance" | "totalDistance" | "duration"> = {
       address: newStopForm.selectedLocation.address.label,
       loadStatus: newStopForm.loadStatus,
       orderIndex: stops.length,
       latitude: newStopForm.selectedLocation.position.lat,
       longitude: newStopForm.selectedLocation.position.lng,
-      stopType: newStopForm.stopType
+      stopType: getCorrectStopType()
     }
 
     const calculatedStop = calculateStopMetrics(stops, newStop)
-    setStops((prev) => [...prev, calculatedStop])
+    
+    setStops((prev) => {
+      const newStops = [...prev, calculatedStop]
+      
+      // Update stopTypes for all stops based on their position
+      return newStops.map((stop, index) => ({
+        ...stop,
+        stopType: index === 0 ? ("START" as StopType) : 
+                  index === newStops.length - 1 ? ("DELIVERY" as StopType) : 
+                  stop.stopType,
+        orderIndex: index
+      }))
+    })
 
     // Reset form
     setNewStopForm({
@@ -75,15 +94,22 @@ export const useStopManagement = (
     (index: number) => {
       const updatedStops = stops.filter((_, i) => i !== index)
 
-      // Recalculate distances and totals
+      // Recalculate distances, totals, and update stopTypes
       const recalculatedStops = updatedStops.map((stop, i) => {
-        if (i === 0) return { ...stop, distance: 0, totalDistance: stop.distance }
+        const baseStop = {
+          ...stop,
+          orderIndex: i,
+          stopType: i === 0 ? ("START" as StopType) : 
+                    i === updatedStops.length - 1 ? ("DELIVERY" as StopType) : 
+                    stop.stopType
+        }
+
+        if (i === 0) return { ...baseStop, distance: 0, totalDistance: baseStop.distance }
 
         const prevStop = updatedStops[i - 1]
         return {
-          ...stop,
-          totalDistance: prevStop.totalDistance + stop.distance,
-          orderIndex: i
+          ...baseStop,
+          totalDistance: prevStop.totalDistance + baseStop.distance
         }
       })
 

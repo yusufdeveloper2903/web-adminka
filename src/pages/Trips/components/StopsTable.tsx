@@ -120,7 +120,7 @@ const SortableRow = ({
       <TableCell>{formatDuration(stop.duration)}</TableCell>
       <TableCell>
         <Select
-          value={isFirst ? "START" : isLast ? "DELIVERY" : stop.stopType}
+          value={stop.stopType}
           onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}
         >
           <SelectTrigger className="w-24">
@@ -200,10 +200,13 @@ const StopsTable = ({
 
       const newStops = arrayMove(stops, oldIndex, newIndex)
 
-      // Update orderIndex for all stops
+      // Update orderIndex and stopType for all stops
       const updatedStops = newStops.map((stop, index) => ({
         ...stop,
-        orderIndex: index
+        orderIndex: index,
+        stopType: index === 0 ? ("START" as StopType) : 
+                  index === newStops.length - 1 ? ("DELIVERY" as StopType) : 
+                  stop.stopType
       }))
 
       // Visual feedback - highlight moved items
