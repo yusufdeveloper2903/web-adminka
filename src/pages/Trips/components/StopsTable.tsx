@@ -224,33 +224,33 @@ const StopsTable = ({
     <div className="space-y-2">
       <Label>Route Stops</Label>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[120px]">Stop</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Post Code</TableHead>
-              <TableHead>{distanceUnit}</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Hours</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={stops
-                  .filter((_, index) => index !== 0 && index !== stops.length - 1) // Only middle stops
-                  .map((stop) => `${stop.address}-${stop.latitude}-${stop.longitude}`)}
-                strategy={verticalListSortingStrategy}
-              >
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={stops
+              .filter((_, index) => index !== 0 && index !== stops.length - 1) // Only middle stops
+              .map((stop) => `${stop.address}-${stop.latitude}-${stop.longitude}`)}
+            strategy={verticalListSortingStrategy}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[120px]">Stop</TableHead>
+                  <TableHead>Address</TableHead>
+                  <TableHead>Post Code</TableHead>
+                  <TableHead>{distanceUnit}</TableHead>
+                  <TableHead>Total</TableHead>
+                  <TableHead>Hours</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {stops.map((stop, index) => {
                   const isFirst = index === 0
                   const isLast = index === stops.length - 1
@@ -280,10 +280,10 @@ const StopsTable = ({
                     />
                   )
                 })}
-              </SortableContext>
-            </DndContext>
-          </TableBody>
-        </Table>
+              </TableBody>
+            </Table>
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   )
