@@ -27,7 +27,7 @@ const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatD
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px]">Order</TableHead>
+              <TableHead className="w-[100px]"></TableHead>
               <TableHead>Address</TableHead>
               <TableHead>Post Code</TableHead>
               <TableHead>{distanceUnit}</TableHead>
@@ -39,56 +39,73 @@ const StopsTable = ({ stops, onRemoveStop, onStopUpdate, formatDistance, formatD
             </TableRow>
           </TableHeader>
           <TableBody>
-            {stops.map((stop, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">#{index + 1}</TableCell>
-                <TableCell className="max-w-xs truncate" title={stop.address}>
-                  {stop.address}
-                </TableCell>
-                <TableCell>{formatDistance(stop.distance)}</TableCell>
-                <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
-                <TableCell>{formatDuration(stop.duration)}</TableCell>
-                <TableCell>
-                  <Select
-                    value={stop.stopType}
-                    onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PICKUP">PICKUP</SelectItem>
-                      <SelectItem value="DELIVERY">DELIVERY</SelectItem>
-                      <SelectItem value="TRAILER">TRAILER</SelectItem>
-                      <SelectItem value="SHOP">SHOP</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={stop.loadStatus}
-                    onValueChange={(value: LoadStatus) => onStopUpdate(index, "loadStatus", value)}
-                  >
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LOADED">
-                        <span className="text-orange-600">LOADED</span>
-                      </SelectItem>
-                      <SelectItem value="EMPTY">
-                        <span className="text-blue-600">EMPTY</span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Button type="button" variant="ghost" size="icon" onClick={() => onRemoveStop(index)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {stops.map((stop, index) => {
+              const isFirst = index === 0
+              const isLast = index === stops.length - 1
+
+              let stopLabel = `Stop ${index}`
+              if (isFirst) {
+                stopLabel = "Start"
+              } else if (isLast && stops.length > 1) {
+                stopLabel = "Delivery"
+              }
+
+              return (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">
+                    <span className={`${isFirst ? "text-green-600" : isLast ? "text-red-600" : "text-blue-600"}`}>
+                      {stopLabel}
+                    </span>
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate" title={stop.address}>
+                    {stop.address}
+                  </TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>{formatDistance(stop.distance)}</TableCell>
+                  <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
+                  <TableCell>{formatDuration(stop.duration)}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={stop.stopType}
+                      onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}
+                    >
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PICKUP">PICKUP</SelectItem>
+                        <SelectItem value="DELIVERY">DELIVERY</SelectItem>
+                        <SelectItem value="TRAILER">TRAILER</SelectItem>
+                        <SelectItem value="SHOP">SHOP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={stop.loadStatus}
+                      onValueChange={(value: LoadStatus) => onStopUpdate(index, "loadStatus", value)}
+                    >
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LOADED">
+                          <span className="text-orange-600">LOADED</span>
+                        </SelectItem>
+                        <SelectItem value="EMPTY">
+                          <span className="text-blue-600">EMPTY</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Button type="button" variant="ghost" size="icon" onClick={() => onRemoveStop(index)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>
