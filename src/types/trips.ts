@@ -1,5 +1,5 @@
 import type { HereAutosuggestResult } from "./here-maps"
-import type { IBaseFiltersRequest, IPaginatedResponse, IChangeStatusRequest, IChangeStatusResponse } from "./api"
+import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
 
 // Enums
 export enum LoadStatus {
@@ -8,10 +8,17 @@ export enum LoadStatus {
 }
 
 export enum StopType {
+  START = "START",
   PICKUP = "PICKUP",
-  DELIVERY = "DELIVERY",
   TRAILER = "TRAILER",
-  SHOP = "SHOP"
+  SHOP = "SHOP",
+  DELIVERY = "DELIVERY"
+}
+
+export enum TripStatus {
+  UPCOMING = "UPCOMING",
+  IN_TRANSIT = "IN TRANSIT",
+  COMPLETED = "COMPLETED"
 }
 
 // Trip Stop DTOs

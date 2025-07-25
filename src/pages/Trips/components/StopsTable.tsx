@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { X, GripVertical } from "lucide-react"
 import { useRouteStore } from "@/store"
+import { STOP_TYPE_OPTIONS, LOAD_STATUS_OPTIONS } from "@/constants"
 import type { ITripStopResponse, LoadStatus, StopType } from "@/types"
 import { useState } from "react"
 import {
@@ -118,15 +119,19 @@ const SortableRow = ({
       <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
       <TableCell>{formatDuration(stop.duration)}</TableCell>
       <TableCell>
-        <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
+        <Select
+          value={isFirst ? "START" : isLast ? "DELIVERY" : stop.stopType}
+          onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}
+        >
           <SelectTrigger className="w-24">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="PICKUP">PICKUP</SelectItem>
-            <SelectItem value="DELIVERY">DELIVERY</SelectItem>
-            <SelectItem value="TRAILER">TRAILER</SelectItem>
-            <SelectItem value="SHOP">SHOP</SelectItem>
+            {STOP_TYPE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value} className={option.className}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </TableCell>
@@ -136,12 +141,11 @@ const SortableRow = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="LOADED">
-              <span className="text-orange-600">LOADED</span>
-            </SelectItem>
-            <SelectItem value="EMPTY">
-              <span className="text-blue-600">EMPTY</span>
-            </SelectItem>
+            {LOAD_STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                <span className={option.className}>{option.label}</span>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </TableCell>
