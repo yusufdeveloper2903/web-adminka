@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore } from "@/store"
 import { useCreateTripMutation } from "@/hooks/trips"
-import type { ITripStopResponse, ICreateTripRequest } from "@/types"
+import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
 
@@ -13,6 +13,7 @@ const tripFormSchema = z
     truckId: z.string().min(1, "Truck is required"),
     dispatcherId: z.string().min(1, "Dispatcher is required"),
     loadNumber: z.string().min(1, "Load Number is required"),
+    tripStatus: z.string().min(1, "Trip status is required"),
     startDateTime: z.string().min(1, "Start Date/Time is required"),
     endDateTime: z.string().min(1, "End Date/Time is required"),
     startOdometer: z.string().optional(),
@@ -43,6 +44,7 @@ export const useTripForm = () => {
       truckId: "",
       dispatcherId: "",
       loadNumber: "",
+      tripStatus: "",
       startDateTime: "",
       endDateTime: "",
       startOdometer: "",
@@ -65,6 +67,7 @@ export const useTripForm = () => {
           truckId: parseInt(validatedData.truckId),
           dispatcherId: parseInt(validatedData.dispatcherId),
           loadNumber: validatedData.loadNumber,
+          tripStatus: validatedData.tripStatus as TripStatus,
           startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
           endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
           startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : (undefined as any),

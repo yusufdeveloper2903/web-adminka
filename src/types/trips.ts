@@ -42,17 +42,6 @@ export interface NewStopFormData {
   selectedLocation?: HereAutosuggestResult
 }
 
-export interface TripFormData {
-  truckId: string
-  dispatcherId: string
-  loadNumber: string
-  startDateTime: string
-  endDateTime: string
-  startOdometer: string
-  endOdometer: string
-  stops: ITripStopResponse[]
-}
-
 // Trip API Request/Response interfaces with I prefix
 
 // GET /trips filters
@@ -88,6 +77,7 @@ export interface ITripData {
   endDateTime: string
   startOdometer: number
   endOdometer: number
+  tripStatus: TripStatus
   tripStops: ITripStopResponse[]
 }
 

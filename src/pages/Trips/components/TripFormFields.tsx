@@ -8,6 +8,8 @@ import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
 import type { ITruckResponse, IDispatcherResponse, ITripStopResponse } from "@/types"
 import StopsTable from "./StopsTable"
 import AddStopForm from "./AddStopForm"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { TRIP_STATUS_OPTIONS } from "@/constants"
 
 interface TripFormFieldsProps {
   form: any // TanStack form instance
@@ -182,46 +184,48 @@ const TripFormFields = ({
           </div>
         </section>
 
-        {/* Second row - Dispatcher (full width) */}
-        <div className="w-1/2 space-y-2 pr-2">
-          <Label htmlFor="dispatcherId">Dispatcher</Label>
-          <form.Field
-            name="dispatcherId"
-            children={(field: any) => (
-              <div>
-                <SearchableSelect
-                  options={dispatcherOptions}
-                  value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
-                  onChange={(selectedOption: DispatcherOption | null) => {
-                    field.handleChange(selectedOption?.value || "")
-                  }}
-                  onDebouncedInputChange={(debouncedValue: string) => {
-                    setDispatcherSearchKeyword(debouncedValue)
-                  }}
-                  onMenuScrollToBottom={() => {
-                    if (hasNextDispatchersPage && !isFetchingNextDispatchersPage) {
-                      fetchNextDispatchersPage()
+        {/* Second row - Dispatcher and Trip Status (50% each) */}
+        <section className="flex justify-between gap-4">
+          <div className="w-1/2 space-y-2">
+            <Label htmlFor="dispatcherId">Dispatcher</Label>
+            <form.Field
+              name="dispatcherId"
+              children={(field: any) => (
+                <div>
+                  <SearchableSelect
+                    options={dispatcherOptions}
+                    value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
+                    onChange={(selectedOption: DispatcherOption | null) => {
+                      field.handleChange(selectedOption?.value || "")
+                    }}
+                    onDebouncedInputChange={(debouncedValue: string) => {
+                      setDispatcherSearchKeyword(debouncedValue)
+                    }}
+                    onMenuScrollToBottom={() => {
+                      if (hasNextDispatchersPage && !isFetchingNextDispatchersPage) {
+                        fetchNextDispatchersPage()
+                      }
+                    }}
+                    placeholder="Search and select dispatcher..."
+                    isClearable
+                    isSearchable
+                    error={field.state.meta.errors.length > 0}
+                    className="w-full"
+                    debounceMs={300}
+                    noOptionsMessage={({ inputValue }: { inputValue: string }) =>
+                      inputValue ? `No dispatchers found for "${inputValue}"` : "No dispatchers available"
                     }
-                  }}
-                  placeholder="Search and select dispatcher..."
-                  isClearable
-                  isSearchable
-                  error={field.state.meta.errors.length > 0}
-                  className="w-full"
-                  debounceMs={300}
-                  noOptionsMessage={({ inputValue }: { inputValue: string }) =>
-                    inputValue ? `No dispatchers found for "${inputValue}"` : "No dispatchers available"
-                  }
-                  loadingMessage={() => "Loading dispatchers..."}
-                  isLoading={isFetchingNextDispatchersPage}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
-        </div>
+                    loadingMessage={() => "Loading dispatchers..."}
+                    isLoading={isFetchingNextDispatchersPage}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+        </section>
       </div>
 
       {/* Section 2: Add Stop (bordersiz, "City" label bilan) */}
@@ -230,6 +234,7 @@ const TripFormFields = ({
         setNewStopForm={setNewStopForm}
         onLocationSelect={onLocationSelect}
         onAddStop={onAddStop}
+        stopsCount={stops.length}
       />
 
       {/* Section 3: Stops Table - faqat stops mavjud bo'lsa ko'rsatish */}
@@ -245,6 +250,32 @@ const TripFormFields = ({
           />
         </div>
       )}
+
+      <div className="w-1/2 space-y-2">
+        <Label htmlFor="tripStatus">Trip Status</Label>
+        <form.Field
+          name="tripStatus"
+          children={(field: any) => (
+            <div>
+              <Select value={field.state.value} onValueChange={(value) => field.handleChange(value)}>
+                <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>
+                  <SelectValue placeholder="Select trip status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TRIP_STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <span className={option.className}>{option.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {field.state.meta.errors.length > 0 && (
+                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+              )}
+            </div>
+          )}
+        />
+      </div>
 
       {/* Section 4: Date/Time and Odometer */}
       <div className="rounded-lg border p-4">
