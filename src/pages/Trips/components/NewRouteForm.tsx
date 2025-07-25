@@ -15,6 +15,7 @@ const NewRouteForm = () => {
     handleAddStop,
     handleRemoveStop,
     handleStopUpdate,
+    handleReorderStops,
     resetStopForm,
     formatDistance,
     formatDuration
@@ -41,6 +42,7 @@ const NewRouteForm = () => {
           stops={stops}
           onRemoveStop={handleRemoveStop}
           onStopUpdate={handleStopUpdate}
+          onReorderStops={handleReorderStops}
           formatDistance={formatDistance}
           formatDuration={formatDuration}
           newStopForm={newStopForm}

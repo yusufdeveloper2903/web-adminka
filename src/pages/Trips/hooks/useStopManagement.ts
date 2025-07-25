@@ -123,6 +123,10 @@ export const useStopManagement = (
 
   const formatDuration = useCallback((duration: number) => (duration / 3600000).toFixed(2), [])
 
+  const handleReorderStops = useCallback((reorderedStops: ITripStopResponse[]) => {
+    setStops(reorderedStops)
+  }, [setStops])
+
   return {
     newStopForm,
     setNewStopForm,
@@ -130,6 +134,7 @@ export const useStopManagement = (
     handleAddStop,
     handleRemoveStop,
     handleStopUpdate,
+    handleReorderStops,
     resetStopForm,
     formatDistance,
     formatDuration

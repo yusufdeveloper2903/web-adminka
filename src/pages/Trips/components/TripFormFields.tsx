@@ -15,6 +15,7 @@ interface TripFormFieldsProps {
   stops: any[]
   onRemoveStop: (index: number) => void
   onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
+  onReorderStops: (stops: ITripStopResponse[]) => void
   formatDistance: (distance: number) => string
   formatDuration: (duration: number) => string
   newStopForm: any
@@ -36,6 +37,7 @@ const TripFormFields = ({
   stops,
   onRemoveStop,
   onStopUpdate,
+  onReorderStops,
   formatDistance,
   formatDuration,
   newStopForm,
@@ -237,6 +239,7 @@ const TripFormFields = ({
             stops={stops}
             onRemoveStop={onRemoveStop}
             onStopUpdate={onStopUpdate}
+            onReorderStops={onReorderStops}
             formatDistance={formatDistance}
             formatDuration={formatDuration}
           />
