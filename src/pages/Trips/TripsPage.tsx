@@ -6,6 +6,7 @@ import { useTripsStore } from "@/store"
 import { cn } from "@/lib/utils"
 import { useTripsInfiniteQuery } from "@/hooks/trips"
 import type { ITripsFiltersRequest } from "@/types"
+import { TripsMapView } from './components'
 
 const TripsPage = () => {
   const [filters] = useState<ITripsFiltersRequest>({
@@ -59,7 +60,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        {/* <TripsMapView isVisible={view === "map"} /> */}
+        <TripsMapView isVisible={view === "map"} />
       </div>
     </div>
   )
