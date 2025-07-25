@@ -4,10 +4,10 @@ import { useTheme } from "next-themes"
 import { Maximize2, Minimize2 } from "lucide-react"
 import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { useRouteStore } from "@/store"
+import { useRouteStore, useTripsStore } from "@/store"
 import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
-import RouteSuccessIndicator from "@/components/shared/MapComponent/RouteSuccessIndicator"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
+import { useTripSummaryQuery } from "@/hooks/trips"
 
 interface TripMapData {
   id: string
@@ -29,70 +29,94 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
 
-  // Get route calculation loading state and current trip data
-  const { isCalculatingRoute, routeStops, isRouteVisible, currentTripData, hereRouteData } = useRouteStore()
-  const [showSuccessIndicator, setShowSuccessIndicator] = useState(false)
+  // Get selected trip data from store
+  const { selectedTripId } = useTripsStore()
 
-  // Show success indicator when route is calculated
-  useEffect(() => {
-    if (!isCalculatingRoute && isRouteVisible && routeStops.length > 0) {
-      setShowSuccessIndicator(true)
-      // Auto-hide after 3 seconds
-      const timer = setTimeout(() => {
-        setShowSuccessIndicator(false)
-      }, 3000)
-      return () => clearTimeout(timer)
-    } else {
-      setShowSuccessIndicator(false)
-    }
-  }, [isCalculatingRoute, isRouteVisible, routeStops.length])
+  // Get route calculation loading state and current trip data
+  const { isCalculatingRoute, currentTripData } = useRouteStore()
+
+  // Fetch trip summary data with route information
+  const {
+    data: tripSummaryData,
+    isLoading: isTripSummaryLoading,
+    error: tripSummaryError
+  } = useTripSummaryQuery(
+    {
+      truckId: currentTripData?.truckId || 0,
+      driverId: currentTripData?.driverId,
+      loadNumber: currentTripData?.loadNumber || ""
+    },
+    !!currentTripData && !!selectedTripId
+  )
+
+  // Debug query state only when there are issues
+  if (selectedTripId && !currentTripData) {
+    console.log("Trip selected but currentTripData is null:", { selectedTripId, currentTripData })
+  }
+  
+  if (currentTripData && !tripSummaryData && !isTripSummaryLoading && !tripSummaryError) {
+    console.log("Query should be enabled but no data:", {
+      enabled: !!currentTripData && !!selectedTripId,
+      params: {
+        truckId: currentTripData?.truckId || 0,
+        driverId: currentTripData?.driverId,
+        loadNumber: currentTripData?.loadNumber || ""
+      }
+    })
+  }
 
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
 
-  // Generate trip data based on current trip or show default maps
+  // Generate trip data based on real trip summary data
   const tripsData: TripMapData[] = useMemo(() => {
-    if (currentTripData) {
-      // Always show all 3 maps when trip data is available
-      const baseData = [
-        // HERE Trip - use dynamic route data if available, otherwise fallback to trip data
+    if (tripSummaryData) {
+      // Calculate center coordinates from trip stops
+      const getCenterCoordinates = (stops: typeof tripSummaryData.tripStops) => {
+        if (!stops || stops.length === 0) return { lat: 40.7128, lng: -74.006 }
+
+        const avgLat = stops.reduce((sum, stop) => sum + stop.latitude, 0) / stops.length
+        const avgLng = stops.reduce((sum, stop) => sum + stop.longitude, 0) / stops.length
+        return { lat: avgLat, lng: avgLng }
+      }
+
+      const centerCoords = getCenterCoordinates(tripSummaryData.tripStops)
+      const baseMiles = tripSummaryData.mileStats.totalMiles || 0
+      const baseHours = baseMiles > 0 ? Math.round((baseMiles / 65) * 100) / 100 : 0
+
+      return [
+        // HERE Trip - uses tripStops for route calculation
         {
           id: "here",
-          title: `HERE Trip - ${currentTripData.loadNumber}`,
-          totalMiles: hereRouteData?.totalMiles ?? currentTripData.totalMiles * 0.95,
-          hours: hereRouteData?.hours ?? Math.round(((currentTripData.totalMiles * 0.95) / 65) * 100) / 100,
-          coordinates: { lat: 40.7128, lng: -74.006 }, // NYC center
-          milesChange: hereRouteData
-            ? hereRouteData.totalMiles - currentTripData.totalMiles
-            : -(currentTripData.totalMiles * 0.05),
-          hoursChange: hereRouteData
-            ? hereRouteData.hours - Math.round((currentTripData.totalMiles / 65) * 100) / 100
-            : -Math.round(((currentTripData.totalMiles * 0.05) / 65) * 100) / 100
+          title: `HERE Trip - ${tripSummaryData.loadNumber}`,
+          totalMiles: baseMiles * 0.95, // HERE typically more efficient
+          hours: Math.round(((baseMiles * 0.95) / 65) * 100) / 100,
+          coordinates: centerCoords,
+          milesChange: -(baseMiles * 0.05),
+          hoursChange: -Math.round(((baseMiles * 0.05) / 65) * 100) / 100
         },
-        // Samsara Trip - will use polyline if available
+        // Samsara Trip - uses samsaraLocation polyline
         {
           id: "samsara",
-          title: `Samsara Trip - ${currentTripData.loadNumber}`,
-          totalMiles: currentTripData.totalMiles * 1.1,
-          hours: Math.round(((currentTripData.totalMiles * 1.1) / 60) * 100) / 100,
-          coordinates: { lat: 40.7589, lng: -73.9851 }, // Times Square
-          milesChange: currentTripData.totalMiles * 0.1,
-          hoursChange: Math.round(((currentTripData.totalMiles * 0.1) / 60) * 100) / 100
+          title: `Samsara Trip - ${tripSummaryData.loadNumber}`,
+          totalMiles: baseMiles * 1.1, // Samsara typically longer routes
+          hours: Math.round(((baseMiles * 1.1) / 60) * 100) / 100,
+          coordinates: centerCoords,
+          milesChange: baseMiles * 0.1,
+          hoursChange: Math.round(((baseMiles * 0.1) / 60) * 100) / 100
         },
-        // GLE Trip - will use polyline if available
+        // GLE Trip - uses gleLocation polyline
         {
           id: "gle",
-          title: `GLE Trip - ${currentTripData.loadNumber}`,
-          totalMiles: currentTripData.totalMiles,
-          hours: Math.round((currentTripData.totalMiles / 65) * 100) / 100,
-          coordinates: { lat: 40.7831, lng: -73.9712 } // Central Park
+          title: `GLE Trip - ${tripSummaryData.loadNumber}`,
+          totalMiles: baseMiles,
+          hours: baseHours,
+          coordinates: centerCoords
         }
       ]
-
-      return baseData
     }
 
-    // Default mock data when no trip is selected
+    // Default mock data when no trip summary is available
     return [
       {
         id: "here",
@@ -120,7 +144,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
         hoursChange: 9.4
       }
     ]
-  }, [currentTripData, hereRouteData])
+  }, [tripSummaryData])
 
   const handleToggleExpand = (mapId: string) => {
     // Only transition this specific map
@@ -227,6 +251,26 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                   zoom={expandedMap === trip.id ? 8 : 6}
                   isDark={isDark}
                   mapType={trip.id as "here" | "samsara" | "gle"}
+                  // Pass route data based on map type
+                  routeData={
+                    tripSummaryData
+                      ? {
+                          tripStops: trip.id === "here" ? tripSummaryData.tripStops : undefined,
+                          polyline:
+                            trip.id === "samsara"
+                              ? tripSummaryData.samsaraLocation.polyline
+                              : trip.id === "gle"
+                                ? tripSummaryData.gleLocation.polyline
+                                : undefined,
+                          nearbyPoints:
+                            trip.id === "samsara"
+                              ? tripSummaryData.samsaraLocation.nearbyPoints
+                              : trip.id === "gle"
+                                ? tripSummaryData.gleLocation.nearbyPoints
+                                : undefined
+                        }
+                      : undefined
+                  }
                 />
 
                 {/* Zoom Controls */}

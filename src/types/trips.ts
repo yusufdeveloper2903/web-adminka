@@ -159,11 +159,54 @@ export interface ITripSummaryRequest {
 }
 
 export interface ITripSummaryResponse {
-  totalTrips: number
-  completedTrips: number
-  activeTrips: number
-  totalDistance: number
-  totalDuration: number
+  id: number
+  truckId: number
+  unitNumber: string
+  driverId: number
+  driverName: string
+  loadNumber: string
+  mileStats: {
+    id: number
+    miles: number
+    totalEmpty: number
+    pu: number
+    trl: number
+    totalMiles: number
+    totalOdometers: number | null
+    created: string
+    updated: string
+  }
+  gleLocation: {
+    polyline: string
+    nearbyPoints: Array<{
+      lat: number
+      lng: number
+      type: "START" | "PICKUP" | "HOME" | "SHOP" | "DELIVERY"
+    }>
+  }
+  samsaraLocation: {
+    polyline: string
+    nearbyPoints: Array<{
+      lat: number
+      lng: number
+      type: "START" | "PICKUP" | "HOME" | "SHOP" | "DELIVERY"
+    }>
+  }
+  tripStops: Array<{
+    id: number
+    address: string
+    distance: number
+    totalDistance: number
+    duration: number
+    loadStatus: "EMPTY" | "LOADED"
+    orderIndex: number
+    latitude: number
+    longitude: number
+    stopType: "START" | "PICKUP" | "TRAILER" | "SHOP" | "DELIVERY"
+    active: boolean
+    created: string
+    updated: string
+  }>
 }
 
 // Load Numbers Request (GET /trips/load-numbers)

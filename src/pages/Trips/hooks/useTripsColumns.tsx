@@ -14,7 +14,7 @@ export type Trip = ITripListResponse & {
 
 const useTripsColumns = (): ColumnDef<Trip>[] => {
   const { setView, setSelectedTripId } = useTripsStore()
-  const { setCalculatingRoute } = useRouteStore()
+  const { setCalculatingRoute, setTripData } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // Fetch selected trip data for edit mode
@@ -23,6 +23,9 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     (trip: any) => {
       setSelectedTripId(trip.id)
       setCalculatingRoute(true)
+      
+      // Set trip data to route store for map visualization
+      setTripData(trip)
 
       // Switch to map view
       setView("map")
@@ -32,7 +35,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         setCalculatingRoute(false)
       }, 1500)
     },
-    [setCalculatingRoute, setSelectedTripId, setView]
+    [setCalculatingRoute, setSelectedTripId, setView, setTripData]
   )
 
   const handleEditClick = useCallback(

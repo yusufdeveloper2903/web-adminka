@@ -10,7 +10,27 @@ interface MapComponentProps {
   isDark?: boolean
   isParentVisible?: boolean
   onMapReady?: (map: H.Map) => void
-  mapType?: "here" | "samsara" | "gle"
+  mapType?: any
+  routeData?: {
+    tripStops?: Array<{
+      id?: number
+      address: string
+      latitude: number
+      longitude: number
+      stopType: string
+      distance: number
+      totalDistance: number
+      duration: number
+      loadStatus: string
+      orderIndex: number
+    }>
+    polyline?: string
+    nearbyPoints?: Array<{
+      lat: number
+      lng: number
+      type: "START" | "PICKUP" | "HOME" | "SHOP" | "DELIVERY"
+    }>
+  }
 }
 
 export interface MapComponentRef {
@@ -29,7 +49,8 @@ export const MapComponent = memo(
         isDark = false,
         isParentVisible = true,
         onMapReady,
-        mapType
+        mapType,
+        routeData
       },
       ref
     ) => {
@@ -42,12 +63,9 @@ export const MapComponent = memo(
         onMapReady
       })
 
-      // Use specific visualization if mapType is provided, otherwise use general route visualization
-      if (mapType) {
-        useMapSpecificVisualization({ mapInstance, mapType })
-      } else {
-        useRouteVisualization(mapInstance)
-      }
+      // Always call hooks, but control behavior based on mapType
+      useMapSpecificVisualization({ mapInstance, mapType, routeData })
+      useRouteVisualization(mapInstance, mapType)
 
       // Map controls hook
       useMapControls(ref, mapInstance, debouncedResize)

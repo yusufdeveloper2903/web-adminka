@@ -9,6 +9,26 @@ interface LazyMapProps {
   isParentVisible?: boolean
   onMapReady?: (map: any) => void
   mapType?: "here" | "samsara" | "gle"
+  routeData?: {
+    tripStops?: Array<{
+      id?: number
+      address: string
+      latitude: number
+      longitude: number
+      stopType: string
+      distance: number
+      totalDistance: number
+      duration: number
+      loadStatus: string
+      orderIndex: number
+    }>
+    polyline?: string
+    nearbyPoints?: Array<{
+      lat: number
+      lng: number
+      type: "START" | "PICKUP" | "HOME" | "SHOP" | "DELIVERY"
+    }>
+  }
 }
 
 export interface LazyMapRef {
@@ -19,7 +39,7 @@ export interface LazyMapRef {
 }
 
 const LazyMap = forwardRef<LazyMapRef, LazyMapProps>(
-  ({ initialCenter, zoom, isDark, isParentVisible, onMapReady, mapType }, ref) => {
+  ({ initialCenter, zoom, isDark, isParentVisible, onMapReady, mapType, routeData }, ref) => {
     const { isIntersecting, ref: intersectionRef } = useIntersectionObserver({
       threshold: 0.1,
       freezeOnceVisible: true
@@ -54,6 +74,7 @@ const LazyMap = forwardRef<LazyMapRef, LazyMapProps>(
             isDark={isDark}
             onMapReady={onMapReady}
             mapType={mapType}
+            routeData={routeData}
           />
         ) : (
           <div className="text-muted-foreground">Loading map...</div>

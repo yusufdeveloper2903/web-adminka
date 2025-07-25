@@ -7,7 +7,7 @@ import { useHereRouting } from "./useHereRouting"
 import { usePolylineVisualization } from "./usePolylineVisualization"
 import type { ITripStopResponse } from "@/types"
 
-export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
+export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>, mapType?: string) => {
   const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute, currentTripData } = useRouteStore()
   const routeGroupRef = useRef<H.map.Group | null>(null)
 
@@ -179,6 +179,11 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
   // Main route visualization effect - inspired by Vue project's handleGo function
   useEffect(() => {
     const handleRouteVisualization = async () => {
+      // Skip if mapType is provided (specific visualization is handled elsewhere)
+      if (mapType) {
+        return
+      }
+
       // Always clear existing routes first - inspired by Vue project's removeMapObjectsExceptTruckMarker
       removeRouteObjects()
       clearPolylines()
@@ -258,6 +263,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
 
     handleRouteVisualization()
   }, [
+    mapType,
     isRouteVisible,
     routeStops,
     currentRoute,
