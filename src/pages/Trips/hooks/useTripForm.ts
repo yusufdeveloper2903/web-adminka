@@ -47,7 +47,7 @@ export const useTripForm = (editMode: boolean = false) => {
       truckId: "",
       dispatcherId: "",
       loadNumber: "",
-      tripStatus: "",
+      tripStatus: "UPCOMING",
       startDateTime: "",
       endDateTime: "",
       startOdometer: "",
@@ -67,7 +67,7 @@ export const useTripForm = (editMode: boolean = false) => {
         }
 
         // Filter tripStops to match backend DTO (remove extra fields)
-        const filteredStops = stops.map(stop => ({
+        const filteredStops = stops.map((stop) => ({
           id: stop.id || 0,
           address: stop.address,
           distance: stop.distance,

@@ -272,7 +272,6 @@ const TripFormFields = ({
                   field.handleChange(value)
                   setTripStatusValue(value) // Update local state to trigger animation
                 }}
-                defaultValue={TRIP_STATUS_OPTIONS[0].value}
               >
                 <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select trip status" />
