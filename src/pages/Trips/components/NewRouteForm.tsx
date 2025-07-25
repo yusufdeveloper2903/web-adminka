@@ -36,12 +36,8 @@ const NewRouteForm = () => {
         }}
         className="space-y-6"
       >
-        {/* 1. Truck, Load Number, Dispatcher section (border bilan) */}
-        {/* 2. Add Stop (bordersiz, "City" label bilan) */}
-        {/* 3. Stops Table section (border bilan) */}
-        {/* 4. Date/Time va Odometer section (border bilan) */}
-        <TripFormFields 
-          form={form} 
+        <TripFormFields
+          form={form}
           tripFormSchema={tripFormSchema}
           stops={stops}
           onRemoveStop={handleRemoveStop}
@@ -56,18 +52,16 @@ const NewRouteForm = () => {
 
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
-          <div className="text-red-500 text-sm border border-red-200 rounded-lg p-3 bg-red-50">
-            <h4 className="font-medium mb-2">Please fix the following errors:</h4>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-500">
+            <h4 className="mb-2 font-medium">Please fix the following errors:</h4>
             {form.state.errors.map((error, index) => (
-              <div key={index}>
-                • {typeof error === 'string' ? error : 'Validation error'}
-              </div>
+              <div key={index}>• {typeof error === "string" ? error : "Validation error"}</div>
             ))}
           </div>
         )}
 
         {/* Bottom buttons */}
-        <div className="flex justify-between pt-4 border-t">
+        <div className="flex justify-between border-t pt-4">
           <Button type="button" variant="destructive" onClick={handleDeleteTrip}>
             Clear Form
           </Button>
