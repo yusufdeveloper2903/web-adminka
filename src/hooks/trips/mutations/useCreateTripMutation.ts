@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/axios"
 import { createMutationConfig } from "@/lib/mutation-utils"
-import type { IApiResponse, ICreateTripRequest, ITripResponse } from "@/types"
+import type { IApiResponse, ICreateTripRequest, ITripListResponse } from "@/types"
 
-const createTrip = async (data: ICreateTripRequest): Promise<ITripResponse> => {
-  const response = await api.post<IApiResponse<ITripResponse>>("/trips", data)
+const createTrip = async (data: ICreateTripRequest): Promise<ITripListResponse> => {
+  const response = await api.post<IApiResponse<ITripListResponse>>("/trips", data)
   return response.data.data
 }
 

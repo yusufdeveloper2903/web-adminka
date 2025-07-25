@@ -1,20 +1,22 @@
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
-import { useCreateTripMutation } from "@/hooks/trips"
-import type { ITripStopResponse, ICreateTripRequest } from "@/types"
+import { useDrawerStore, useTripsStore } from "@/store"
+import { useCreateTripMutation, useUpdateTripMutation } from "@/hooks/trips"
+import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
+import { cleanObject } from "@/lib"
 
-// Zod validation schema - only start/end odometer optional
+// Zod validation schema with conditional date/time validation
 const tripFormSchema = z
   .object({
     truckId: z.string().min(1, "Truck is required"),
     dispatcherId: z.string().min(1, "Dispatcher is required"),
     loadNumber: z.string().min(1, "Load Number is required"),
-    startDateTime: z.string().min(1, "Start Date/Time is required"),
-    endDateTime: z.string().min(1, "End Date/Time is required"),
+    tripStatus: z.string().min(1, "Trip status is required"),
+    startDateTime: z.string().optional(),
+    endDateTime: z.string().optional(),
     startOdometer: z.string().optional(),
     endOdometer: z.string().optional()
   })
@@ -31,10 +33,13 @@ const tripFormSchema = z
     }
   )
 
-export const useTripForm = () => {
+export const useTripForm = (editMode: boolean = false) => {
   const { closeDrawer } = useDrawerStore()
-  const createTripMutation = useCreateTripMutation()
+  const { selectedTripId } = useTripsStore()
   const [stops, setStops] = useState<ITripStopResponse[]>([])
+
+  const createTripMutation = useCreateTripMutation()
+  const updateTripMutation = useUpdateTripMutation()
 
   // Format datetime for backend
 
@@ -43,6 +48,7 @@ export const useTripForm = () => {
       truckId: "",
       dispatcherId: "",
       loadNumber: "",
+      tripStatus: "UPCOMING",
       startDateTime: "",
       endDateTime: "",
       startOdometer: "",
@@ -61,26 +67,64 @@ export const useTripForm = () => {
           return
         }
 
-        const tripData: ICreateTripRequest = {
+        // Filter tripStops to match backend DTO (remove extra fields)
+        const filteredStops = stops.map((stop) =>
+          cleanObject({
+            id: stop.id || null,
+            address: stop.address,
+            distance: stop.distance,
+            totalDistance: stop.totalDistance,
+            duration: stop.duration,
+            loadStatus: stop.loadStatus,
+            orderIndex: stop.orderIndex,
+            latitude: stop.latitude,
+            longitude: stop.longitude,
+            stopType: stop.stopType
+          })
+        )
+
+        // Build tripData object conditionally
+        const tripData: any = {
           truckId: parseInt(validatedData.truckId),
           dispatcherId: parseInt(validatedData.dispatcherId),
           loadNumber: validatedData.loadNumber,
-          startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
-          endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
-          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : (undefined as any),
-          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : (undefined as any),
-          tripStops: stops
+          tripStatus: validatedData.tripStatus as TripStatus,
+          tripStops: filteredStops
+        }
+
+        // Only add datetime fields if they have valid values
+        if (validatedData.startDateTime && validatedData.startDateTime.trim() !== "") {
+          tripData.startDateTime = dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT)
+        }
+
+        if (validatedData.endDateTime && validatedData.endDateTime.trim() !== "") {
+          tripData.endDateTime = dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT)
+        }
+
+        // Only add odometer fields if they have values
+        if (validatedData.startOdometer && validatedData.startOdometer.trim() !== "") {
+          tripData.startOdometer = parseFloat(validatedData.startOdometer)
+        }
+
+        if (validatedData.endOdometer && validatedData.endOdometer.trim() !== "") {
+          tripData.endOdometer = parseFloat(validatedData.endOdometer)
         }
 
         console.log("Trip data for backend:", tripData)
 
-        // Create trip using mutation
-        await createTripMutation.mutateAsync(tripData)
+        // Use appropriate mutation based on mode
+        if (editMode && selectedTripId) {
+          // Update existing trip
+          await updateTripMutation.mutateAsync({ id: selectedTripId, data: tripData })
+        } else {
+          // Create new trip
+          await createTripMutation.mutateAsync(tripData)
+        }
 
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation
+        // Reset form after successful operation
         resetForm()
       } catch (error) {
         if (error instanceof z.ZodError) {
@@ -103,6 +147,6 @@ export const useTripForm = () => {
     setStops,
     resetForm,
     tripFormSchema,
-    isSubmitting: createTripMutation.isPending
+    isSubmitting: editMode ? updateTripMutation.isPending : createTripMutation.isPending
   }
 }

@@ -6,6 +6,8 @@ import { XIcon } from "lucide-react"
 const AppDrawer = () => {
   const { isOpen, closeDrawer, title, content, headerActions, width } = useDrawerStore()
 
+  // Debug width
+
   //   // Kichik drawer
   // width: "sm:max-w-sm"      // 384px
 
@@ -28,7 +30,7 @@ const AppDrawer = () => {
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeDrawer()}>
       <SheetContent
-        className={`custom-sheet-content w-full overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
+        className={`custom-sheet-content overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
         side="right"
       >
         <SheetHeader className="p-0">

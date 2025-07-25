@@ -1,5 +1,5 @@
 export { useTripsInfiniteQuery } from "./useTripsInfiniteQuery"
-export { useTripsQuery } from "./useTripsQuery"
+export { useTripByIdQuery } from "./useTripByIdQuery"
 export { useTripSummaryQuery } from "./useTripSummaryQuery"
 export { useLoadNumbersQuery } from "./useLoadNumbersQuery"
 export { useTripInfoQuery } from "./useTripInfoQuery"

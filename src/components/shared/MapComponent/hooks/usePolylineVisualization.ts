@@ -2,7 +2,6 @@ import { useCallback, useRef } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
-import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 
 export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | null>) => {
   const polylineGroupRef = useRef<H.map.Group | null>(null)
@@ -44,7 +43,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
 
   // Get route segment points for A, B, C markers based on polyline segments
   const getRouteSegmentPoints = useCallback(
-    (pickupLocation: string, deliveryLocation: string, mapType: "gle" | "samsara", trip: Trip) => {
+    (pickupLocation: string, deliveryLocation: string, mapType: "gle" | "samsara", trip: any) => {
       const locationToCoords = (location: string) => {
         const lowerLocation = location.toLowerCase()
 
@@ -132,7 +131,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
 
   // Draw trip routes from backend data
   const drawTripRoutes = useCallback(
-    (trip: Trip, mapType?: "gle" | "samsara") => {
+    (trip: any, mapType?: "gle" | "samsara") => {
       if (!mapInstance.current) return
 
       const map = mapInstance.current
@@ -229,7 +228,7 @@ export const usePolylineVisualization = (mapInstance: React.RefObject<H.Map | nu
         } else {
           // For general case, use trip stops if available
           if (trip.tripStops && trip.tripStops.length > 0) {
-            trip.tripStops.forEach((stop, index) => {
+            trip.tripStops.forEach((stop: any, index: number) => {
               try {
                 // Validate coordinates
                 if (

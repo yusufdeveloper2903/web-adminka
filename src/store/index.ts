@@ -1,6 +1,6 @@
 export * from "./sidebar-store"
 export * from "./header-store"
 export * from "./drawer-store"
-export * from "./trips-view-store"
+export * from "./trips-store"
 export * from "./route-store"
 export * from "./auth-store"

@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import type { ICreateTripRequest, ITripStopResponse } from "@/types"
-import type { Trip } from "@/pages/Trips/hooks/useTripsColumns"
 
 interface RouteSettings {
   hasTrailer: boolean
@@ -21,11 +20,11 @@ interface RouteState {
   isCalculatingRoute: boolean
   routeSettings: RouteSettings
   // Backend trip data for polyline visualization
-  currentTripData: Trip | null
+  currentTripData: any | null
   // HERE maps route data for dynamic updates
   hereRouteData: RouteData | null
   setRoute: (route: ICreateTripRequest) => void
-  setTripData: (trip: Trip) => void
+  setTripData: (trip: any) => void
   setHereRouteData: (routeData: RouteData) => void
   clearRoute: () => void
   toggleRouteVisibility: () => void

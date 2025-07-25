@@ -106,7 +106,7 @@ const dispatchersRoute = createRoute({
   component: DispatchersPage,
   validateSearch: (search: Record<string, unknown>) => {
     return {
-      tab: (search.tab as string) || 'dispatchers'
+      tab: (search.tab as string) || "dispatchers"
     }
   }
 })

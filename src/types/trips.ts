@@ -1,5 +1,6 @@
 import type { HereAutosuggestResult } from "./here-maps"
-import type { IBaseFiltersRequest, IPaginatedResponse, IChangeStatusRequest, IChangeStatusResponse } from "./api"
+import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
+import type { IDispatcherResponse, ITruckResponse } from "."
 
 // Enums
 export enum LoadStatus {
@@ -8,14 +9,22 @@ export enum LoadStatus {
 }
 
 export enum StopType {
+  START = "START",
   PICKUP = "PICKUP",
-  DELIVERY = "DELIVERY",
   TRAILER = "TRAILER",
-  SHOP = "SHOP"
+  SHOP = "SHOP",
+  DELIVERY = "DELIVERY"
+}
+
+export enum TripStatus {
+  UPCOMING = "UPCOMING",
+  IN_TRANSIT = "IN TRANSIT",
+  COMPLETED = "COMPLETED"
 }
 
 // Trip Stop DTOs
 export interface ITripStopResponse {
+  id?: number
   address: string
   distance: number
   totalDistance: number
@@ -35,17 +44,6 @@ export interface NewStopFormData {
   selectedLocation?: HereAutosuggestResult
 }
 
-export interface TripFormData {
-  truckId: string
-  dispatcherId: string
-  loadNumber: string
-  startDateTime: string
-  endDateTime: string
-  startOdometer: string
-  endOdometer: string
-  stops: ITripStopResponse[]
-}
-
 // Trip API Request/Response interfaces with I prefix
 
 // GET /trips filters
@@ -56,21 +54,83 @@ export interface ITripsFiltersRequest extends IBaseFiltersRequest {
   tripStatus?: string
 }
 
-// Trip Response
-export interface ITripResponse {
+// Trip List Item Response (for infinite query)
+export interface ITripListResponse {
   id: number
   truckId: number
-  dispatcherId: number
+  unitNumber: string
+  driverId: number
+  driverName: string
+  companyId: number
+  companyName: string
   loadNumber: string
+  dispatcherName: string
+  miles: number
+  totalEmpty: number
+  pu: number
+  trl: number
+  totalMiles: number
+  totalOdometers: number | null
+  pickupLocation: string | null
+  pickupLatitude: number | null
+  pickupLongitude: number | null
+  deliveryLocation: string | null
+  deliveryLatitude: number | null
+  deliveryLongitude: number | null
+  tripStatus: string
+  active: boolean
+  created: string
+  updated: string
+}
+
+// Trip Detail Response (for single trip by ID)
+export interface ITripDetailResponse {
+  id: number
+  loadNumber: string
+  tripStatus: string
   startDateTime: string
   endDateTime: string
-  startOdometer: number
-  endOdometer: number
+  startOdometer: number | null
+  endOdometer: number | null
+  pickupLocation: string | null
+  pickupLatitude: number | null
+  pickupLongitude: number | null
+  deliveryLocation: string | null
+  deliveryLatitude: number | null
+  deliveryLongitude: number | null
+  active: boolean
+  created: string
+  updated: string
+  mileStats: {
+    id: number
+    miles: number
+    totalEmpty: number
+    pu: number
+    trl: number
+    totalMiles: number
+    totalOdometers: number | null
+    created: string
+    updated: string
+  }
+  truck: ITruckResponse
+  dispatcher: IDispatcherResponse
+  driver: {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    active: boolean
+    truckId: number
+    created: string
+    updated: string
+  }
   tripStops: ITripStopResponse[]
+  driverIds: string[]
 }
 
 // Trips List Response (paginated)
-export type ITripsResponse = IPaginatedResponse<ITripResponse>
+export type ITripsResponse = IPaginatedResponse<ITripListResponse>
 
 // Base Trip Data (common fields for create/update)
 export interface ITripData {
@@ -81,6 +141,7 @@ export interface ITripData {
   endDateTime: string
   startOdometer: number
   endOdometer: number
+  tripStatus: TripStatus
   tripStops: ITripStopResponse[]
 }
 
