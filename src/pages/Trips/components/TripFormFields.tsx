@@ -5,7 +5,7 @@ import { DateTimePicker } from "@/components/ui/date-picker"
 import { useMemo, useState } from "react"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
-import type { ITruckResponse, IDispatcherResponse } from "@/types"
+import type { ITruckResponse, IDispatcherResponse, ITripStopResponse } from "@/types"
 import StopsTable from "./StopsTable"
 import AddStopForm from "./AddStopForm"
 
@@ -14,7 +14,7 @@ interface TripFormFieldsProps {
   tripFormSchema: any // Zod schema with shape property
   stops: any[]
   onRemoveStop: (index: number) => void
-  onStopUpdate: (index: number, field: keyof any, value: any) => void
+  onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
   formatDistance: (distance: number) => string
   formatDuration: (duration: number) => string
   newStopForm: any
@@ -257,7 +257,7 @@ const TripFormFields = ({
                     value={field.state.value}
                     onChange={field.handleChange}
                     placeholder="Select start date and time"
-                    className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -277,7 +277,7 @@ const TripFormFields = ({
                     value={field.state.value}
                     onChange={field.handleChange}
                     placeholder="Select end date and time"
-                    className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>

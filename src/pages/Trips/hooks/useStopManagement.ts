@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useRouteStore } from "@/store"
 import type { ITripStopResponse, LoadStatus, StopType, HereAutosuggestResult } from "@/types"
 
@@ -40,14 +40,14 @@ export const useStopManagement = (
     }
   }
 
-  const handleLocationSelect = (location: HereAutosuggestResult) => {
+  const handleLocationSelect = useCallback((location: HereAutosuggestResult) => {
     setNewStopForm((prev) => ({
       ...prev,
       selectedLocation: location
     }))
-  }
+  }, [])
 
-  const handleAddStop = () => {
+  const handleAddStop = useCallback(() => {
     if (!newStopForm.selectedLocation) return
 
     const newStop: Omit<ITripStopResponse, "distance" | "totalDistance" | "duration"> = {
@@ -69,50 +69,59 @@ export const useStopManagement = (
       loadStatus: "LOADED" as LoadStatus,
       selectedLocation: undefined
     })
-  }
+  }, [newStopForm, stops, setStops])
 
-  const handleRemoveStop = (index: number) => {
-    const updatedStops = stops.filter((_, i) => i !== index)
+  const handleRemoveStop = useCallback(
+    (index: number) => {
+      const updatedStops = stops.filter((_, i) => i !== index)
 
-    // Recalculate distances and totals
-    const recalculatedStops = updatedStops.map((stop, i) => {
-      if (i === 0) return { ...stop, distance: 0, totalDistance: stop.distance }
+      // Recalculate distances and totals
+      const recalculatedStops = updatedStops.map((stop, i) => {
+        if (i === 0) return { ...stop, distance: 0, totalDistance: stop.distance }
 
-      const prevStop = updatedStops[i - 1]
-      return {
-        ...stop,
-        totalDistance: prevStop.totalDistance + stop.distance,
-        orderIndex: i
-      }
-    })
+        const prevStop = updatedStops[i - 1]
+        return {
+          ...stop,
+          totalDistance: prevStop.totalDistance + stop.distance,
+          orderIndex: i
+        }
+      })
 
-    setStops(recalculatedStops)
-  }
+      setStops(recalculatedStops)
+    },
+    [stops, setStops]
+  )
 
-  const handleStopUpdate = (index: number, field: keyof ITripStopResponse, value: any) => {
-    setStops((prev) => prev.map((stop, i) => (i === index ? { ...stop, [field]: value } : stop)))
-  }
+  const handleStopUpdate = useCallback(
+    (index: number, field: keyof ITripStopResponse, value: any) => {
+      setStops((prev) => prev.map((stop, i) => (i === index ? { ...stop, [field]: value } : stop)))
+    },
+    [setStops]
+  )
 
-  const resetStopForm = () => {
+  const resetStopForm = useCallback(() => {
     setNewStopForm({
       city: "",
       stopType: "PICKUP" as StopType,
       loadStatus: "LOADED" as LoadStatus,
       selectedLocation: undefined
     })
-  }
+  }, [])
 
   // Format functions with unit conversion
-  const formatDistance = (distance: number) => {
-    if (routeSettings.distanceUnit === "km") {
-      // Convert miles to kilometers (1 mile = 1.60934 km)
-      const distanceInKm = distance * 1.60934
-      return distanceInKm.toFixed(1)
-    }
-    return distance.toFixed(1)
-  }
+  const formatDistance = useCallback(
+    (distance: number) => {
+      if (routeSettings.distanceUnit === "km") {
+        // Convert miles to kilometers (1 mile = 1.60934 km)
+        const distanceInKm = distance * 1.60934
+        return distanceInKm.toFixed(1)
+      }
+      return distance.toFixed(1)
+    },
+    [routeSettings.distanceUnit]
+  )
 
-  const formatDuration = (duration: number) => (duration / 3600000).toFixed(2)
+  const formatDuration = useCallback((duration: number) => (duration / 3600000).toFixed(2), [])
 
   return {
     newStopForm,
