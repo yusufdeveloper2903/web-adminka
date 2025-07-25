@@ -7,15 +7,15 @@ import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
 
-// Zod validation schema - only start/end odometer optional
+// Zod validation schema with conditional date/time validation
 const tripFormSchema = z
   .object({
     truckId: z.string().min(1, "Truck is required"),
     dispatcherId: z.string().min(1, "Dispatcher is required"),
     loadNumber: z.string().min(1, "Load Number is required"),
     tripStatus: z.string().min(1, "Trip status is required"),
-    startDateTime: z.string().min(1, "Start Date/Time is required"),
-    endDateTime: z.string().min(1, "End Date/Time is required"),
+    startDateTime: z.string().optional(),
+    endDateTime: z.string().optional(),
     startOdometer: z.string().optional(),
     endOdometer: z.string().optional()
   })

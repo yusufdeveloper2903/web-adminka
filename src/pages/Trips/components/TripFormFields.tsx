@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import { DateTimePicker } from "@/components/ui/date-picker"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
 import type { ITruckResponse, IDispatcherResponse, ITripStopResponse } from "@/types"
@@ -49,6 +49,15 @@ const TripFormFields = ({
 }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
+  const [showDateTimeSection, setShowDateTimeSection] = useState(false)
+
+  // Watch for tripStatus changes to show/hide date/time section
+  // We'll use form.Field to watch the tripStatus value
+  const [tripStatusValue, setTripStatusValue] = useState("")
+
+  useEffect(() => {
+    setShowDateTimeSection(tripStatusValue === "COMPLETED")
+  }, [tripStatusValue])
 
   // Fetch trucks with search
   const {
@@ -257,7 +266,14 @@ const TripFormFields = ({
           name="tripStatus"
           children={(field: any) => (
             <div>
-              <Select value={field.state.value} onValueChange={(value) => field.handleChange(value)}>
+              <Select
+                value={field.state.value}
+                onValueChange={(value) => {
+                  field.handleChange(value)
+                  setTripStatusValue(value) // Update local state to trigger animation
+                }}
+                defaultValue={TRIP_STATUS_OPTIONS[0].value}
+              >
                 <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select trip status" />
                 </SelectTrigger>
@@ -277,97 +293,105 @@ const TripFormFields = ({
         />
       </div>
 
-      {/* Section 4: Date/Time and Odometer */}
-      <div className="rounded-lg border p-4">
-        {/* Date/time inputs */}
-        <div className="mb-4 grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="startDateTime">Start Date/Time</Label>
-            <form.Field
-              name="startDateTime"
-              children={(field: any) => (
-                <div>
-                  <DateTimePicker
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    placeholder="Select start date and time"
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                  )}
-                </div>
-              )}
-            />
+      {/* Section 4: Date/Time and Odometer - Conditional with Smooth Animation */}
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          showDateTimeSection
+            ? "max-h-96 translate-y-0 opacity-100"
+            : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
+        }`}
+      >
+        <div className="rounded-lg border p-4">
+          {/* Date/time inputs */}
+          <div className="mb-4 grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startDateTime">Start Date/Time</Label>
+              <form.Field
+                name="startDateTime"
+                children={(field: any) => (
+                  <div>
+                    <DateTimePicker
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      placeholder="Select start date and time"
+                      className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endDateTime">End Date/Time</Label>
+              <form.Field
+                name="endDateTime"
+                children={(field: any) => (
+                  <div>
+                    <DateTimePicker
+                      value={field.state.value}
+                      onChange={field.handleChange}
+                      placeholder="Select end date and time"
+                      className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="endDateTime">End Date/Time</Label>
-            <form.Field
-              name="endDateTime"
-              children={(field: any) => (
-                <div>
-                  <DateTimePicker
-                    value={field.state.value}
-                    onChange={field.handleChange}
-                    placeholder="Select end date and time"
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-        </div>
+          {/* Odometer inputs (Optional) */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startOdometer">Start Odometer (Optional)</Label>
+              <form.Field
+                name="startOdometer"
+                children={(field: any) => (
+                  <div>
+                    <Input
+                      placeholder="Start Odometer"
+                      type="number"
+                      step="0.1"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
 
-        {/* Odometer inputs (Optional) */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="startOdometer">Start Odometer (Optional)</Label>
-            <form.Field
-              name="startOdometer"
-              children={(field: any) => (
-                <div>
-                  <Input
-                    placeholder="Start Odometer"
-                    type="number"
-                    step="0.1"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                  )}
-                </div>
-              )}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="endOdometer">End Odometer (Optional)</Label>
-            <form.Field
-              name="endOdometer"
-              children={(field: any) => (
-                <div>
-                  <Input
-                    placeholder="End Odometer"
-                    type="number"
-                    step="0.1"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                  )}
-                </div>
-              )}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="endOdometer">End Odometer (Optional)</Label>
+              <form.Field
+                name="endOdometer"
+                children={(field: any) => (
+                  <div>
+                    <Input
+                      placeholder="End Odometer"
+                      type="number"
+                      step="0.1"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                    )}
+                  </div>
+                )}
+              />
+            </div>
           </div>
         </div>
       </div>

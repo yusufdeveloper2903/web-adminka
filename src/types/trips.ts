@@ -24,6 +24,7 @@ export enum TripStatus {
 
 // Trip Stop DTOs
 export interface ITripStopResponse {
+  id?: number
   address: string
   distance: number
   totalDistance: number
