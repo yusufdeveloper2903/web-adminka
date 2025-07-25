@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { X, GripVertical } from "lucide-react"
 import { useRouteStore } from "@/store"
 import type { ITripStopResponse, LoadStatus, StopType } from "@/types"
+import { useState } from "react"
 import {
   DndContext,
   closestCenter,
@@ -49,20 +50,49 @@ const SortableRow = ({
   onRemoveStop,
   onStopUpdate,
   formatDistance,
-  formatDuration
-}: SortableRowProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: stop.orderIndex })
+  formatDuration,
+  isRecentlyMoved,
+  isDragActive
+}: SortableRowProps & { isRecentlyMoved?: boolean; isDragActive?: boolean }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `${stop.address}-${stop.latitude}-${stop.longitude}`,
+    disabled: isFirst || isLast, // Disable dragging AND dropping for start and delivery rows
+    animateLayoutChanges: () => true
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition: isDragging ? "none" : transition || "transform 0.25s cubic-bezier(0.2, 0, 0, 1)"
   }
 
-  // Grey background for middle stops (not start or delivery)
-  const rowClassName = !isFirst && !isLast ? "bg-gray-50 dark:bg-gray-800/50" : ""
+  // Dynamic row styling
+  let rowClassName = "transition-all duration-300 ease-in-out "
+
+  // Grey background for middle stops with hover effect
+  if (!isFirst && !isLast) {
+    rowClassName += "bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/50 dark:hover:bg-zinc-700/50 "
+  } else {
+    // Add hover effect for start and delivery rows too
+    rowClassName += "hover:bg-zinc-50 dark:hover:bg-zinc-800/30 "
+  }
+
+  // Highlight recently moved items with smooth transition
+  if (isRecentlyMoved) {
+    rowClassName += "!bg-green-50 dark:!bg-green-900/20 border-l-2 border-green-400 "
+  }
+
+  // Dragging state
+  if (isDragging) {
+    rowClassName += "opacity-50 shadow-lg scale-105 !transition-none "
+  }
+
+  // Global drag state
+  if (isDragActive && !isDragging) {
+    rowClassName += "opacity-75 "
+  }
 
   return (
-    <TableRow ref={setNodeRef} style={style} className={`${rowClassName} ${isDragging ? "opacity-50" : ""}`}>
+    <TableRow ref={setNodeRef} style={style} className={rowClassName.trim()}>
       <TableCell className="font-medium">
         <div className="flex items-center gap-2">
           {/* Drag handle - only for middle stops */}
@@ -70,7 +100,7 @@ const SortableRow = ({
             <div
               {...attributes}
               {...listeners}
-              className="cursor-grab rounded p-1 hover:bg-gray-200 active:cursor-grabbing dark:hover:bg-gray-700"
+              className="cursor-grab rounded p-1 hover:bg-zinc-200 active:cursor-grabbing dark:hover:bg-zinc-700"
             >
               <GripVertical className="h-4 w-4 text-gray-400" />
             </div>
@@ -135,6 +165,10 @@ const StopsTable = ({
   const { routeSettings } = useRouteStore()
   const distanceUnit = routeSettings.distanceUnit === "km" ? "KM" : "Miles"
 
+  // State for visual feedback
+  const [recentlyMoved, setRecentlyMoved] = useState<number[]>([])
+  const [isDragging, setIsDragging] = useState(false)
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -142,12 +176,18 @@ const StopsTable = ({
     })
   )
 
+  const handleDragStart = () => {
+    setIsDragging(true)
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setIsDragging(false)
     const { active, over } = event
 
     if (active.id !== over?.id) {
-      const oldIndex = stops.findIndex((stop) => stop.orderIndex === active.id)
-      const newIndex = stops.findIndex((stop) => stop.orderIndex === over?.id)
+      // Find indices by matching the unique ID
+      const oldIndex = stops.findIndex((stop) => `${stop.address}-${stop.latitude}-${stop.longitude}` === active.id)
+      const newIndex = stops.findIndex((stop) => `${stop.address}-${stop.latitude}-${stop.longitude}` === over?.id)
 
       // Don't allow moving start (index 0) or delivery (last index)
       if (oldIndex === 0 || oldIndex === stops.length - 1 || newIndex === 0 || newIndex === stops.length - 1) {
@@ -161,6 +201,14 @@ const StopsTable = ({
         ...stop,
         orderIndex: index
       }))
+
+      // Visual feedback - highlight moved items
+      setRecentlyMoved([Math.min(oldIndex, newIndex), Math.max(oldIndex, newIndex)])
+
+      // Show success feedback with smooth fade-out
+      setTimeout(() => {
+        setRecentlyMoved([])
+      }, 1500) // Clear highlight after 1.5 seconds
 
       onReorderStops(updatedStops)
     }
@@ -187,8 +235,18 @@ const StopsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={stops.map((stop) => stop.orderIndex)} strategy={verticalListSortingStrategy}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={stops
+                  .filter((_, index) => index !== 0 && index !== stops.length - 1) // Only middle stops
+                  .map((stop) => `${stop.address}-${stop.latitude}-${stop.longitude}`)}
+                strategy={verticalListSortingStrategy}
+              >
                 {stops.map((stop, index) => {
                   const isFirst = index === 0
                   const isLast = index === stops.length - 1
@@ -202,7 +260,7 @@ const StopsTable = ({
 
                   return (
                     <SortableRow
-                      key={stop.orderIndex}
+                      key={`${stop.address}-${stop.latitude}-${stop.longitude}`}
                       stop={stop}
                       index={index}
                       isFirst={isFirst}
@@ -213,6 +271,8 @@ const StopsTable = ({
                       onStopUpdate={onStopUpdate}
                       formatDistance={formatDistance}
                       formatDuration={formatDuration}
+                      isRecentlyMoved={recentlyMoved.includes(index)}
+                      isDragActive={isDragging}
                     />
                   )
                 })}
