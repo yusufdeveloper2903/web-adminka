@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
-import { useCreateTripMutation } from "@/hooks/trips"
+import { useDrawerStore, useTripsStore } from "@/store"
+import { useCreateTripMutation, useUpdateTripMutation } from "@/hooks/trips"
 import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
@@ -32,10 +32,13 @@ const tripFormSchema = z
     }
   )
 
-export const useTripForm = () => {
+export const useTripForm = (editMode: boolean = false) => {
   const { closeDrawer } = useDrawerStore()
-  const createTripMutation = useCreateTripMutation()
+  const { selectedTripId } = useTripsStore()
   const [stops, setStops] = useState<ITripStopResponse[]>([])
+
+  const createTripMutation = useCreateTripMutation()
+  const updateTripMutation = useUpdateTripMutation()
 
   // Format datetime for backend
 
@@ -77,13 +80,19 @@ export const useTripForm = () => {
 
         console.log("Trip data for backend:", tripData)
 
-        // Create trip using mutation
-        await createTripMutation.mutateAsync(tripData)
+        // Use appropriate mutation based on mode
+        if (editMode && selectedTripId) {
+          // Update existing trip
+          await updateTripMutation.mutateAsync({ id: selectedTripId, data: tripData })
+        } else {
+          // Create new trip
+          await createTripMutation.mutateAsync(tripData)
+        }
 
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation
+        // Reset form after successful operation
         resetForm()
       } catch (error) {
         if (error instanceof z.ZodError) {
@@ -106,6 +115,6 @@ export const useTripForm = () => {
     setStops,
     resetForm,
     tripFormSchema,
-    isSubmitting: createTripMutation.isPending
+    isSubmitting: editMode ? updateTripMutation.isPending : createTripMutation.isPending
   }
 }
