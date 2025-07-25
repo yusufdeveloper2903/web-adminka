@@ -1,220 +1,246 @@
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Edit, Map } from "lucide-react"
+import { Edit, Map, RouteIcon } from "lucide-react"
+import { useCallback, useMemo } from "react"
+import type { ITripListResponse } from "@/types"
+import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
+import { NewRouteForm, RouteSettingsPopover } from "../components"
 
-export type Trip = {
-  id: number
-  unitNumber: string
-  driverName: string
-  company: string
-  loadNumber: string
-  dispatcher: string
-  miles: number
-  totalEmpty: number
-  pu: number
-  trl: number
-  totalMiles: number
-  pickupLocation: string
-  deliveryLocation: string
-  updated: string
-  status: "COMPLETED" | "IN_TRANSIT" | "PENDING"
-  // Route data for map visualization
+export type Trip = ITripListResponse & {
+  // Route data for map visualization (optional extensions)
   gleLocation?: { polyline: string | string[] }
   samsaraLocation?: { polyline: string | string[] }
-  tripStops?: Array<{
-    id: number
-    address: string
-    latitude: number
-    longitude: number
-    stopType: string
-    loadStatus: string
-  }>
 }
 
-interface UseTripsColumnsProps {
-  onRouteClick: (trip: Trip) => void
-  onEditClick: (trip: Trip) => void
-}
+const useTripsColumns = (): ColumnDef<Trip>[] => {
+  const { setView, setSelectedTripId } = useTripsStore()
+  const { setCalculatingRoute } = useRouteStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
-const useTripsColumns = ({ onRouteClick, onEditClick }: UseTripsColumnsProps): ColumnDef<Trip>[] => {
-  return [
-    // No column
-    {
-      accessorKey: "id",
-      header: "No",
-      meta: {
-        className: "min-w-[60px] w-[4%]"
-      }
+  const handleRouteClick = useCallback(
+    (trip: any) => {
+      setSelectedTripId(trip.id)
+      setCalculatingRoute(true)
+
+      // Switch to map view
+      setView("map")
+
+      // Simulate route calculation delay (remove this in production if real API is used)
+      setTimeout(() => {
+        setCalculatingRoute(false)
+      }, 1500)
     },
+    [setCalculatingRoute, setSelectedTripId, setView]
+  )
 
-    // Unit column (bold)
-    {
-      accessorKey: "unitNumber",
-      header: "Unit",
-      meta: {
-        className: "min-w-[80px] w-[6%]"
+  const handleEditClick = useCallback(
+    (trip: ITripListResponse) => {
+      // Set selected trip ID to fetch detailed data
+      setSelectedTripId(trip.id)
+
+      // Open drawer with edit form
+      setDrawerConfig({
+        title: `Edit Trip: ${trip.loadNumber}`,
+        content: <NewRouteForm />, // TODO: Create EditTripForm component
+        headerActions: [
+          {
+            id: "route-icon",
+            node: (
+              <Button variant="ghost" onClick={() => setView("map")}>
+                <RouteIcon className="size-6" />
+              </Button>
+            )
+          },
+          {
+            id: "route-settings",
+            node: <RouteSettingsPopover />
+          }
+        ]
+      })
+    },
+    [setSelectedTripId, setDrawerConfig, setView]
+  )
+
+  return useMemo(
+    () => [
+      // No column
+      {
+        accessorKey: "id",
+        header: "No",
+        meta: {
+          className: "min-w-[60px] w-[4%]"
+        }
       },
-      cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>
-    },
 
-    // Driver column (bold)
-    {
-      accessorKey: "driverName",
-      header: "Driver",
-      meta: {
-        className: "min-w-[150px] w-[12%]"
+      // Unit column (bold)
+      {
+        accessorKey: "unitNumber",
+        header: "Unit",
+        meta: {
+          className: "min-w-[80px] w-[6%]"
+        },
+        cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>
       },
-      cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>
-    },
 
-    // Company column
-    {
-      accessorKey: "company",
-      header: "Company",
-      meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
-    },
-
-    // Load Number column
-    {
-      accessorKey: "loadNumber",
-      header: "Load Number",
-      meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
-    },
-
-    // Dispatcher column
-    {
-      accessorKey: "dispatcher",
-      header: "Dispatcher",
-      meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
-    },
-
-    // Miles column (gray background, sortable)
-    {
-      accessorKey: "miles",
-      header: "Miles",
-      meta: {
-        className: "min-w-[80px] w-[6%] bg-gray-50 dark:bg-gray-800"
+      // Driver column (bold)
+      {
+        accessorKey: "driverName",
+        header: "Driver",
+        meta: {
+          className: "min-w-[150px] w-[12%]"
+        },
+        cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>
       },
-      cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
-    },
 
-    // Total Empty column (gray background, sortable)
-    {
-      accessorKey: "totalEmpty",
-      header: "Total Empty",
-      meta: {
-        className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+      // Company column
+      {
+        accessorKey: "companyName",
+        header: "Company",
+        meta: {
+          className: "min-w-[120px] w-[10%]"
+        }
       },
-      cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
-    },
 
-    // PU column (gray background, sortable)
-    {
-      accessorKey: "pu",
-      header: "PU",
-      meta: {
-        className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+      // Load Number column
+      {
+        accessorKey: "loadNumber",
+        header: "Load Number",
+        meta: {
+          className: "min-w-[120px] w-[10%]"
+        }
       },
-      cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
-    },
 
-    // TRL column (gray background, sortable)
-    {
-      accessorKey: "trl",
-      header: "TRL",
-      meta: {
-        className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+      // Dispatcher column
+      {
+        accessorKey: "dispatcherName",
+        header: "Dispatcher",
+        meta: {
+          className: "min-w-[120px] w-[10%]"
+        }
       },
-      cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
-    },
 
-    // Total Miles column (gray background, sortable)
-    {
-      accessorKey: "totalMiles",
-      header: "Total Miles",
-      meta: {
-        className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+      // Miles column (gray background, sortable)
+      {
+        accessorKey: "miles",
+        header: "Miles",
+        meta: {
+          className: "min-w-[80px] w-[6%] bg-gray-50 dark:bg-gray-800"
+        },
+        cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
       },
-      cell: ({ row }) => (
-        <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>
-      )
-    },
 
-    // Pickup Location column
-    {
-      accessorKey: "pickupLocation",
-      header: "Pickup Location",
-      meta: {
-        className: "min-w-[150px] w-[12%]"
+      // Total Empty column (gray background, sortable)
+      {
+        accessorKey: "totalEmpty",
+        header: "Total Empty",
+        meta: {
+          className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+        },
+        cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },
-      cell: ({ row }) => (
-        <span className="truncate" title={row.original.pickupLocation}>
-          {row.original.pickupLocation}
-        </span>
-      )
-    },
 
-    // Delivery Location column
-    {
-      accessorKey: "deliveryLocation",
-      header: "Delivery Location",
-      meta: {
-        className: "min-w-[150px] w-[12%]"
+      // PU column (gray background, sortable)
+      {
+        accessorKey: "pu",
+        header: "PU",
+        meta: {
+          className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+        },
+        cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
       },
-      cell: ({ row }) => (
-        <span className="truncate" title={row.original.deliveryLocation}>
-          {row.original.deliveryLocation}
-        </span>
-      )
-    },
 
-    // Updated column
-    {
-      accessorKey: "updated",
-      header: "Updated",
-      meta: {
-        className: "min-w-[120px] w-[8%]"
+      // TRL column (gray background, sortable)
+      {
+        accessorKey: "trl",
+        header: "TRL",
+        meta: {
+          className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+        },
+        cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
       },
-      cell: ({ row }) => {
-        const date = new Date(row.original.updated)
-        return (
-          <span className="text-muted-foreground text-sm">
-            {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+
+      // Total Miles column (gray background, sortable)
+      {
+        accessorKey: "totalMiles",
+        header: "Total Miles",
+        meta: {
+          className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+        },
+        cell: ({ row }) => (
+          <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>
+        )
+      },
+
+      // Pickup Location column
+      {
+        accessorKey: "pickupLocation",
+        header: "Pickup Location",
+        meta: {
+          className: "min-w-[150px] w-[12%]"
+        },
+        cell: ({ row }) => (
+          <span className="truncate" title={row.original.pickupLocation!}>
+            {row.original.pickupLocation}
           </span>
         )
-      }
-    },
-
-    // Actions column
-    {
-      id: "actions",
-      header: "Actions",
-      meta: {
-        className: "min-w-[100px] w-[6%] text-center"
       },
-      cell: ({ row }) => {
-        const trip = row.original
-        return (
-          <div className="flex justify-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => onRouteClick(trip)} title="View Route">
-              <Map className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => onEditClick(trip)} title="Edit Trip">
-              <Edit className="h-4 w-4" />
-            </Button>
-          </div>
+
+      // Delivery Location column
+      {
+        accessorKey: "deliveryLocation",
+        header: "Delivery Location",
+        meta: {
+          className: "min-w-[150px] w-[12%]"
+        },
+        cell: ({ row }) => (
+          <span className="truncate" title={row.original.deliveryLocation!}>
+            {row.original.deliveryLocation}
+          </span>
         )
       },
-      enableSorting: false
-    }
-  ]
+
+      // Updated column
+      {
+        accessorKey: "updated",
+        header: "Updated",
+        meta: {
+          className: "min-w-[120px] w-[8%]"
+        },
+        cell: ({ row }) => {
+          const date = new Date(row.original.updated)
+          return (
+            <span className="text-muted-foreground text-sm">
+              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )
+        }
+      },
+
+      // Actions column
+      {
+        id: "actions",
+        header: "Actions",
+        meta: {
+          className: "min-w-[100px] w-[6%] text-center"
+        },
+        cell: ({ row }) => {
+          const trip = row.original
+          return (
+            <div className="flex justify-center gap-1">
+              <Button variant="ghost" size="icon" onClick={() => handleRouteClick(trip)} title="View Route">
+                <Map className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleEditClick(trip)} title="Edit Trip">
+                <Edit className="h-4 w-4" />
+              </Button>
+            </div>
+          )
+        },
+        enableSorting: false
+      }
+    ],
+    [handleEditClick, handleRouteClick]
+  )
 }
 
 export default useTripsColumns

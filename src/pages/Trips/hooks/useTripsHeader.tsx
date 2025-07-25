@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui"
-import { useDrawerStore, useHeaderStore, useTripsViewStore } from "@/store"
+import { useDrawerStore, useHeaderStore, useTripsStore } from "@/store"
 import { Loader2, Plus, RefreshCw, RouteIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
@@ -14,7 +14,7 @@ interface UseTripsHeaderParams {
 const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
-  const { view, setView } = useTripsViewStore()
+  const { view, setView } = useTripsStore()
 
   // State for each filter
   const [unitFilter, setUnitFilter] = useState<string | undefined>()

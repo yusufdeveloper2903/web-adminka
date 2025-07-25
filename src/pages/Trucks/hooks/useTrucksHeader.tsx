@@ -1,4 +1,4 @@
-import { useHeaderStore, useTripsViewStore, useDrawerStore } from "@/store"
+import { useHeaderStore, useTripsStore, useDrawerStore } from "@/store"
 import { Loader2, Plus, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { NewTruckForm } from "../components"
@@ -12,7 +12,7 @@ interface UseTrucksHeaderParams {
 const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
-  const { view, setView } = useTripsViewStore()
+  const { view, setView } = useTripsStore()
 
   // State for each filter
   const [unitFilter, setUnitFilter] = useState<string | undefined>()

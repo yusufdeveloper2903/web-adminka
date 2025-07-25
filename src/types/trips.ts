@@ -52,21 +52,108 @@ export interface ITripsFiltersRequest extends IBaseFiltersRequest {
   tripStatus?: string
 }
 
-// Trip Response
-export interface ITripResponse {
+// Trip List Item Response (for infinite query)
+export interface ITripListResponse {
   id: number
   truckId: number
-  dispatcherId: number
+  unitNumber: string
+  driverId: number
+  driverName: string
+  companyId: number
+  companyName: string
   loadNumber: string
+  dispatcherName: string
+  miles: number
+  totalEmpty: number
+  pu: number
+  trl: number
+  totalMiles: number
+  totalOdometers: number | null
+  pickupLocation: string | null
+  pickupLatitude: number | null
+  pickupLongitude: number | null
+  deliveryLocation: string | null
+  deliveryLatitude: number | null
+  deliveryLongitude: number | null
+  tripStatus: string
+  active: boolean
+  created: string
+  updated: string
+}
+
+// Trip Detail Response (for single trip by ID)
+export interface ITripDetailResponse {
+  id: number
+  loadNumber: string
+  tripStatus: string
   startDateTime: string
   endDateTime: string
-  startOdometer: number
-  endOdometer: number
+  startOdometer: number | null
+  endOdometer: number | null
+  pickupLocation: string | null
+  pickupLatitude: number | null
+  pickupLongitude: number | null
+  deliveryLocation: string | null
+  deliveryLatitude: number | null
+  deliveryLongitude: number | null
+  active: boolean
+  created: string
+  updated: string
+  mileStats: {
+    id: number
+    miles: number
+    totalEmpty: number
+    pu: number
+    trl: number
+    totalMiles: number
+    totalOdometers: number | null
+    created: string
+    updated: string
+  }
+  truck: {
+    id: number
+    vinNumber: string
+    unitNumber: string
+    vehicleId: string
+    companyName: string
+    companyId: number
+    active: boolean
+    licencePlate: string
+    samsaraVin: string
+    homeLocation: string
+    homeLatitude: number | null
+    homeLongitude: number | null
+    created: string
+    updated: string
+    driverNames: string | null
+  }
+  dispatcher: {
+    id: number
+    firstName: string
+    lastName: string
+    teamId: number
+    team: string
+    active: boolean
+    created: string
+    updated: string
+  }
+  driver: {
+    id: number
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    active: boolean
+    truckId: number
+    created: string
+    updated: string
+  }
   tripStops: ITripStopResponse[]
+  driverIds: string[]
 }
 
 // Trips List Response (paginated)
-export type ITripsResponse = IPaginatedResponse<ITripResponse>
+export type ITripsResponse = IPaginatedResponse<ITripListResponse>
 
 // Base Trip Data (common fields for create/update)
 export interface ITripData {
