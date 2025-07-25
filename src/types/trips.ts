@@ -1,5 +1,6 @@
 import type { HereAutosuggestResult } from "./here-maps"
 import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
+import type { IDispatcherResponse, ITruckResponse } from "."
 
 // Enums
 export enum LoadStatus {
@@ -110,33 +111,8 @@ export interface ITripDetailResponse {
     created: string
     updated: string
   }
-  truck: {
-    id: number
-    vinNumber: string
-    unitNumber: string
-    vehicleId: string
-    companyName: string
-    companyId: number
-    active: boolean
-    licencePlate: string
-    samsaraVin: string
-    homeLocation: string
-    homeLatitude: number | null
-    homeLongitude: number | null
-    created: string
-    updated: string
-    driverNames: string | null
-  }
-  dispatcher: {
-    id: number
-    firstName: string
-    lastName: string
-    teamId: number
-    team: string
-    active: boolean
-    created: string
-    updated: string
-  }
+  truck: ITruckResponse
+  dispatcher: IDispatcherResponse
   driver: {
     id: number
     firstName: string

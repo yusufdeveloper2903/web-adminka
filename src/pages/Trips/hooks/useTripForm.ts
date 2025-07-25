@@ -66,6 +66,20 @@ export const useTripForm = (editMode: boolean = false) => {
           return
         }
 
+        // Filter tripStops to match backend DTO (remove extra fields)
+        const filteredStops = stops.map(stop => ({
+          id: stop.id || 0,
+          address: stop.address,
+          distance: stop.distance,
+          totalDistance: stop.totalDistance,
+          duration: stop.duration,
+          loadStatus: stop.loadStatus,
+          orderIndex: stop.orderIndex,
+          latitude: stop.latitude,
+          longitude: stop.longitude,
+          stopType: stop.stopType
+        }))
+
         const tripData: ICreateTripRequest = {
           truckId: parseInt(validatedData.truckId),
           dispatcherId: parseInt(validatedData.dispatcherId),
@@ -75,7 +89,7 @@ export const useTripForm = (editMode: boolean = false) => {
           endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
           startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : (undefined as any),
           endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : (undefined as any),
-          tripStops: stops
+          tripStops: filteredStops
         }
 
         console.log("Trip data for backend:", tripData)
