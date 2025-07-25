@@ -37,14 +37,12 @@ const NewDispatcherForm = ({ dispatcher, onClose }: NewDispatcherFormProps) => {
       >
         {/* Dispatcher Form Fields */}
         <DispatcherFormFields form={form} />
-        
+
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
-          <div className="text-red-500 text-sm">
+          <div className="text-sm text-red-500">
             {form.state.errors.map((error, index) => (
-              <div key={index}>
-                {typeof error === 'string' ? error : 'Validation error'}
-              </div>
+              <div key={index}>{typeof error === "string" ? error : "Validation error"}</div>
             ))}
           </div>
         )}

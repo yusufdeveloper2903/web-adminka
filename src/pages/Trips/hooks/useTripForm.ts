@@ -6,6 +6,7 @@ import { useCreateTripMutation, useUpdateTripMutation } from "@/hooks/trips"
 import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
+import { cleanObject } from "@/lib"
 
 // Zod validation schema with conditional date/time validation
 const tripFormSchema = z
@@ -67,29 +68,46 @@ export const useTripForm = (editMode: boolean = false) => {
         }
 
         // Filter tripStops to match backend DTO (remove extra fields)
-        const filteredStops = stops.map((stop) => ({
-          id: stop.id || 0,
-          address: stop.address,
-          distance: stop.distance,
-          totalDistance: stop.totalDistance,
-          duration: stop.duration,
-          loadStatus: stop.loadStatus,
-          orderIndex: stop.orderIndex,
-          latitude: stop.latitude,
-          longitude: stop.longitude,
-          stopType: stop.stopType
-        }))
+        const filteredStops = stops.map((stop) =>
+          cleanObject({
+            id: stop.id || null,
+            address: stop.address,
+            distance: stop.distance,
+            totalDistance: stop.totalDistance,
+            duration: stop.duration,
+            loadStatus: stop.loadStatus,
+            orderIndex: stop.orderIndex,
+            latitude: stop.latitude,
+            longitude: stop.longitude,
+            stopType: stop.stopType
+          })
+        )
 
-        const tripData: ICreateTripRequest = {
+        // Build tripData object conditionally
+        const tripData: any = {
           truckId: parseInt(validatedData.truckId),
           dispatcherId: parseInt(validatedData.dispatcherId),
           loadNumber: validatedData.loadNumber,
           tripStatus: validatedData.tripStatus as TripStatus,
-          startDateTime: dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT),
-          endDateTime: dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT),
-          startOdometer: validatedData.startOdometer ? parseFloat(validatedData.startOdometer) : (undefined as any),
-          endOdometer: validatedData.endOdometer ? parseFloat(validatedData.endOdometer) : (undefined as any),
           tripStops: filteredStops
+        }
+
+        // Only add datetime fields if they have valid values
+        if (validatedData.startDateTime && validatedData.startDateTime.trim() !== "") {
+          tripData.startDateTime = dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT)
+        }
+
+        if (validatedData.endDateTime && validatedData.endDateTime.trim() !== "") {
+          tripData.endDateTime = dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT)
+        }
+
+        // Only add odometer fields if they have values
+        if (validatedData.startOdometer && validatedData.startOdometer.trim() !== "") {
+          tripData.startOdometer = parseFloat(validatedData.startOdometer)
+        }
+
+        if (validatedData.endOdometer && validatedData.endOdometer.trim() !== "") {
+          tripData.endOdometer = parseFloat(validatedData.endOdometer)
         }
 
         console.log("Trip data for backend:", tripData)

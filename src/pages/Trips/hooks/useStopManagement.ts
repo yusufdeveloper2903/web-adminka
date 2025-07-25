@@ -67,16 +67,19 @@ export const useStopManagement = (
     }
 
     const calculatedStop = calculateStopMetrics(stops, newStop)
-    
+
     setStops((prev) => {
       const newStops = [...prev, calculatedStop]
-      
+
       // Update stopTypes for all stops based on their position
       return newStops.map((stop, index) => ({
         ...stop,
-        stopType: index === 0 ? ("START" as StopType) : 
-                  index === newStops.length - 1 ? ("DELIVERY" as StopType) : 
-                  stop.stopType,
+        stopType:
+          index === 0
+            ? ("START" as StopType)
+            : index === newStops.length - 1
+              ? ("DELIVERY" as StopType)
+              : stop.stopType,
         orderIndex: index
       }))
     })
@@ -99,9 +102,8 @@ export const useStopManagement = (
         const baseStop = {
           ...stop,
           orderIndex: i,
-          stopType: i === 0 ? ("START" as StopType) : 
-                    i === updatedStops.length - 1 ? ("DELIVERY" as StopType) : 
-                    stop.stopType
+          stopType:
+            i === 0 ? ("START" as StopType) : i === updatedStops.length - 1 ? ("DELIVERY" as StopType) : stop.stopType
         }
 
         if (i === 0) return { ...baseStop, distance: 0, totalDistance: baseStop.distance }
@@ -149,9 +151,12 @@ export const useStopManagement = (
 
   const formatDuration = useCallback((duration: number) => (duration / 3600000).toFixed(2), [])
 
-  const handleReorderStops = useCallback((reorderedStops: ITripStopResponse[]) => {
-    setStops(reorderedStops)
-  }, [setStops])
+  const handleReorderStops = useCallback(
+    (reorderedStops: ITripStopResponse[]) => {
+      setStops(reorderedStops)
+    },
+    [setStops]
+  )
 
   return {
     newStopForm,
