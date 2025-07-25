@@ -22,7 +22,7 @@ interface AddStopFormProps {
 const AddStopForm = ({ newStopForm, setNewStopForm, onLocationSelect, onAddStop }: AddStopFormProps) => {
   return (
     <div className="space-y-2">
-      <Label>Add Stop</Label>
+      <Label>City</Label>
       <div className="flex items-center gap-4">
         <AutosuggestInput
           value={newStopForm.city}

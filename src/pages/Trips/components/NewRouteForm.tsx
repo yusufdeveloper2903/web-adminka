@@ -4,7 +4,6 @@ import { useTripForm } from "../hooks/useTripForm"
 import { useStopManagement } from "../hooks/useStopManagement"
 import TripFormFields from "./TripFormFields"
 import AddStopForm from "./AddStopForm"
-import StopsTable from "./StopsTable"
 
 const NewRouteForm = () => {
   const { closeDrawer } = useDrawerStore()
@@ -37,41 +36,40 @@ const NewRouteForm = () => {
         }}
         className="space-y-6"
       >
-        {/* Trip Form Fields */}
-        <TripFormFields form={form} tripFormSchema={tripFormSchema} />
-
-        {/* Add Stop Form */}
-        <AddStopForm
+        {/* 1. Truck, Load Number, Dispatcher section (border bilan) */}
+        {/* 2. Add Stop (bordersiz, "City" label bilan) */}
+        {/* 3. Stops Table section (border bilan) */}
+        {/* 4. Date/Time va Odometer section (border bilan) */}
+        <TripFormFields 
+          form={form} 
+          tripFormSchema={tripFormSchema}
+          stops={stops}
+          onRemoveStop={handleRemoveStop}
+          onStopUpdate={handleStopUpdate}
+          formatDistance={formatDistance}
+          formatDuration={formatDuration}
           newStopForm={newStopForm}
           setNewStopForm={setNewStopForm}
           onLocationSelect={handleLocationSelect}
           onAddStop={handleAddStop}
         />
 
-        {/* Stops Table */}
-        <StopsTable
-          stops={stops}
-          onRemoveStop={handleRemoveStop}
-          onStopUpdate={handleStopUpdate}
-          formatDistance={formatDistance}
-          formatDuration={formatDuration}
-        />
-
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
-          <div className="text-red-500 text-sm">
+          <div className="text-red-500 text-sm border border-red-200 rounded-lg p-3 bg-red-50">
+            <h4 className="font-medium mb-2">Please fix the following errors:</h4>
             {form.state.errors.map((error, index) => (
               <div key={index}>
-                {typeof error === 'string' ? error : 'Validation error'}
+                • {typeof error === 'string' ? error : 'Validation error'}
               </div>
             ))}
           </div>
         )}
 
         {/* Bottom buttons */}
-        <div className="flex justify-between">
+        <div className="flex justify-between pt-4 border-t">
           <Button type="button" variant="destructive" onClick={handleDeleteTrip}>
-            Delete Trip
+            Clear Form
           </Button>
 
           <div className="flex gap-2">
@@ -79,7 +77,7 @@ const NewRouteForm = () => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || stops.length === 0}>
-              {isSubmitting ? "Creating..." : "Submit"}
+              {isSubmitting ? "Creating..." : "Create Trip"}
             </Button>
           </div>
         </div>

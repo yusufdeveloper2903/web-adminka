@@ -118,7 +118,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        <TripsMapView isVisible={view === "map"} />
+        {/* <TripsMapView isVisible={view === "map"} /> */}
       </div>
     </div>
   )

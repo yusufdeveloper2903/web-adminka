@@ -1,15 +1,25 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
-import { DateTimePicker } from "@/components/ui/date-picker"
 import { useMemo, useState } from "react"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
 import type { ITruckResponse, IDispatcherResponse } from "@/types"
+import StopsTable from "./StopsTable"
+import AddStopForm from "./AddStopForm"
 
 interface TripFormFieldsProps {
   form: any // TanStack form instance
   tripFormSchema: any // Zod schema with shape property
+  stops: any[]
+  onRemoveStop: (index: number) => void
+  onStopUpdate: (index: number, field: keyof any, value: any) => void
+  formatDistance: (distance: number) => string
+  formatDuration: (duration: number) => string
+  newStopForm: any
+  setNewStopForm: any
+  onLocationSelect: any
+  onAddStop: any
 }
 
 interface TruckOption extends SearchableSelectOption {
@@ -20,29 +30,30 @@ interface DispatcherOption extends SearchableSelectOption {
   data: IDispatcherResponse
 }
 
-const TripFormFields = ({ form }: TripFormFieldsProps) => {
+const TripFormFields = ({ 
+  form, 
+  stops, 
+  onRemoveStop, 
+  onStopUpdate, 
+  formatDistance, 
+  formatDuration,
+  newStopForm,
+  setNewStopForm,
+  onLocationSelect,
+  onAddStop
+}: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
-
+  
   // Fetch trucks with search
-  const {
-    data: trucksData,
-    fetchNextPage: fetchNextTrucksPage,
-    hasNextPage: hasNextTrucksPage,
-    isFetchingNextPage: isFetchingNextTrucksPage
-  } = useTrucksInfiniteQuery({
+  const { data: trucksData, fetchNextPage: fetchNextTrucksPage, hasNextPage: hasNextTrucksPage, isFetchingNextPage: isFetchingNextTrucksPage } = useTrucksInfiniteQuery({
     keyword: truckSearchKeyword,
     active: true,
     size: 20
   })
 
   // Fetch dispatchers with search
-  const {
-    data: dispatchersData,
-    fetchNextPage: fetchNextDispatchersPage,
-    hasNextPage: hasNextDispatchersPage,
-    isFetchingNextPage: isFetchingNextDispatchersPage
-  } = useDispatchersInfiniteQuery({
+  const { data: dispatchersData, fetchNextPage: fetchNextDispatchersPage, hasNextPage: hasNextDispatchersPage, isFetchingNextPage: isFetchingNextDispatchersPage } = useDispatchersInfiniteQuery({
     keyword: dispatcherSearchKeyword,
     active: true,
     size: 20
@@ -51,10 +62,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Convert trucks data to SearchableSelect options
   const truckOptions: TruckOption[] = useMemo(() => {
     if (!trucksData?.pages) return []
-
+    
     return trucksData.pages
-      .flatMap((page) => page.content)
-      .map((truck) => ({
+      .flatMap(page => page.content)
+      .map(truck => ({
         value: truck.id.toString(),
         label: `${truck.unitNumber} - ${truck.licencePlate}`,
         data: truck
@@ -64,10 +75,10 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Convert dispatchers data to SearchableSelect options
   const dispatcherOptions: DispatcherOption[] = useMemo(() => {
     if (!dispatchersData?.pages) return []
-
+    
     return dispatchersData.pages
-      .flatMap((page) => page.content)
-      .map((dispatcher) => ({
+      .flatMap(page => page.content)
+      .map(dispatcher => ({
         value: dispatcher.id.toString(),
         label: `${dispatcher.firstName} ${dispatcher.lastName}`,
         data: dispatcher
@@ -77,14 +88,14 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
-
+    
     const error = field.state.meta.errors[0]
     // Handle Zod validation error objects
-    if (typeof error === "object" && error.message) {
+    if (typeof error === 'object' && error.message) {
       return error.message
     }
     // Handle string errors
-    if (typeof error === "string") {
+    if (typeof error === 'string') {
       return error
     }
     return "Invalid value"
@@ -92,63 +103,113 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
 
   return (
     <>
-      {/* First row - Truck and Load Number (50% each) */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Section 1: Truck, Load Number, Dispatcher */}
+      <div className="border rounded-lg p-4">
+        {/* First row - Truck and Load Number (50% each) */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="space-y-2">
+            <Label htmlFor="truckId">Truck</Label>
+            <form.Field
+              name="truckId"
+              children={(field: any) => (
+                <div>
+                  <SearchableSelect
+                    options={truckOptions}
+                    value={truckOptions.find(option => option.value === field.state.value) || null}
+                    onChange={(selectedOption: TruckOption | null) => {
+                      field.handleChange(selectedOption?.value || "")
+                    }}
+                    onDebouncedInputChange={(debouncedValue: string) => {
+                      setTruckSearchKeyword(debouncedValue)
+                    }}
+                    onMenuScrollToBottom={() => {
+                      if (hasNextTrucksPage && !isFetchingNextTrucksPage) {
+                        fetchNextTrucksPage()
+                      }
+                    }}
+                    placeholder="Search and select truck..."
+                    isClearable
+                    isSearchable
+                    error={field.state.meta.errors.length > 0}
+                    className="w-full"
+                    debounceMs={300}
+                    noOptionsMessage={({ inputValue }: { inputValue: string }) => 
+                      inputValue ? `No trucks found for "${inputValue}"` : "No trucks available"
+                    }
+                    loadingMessage={() => "Loading trucks..."}
+                    isLoading={isFetchingNextTrucksPage}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="loadNumber">Load Number</Label>
+            <form.Field
+              name="loadNumber"
+              children={(field: any) => (
+                <div>
+                  <Input
+                    placeholder="Enter Load Number"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Second row - Dispatcher (full width) */}
         <div className="space-y-2">
-          <Label htmlFor="truckId">Truck</Label>
+          <Label htmlFor="dispatcherId">Dispatcher</Label>
           <form.Field
-            name="truckId"
+            name="dispatcherId"
             children={(field: any) => (
               <div>
                 <SearchableSelect
-                  options={truckOptions}
-                  value={truckOptions.find((option) => option.value === field.state.value) || null}
-                  onChange={(selectedOption: any) => {
+                  options={dispatcherOptions}
+                  value={dispatcherOptions.find(option => option.value === field.state.value) || null}
+                  onChange={(selectedOption: DispatcherOption | null) => {
                     field.handleChange(selectedOption?.value || "")
                   }}
                   onDebouncedInputChange={(debouncedValue: string) => {
-                    setTruckSearchKeyword(debouncedValue)
+                    setDispatcherSearchKeyword(debouncedValue)
                   }}
                   onMenuScrollToBottom={() => {
-                    if (hasNextTrucksPage && !isFetchingNextTrucksPage) {
-                      fetchNextTrucksPage()
+                    if (hasNextDispatchersPage && !isFetchingNextDispatchersPage) {
+                      fetchNextDispatchersPage()
                     }
                   }}
-                  placeholder="Search and select truck..."
+                  placeholder="Search and select dispatcher..."
                   isClearable
                   isSearchable
                   error={field.state.meta.errors.length > 0}
                   className="w-full"
                   debounceMs={300}
-                  noOptionsMessage={({ inputValue }: { inputValue: string }) =>
-                    inputValue ? `No trucks found for "${inputValue}"` : "No trucks available"
+                  noOptionsMessage={({ inputValue }: { inputValue: string }) => 
+                    inputValue ? `No dispatchers found for "${inputValue}"` : "No dispatchers available"
                   }
-                  loadingMessage={() => "Loading trucks..."}
-                  isLoading={isFetchingNextTrucksPage}
+                  loadingMessage={() => "Loading dispatchers..."}
+                  isLoading={isFetchingNextDispatchersPage}
                 />
                 {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="loadNumber">Load Number</Label>
-          <form.Field
-            name="loadNumber"
-            children={(field: any) => (
-              <div>
-                <Input
-                  placeholder="Enter Load Number"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                  <div className="text-red-500 text-sm mt-1">
+                    {getErrorMessage(field)}
+                  </div>
                 )}
               </div>
             )}
@@ -156,136 +217,129 @@ const TripFormFields = ({ form }: TripFormFieldsProps) => {
         </div>
       </div>
 
-      {/* Second row - Dispatcher (full width) */}
-      <div className="space-y-2">
-        <Label htmlFor="dispatcherId">Dispatcher</Label>
-        <form.Field
-          name="dispatcherId"
-          children={(field: any) => (
-            <div>
-              <SearchableSelect
-                options={dispatcherOptions}
-                value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
-                onChange={(selectedOption: any) => {
-                  field.handleChange(selectedOption?.value || "")
-                }}
-                onDebouncedInputChange={(debouncedValue: string) => {
-                  setDispatcherSearchKeyword(debouncedValue)
-                }}
-                onMenuScrollToBottom={() => {
-                  if (hasNextDispatchersPage && !isFetchingNextDispatchersPage) {
-                    fetchNextDispatchersPage()
-                  }
-                }}
-                placeholder="Search and select dispatcher..."
-                isClearable
-                isSearchable
-                error={field.state.meta.errors.length > 0}
-                className="w-full"
-                debounceMs={300}
-                noOptionsMessage={({ inputValue }: { inputValue: string }) =>
-                  inputValue ? `No dispatchers found for "${inputValue}"` : "No dispatchers available"
-                }
-                loadingMessage={() => "Loading dispatchers..."}
-                isLoading={isFetchingNextDispatchersPage}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+      {/* Section 2: Add Stop (bordersiz, "City" label bilan) */}
+      <AddStopForm
+        newStopForm={newStopForm}
+        setNewStopForm={setNewStopForm}
+        onLocationSelect={onLocationSelect}
+        onAddStop={onAddStop}
+      />
+
+      {/* Section 3: Stops Table - faqat stops mavjud bo'lsa ko'rsatish */}
+      {stops && stops.length > 0 && (
+        <div className="border rounded-lg p-4">
+          <StopsTable
+            stops={stops}
+            onRemoveStop={onRemoveStop}
+            onStopUpdate={onStopUpdate}
+            formatDistance={formatDistance}
+            formatDuration={formatDuration}
+          />
+        </div>
+      )}
+
+      {/* Section 4: Date/Time and Odometer */}
+      <div className="border rounded-lg p-4">
+        {/* Date/time inputs */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="space-y-2">
+            <Label htmlFor="startDateTime">Start Date/Time</Label>
+            <form.Field
+              name="startDateTime"
+              children={(field: any) => (
+                <div>
+                  <input
+                    type="datetime-local"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${field.state.meta.errors.length > 0 ? 'border-red-500' : 'border-input'}`}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        />
-      </div>
+            />
+          </div>
 
-      {/* Date/time inputs */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="startDateTime">Start Date/Time</Label>
-          <form.Field
-            name="startDateTime"
-            children={(field: any) => (
-              <div>
-                <DateTimePicker
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  placeholder="Select start date and time"
-                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="endDateTime">End Date/Time</Label>
+            <form.Field
+              name="endDateTime"
+              children={(field: any) => (
+                <div>
+                  <input
+                    type="datetime-local"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${field.state.meta.errors.length > 0 ? 'border-red-500' : 'border-input'}`}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="endDateTime">End Date/Time</Label>
-          <form.Field
-            name="endDateTime"
-            children={(field: any) => (
-              <div>
-                <DateTimePicker
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  placeholder="Select end date and time"
-                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
-        </div>
-      </div>
+        {/* Odometer inputs (Optional) */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="startOdometer">Start Odometer (Optional)</Label>
+            <form.Field
+              name="startOdometer"
+              children={(field: any) => (
+                <div>
+                  <Input
+                    placeholder="Start Odometer"
+                    type="number"
+                    step="0.1"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
 
-      {/* Odometer inputs (Optional) */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="startOdometer">Start Odometer (Optional)</Label>
-          <form.Field
-            name="startOdometer"
-            children={(field: any) => (
-              <div>
-                <Input
-                  placeholder="Start Odometer"
-                  type="number"
-                  step="0.1"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="endOdometer">End Odometer (Optional)</Label>
-          <form.Field
-            name="endOdometer"
-            children={(field: any) => (
-              <div>
-                <Input
-                  placeholder="End Odometer"
-                  type="number"
-                  step="0.1"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-                )}
-              </div>
-            )}
-          />
+          <div className="space-y-2">
+            <Label htmlFor="endOdometer">End Odometer (Optional)</Label>
+            <form.Field
+              name="endOdometer"
+              children={(field: any) => (
+                <div>
+                  <Input
+                    placeholder="End Odometer"
+                    type="number"
+                    step="0.1"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? 'border-red-500' : ''}`}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {getErrorMessage(field)}
+                    </div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
         </div>
       </div>
     </>
