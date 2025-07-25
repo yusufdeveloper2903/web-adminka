@@ -119,10 +119,7 @@ const SortableRow = ({
       <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
       <TableCell>{formatDuration(stop.duration)}</TableCell>
       <TableCell>
-        <Select
-          value={stop.stopType}
-          onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}
-        >
+        <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
           <SelectTrigger className="w-24">
             <SelectValue />
           </SelectTrigger>
@@ -204,9 +201,8 @@ const StopsTable = ({
       const updatedStops = newStops.map((stop, index) => ({
         ...stop,
         orderIndex: index,
-        stopType: index === 0 ? ("START" as StopType) : 
-                  index === newStops.length - 1 ? ("DELIVERY" as StopType) : 
-                  stop.stopType
+        stopType:
+          index === 0 ? ("START" as StopType) : index === newStops.length - 1 ? ("DELIVERY" as StopType) : stop.stopType
       }))
 
       // Visual feedback - highlight moved items

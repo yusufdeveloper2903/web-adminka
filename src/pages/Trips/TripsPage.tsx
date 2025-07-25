@@ -4,7 +4,7 @@ import useTripsColumns from "./hooks/useTripsColumns"
 import { DataTable } from "@/components/shared"
 import { useTripsStore } from "@/store"
 import { cn } from "@/lib/utils"
-import { useTripsInfiniteQuery, useTripByIdQuery } from "@/hooks/trips"
+import { useTripsInfiniteQuery } from "@/hooks/trips"
 import type { ITripsFiltersRequest } from "@/types"
 
 const TripsPage = () => {
@@ -14,8 +14,7 @@ const TripsPage = () => {
   })
 
   const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(filters)
-  const { view, selectedTripId } = useTripsStore()
-  const { data: tripData, isLoading: isTripLoading } = useTripByIdQuery(selectedTripId!, !!selectedTripId)
+  const { view } = useTripsStore()
 
   const flatData = useMemo(() => {
     return data?.pages?.flatMap((page) => page.content) ?? []

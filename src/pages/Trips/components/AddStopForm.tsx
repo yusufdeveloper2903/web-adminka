@@ -5,7 +5,6 @@ import { AutosuggestInput } from "@/components/shared"
 import { Check } from "lucide-react"
 import { STOP_TYPE_OPTIONS, LOAD_STATUS_OPTIONS } from "@/constants"
 import type { LoadStatus, StopType, HereAutosuggestResult } from "@/types"
-import { useEffect } from "react"
 
 interface NewStopFormData {
   city: string

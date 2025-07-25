@@ -1,12 +1,23 @@
 import { Button } from "@/components/ui/button"
-import { useDrawerStore } from "@/store"
+import { useDrawerStore, useTripsStore } from "@/store"
 import { useTripForm } from "../hooks/useTripForm"
 import { useStopManagement } from "../hooks/useStopManagement"
 import TripFormFields from "./TripFormFields"
+import { useEffect } from "react"
+import { useTripByIdQuery } from "@/hooks/trips"
 
-const NewRouteForm = () => {
+interface NewRouteFormProps {
+  editMode?: boolean
+}
+
+const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
   const { closeDrawer } = useDrawerStore()
+  const { selectedTripId } = useTripsStore()
+
   const { form, stops, setStops, resetForm, tripFormSchema, isSubmitting } = useTripForm()
+  const { data: tripData } = useTripByIdQuery(selectedTripId!, !!selectedTripId)
+
+  console.log("tripData", tripData)
 
   const {
     newStopForm,
@@ -20,6 +31,26 @@ const NewRouteForm = () => {
     formatDistance,
     formatDuration
   } = useStopManagement(stops, setStops)
+
+  // Populate form with tripData when in edit mode
+  useEffect(() => {
+    if (editMode && tripData) {
+      // Populate form fields
+      form.setFieldValue("truckId", tripData.truck.id.toString())
+      form.setFieldValue("dispatcherId", tripData.dispatcher.id.toString())
+      form.setFieldValue("loadNumber", tripData.loadNumber)
+      form.setFieldValue("tripStatus", tripData.tripStatus)
+      form.setFieldValue("startDateTime", tripData.startDateTime)
+      form.setFieldValue("endDateTime", tripData.endDateTime)
+      form.setFieldValue("startOdometer", tripData.startOdometer?.toString() || "")
+      form.setFieldValue("endOdometer", tripData.endOdometer?.toString() || "")
+
+      // Populate stops
+      if (tripData.tripStops && tripData.tripStops.length > 0) {
+        setStops(tripData.tripStops)
+      }
+    }
+  }, [editMode, tripData, form, setStops])
 
   const handleDeleteTrip = () => {
     resetForm()
@@ -72,7 +103,7 @@ const NewRouteForm = () => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || stops.length === 0}>
-              {isSubmitting ? "Creating..." : "Create Trip"}
+              {isSubmitting ? (editMode ? "Updating..." : "Creating...") : editMode ? "Update Trip" : "Create Trip"}
             </Button>
           </div>
         </div>

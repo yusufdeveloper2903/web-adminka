@@ -1,0 +1,47 @@
+[
+    {
+        "id": 22,
+        "address": "Yu and Me Books, 44 Mulberry St, New York, NY 10013-4315, United States",
+        "distance": 0,
+        "totalDistance": 0,
+        "duration": 0,
+        "loadStatus": "LOADED",
+        "orderIndex": 0,
+        "latitude": 40.71496,
+        "longitude": -73.99955,
+        "stopType": "START",
+        "active": true,
+        "created": "2025-07-25T12:39:11.905226",
+        "updated": "2025-07-25T12:39:11.905235"
+    },
+    {
+        "id": 23,
+        "address": "M Nail Bar, Church St, New York, NY 10007, United States",
+        "distance": 79,
+        "totalDistance": 79,
+        "duration": 4740000,
+        "loadStatus": "LOADED",
+        "orderIndex": 1,
+        "latitude": 40.71403,
+        "longitude": -74.00886,
+        "stopType": "DELIVERY",
+        "active": true,
+        "created": "2025-07-25T12:39:11.906271",
+        "updated": "2025-07-25T12:39:11.906277"
+    },
+    {
+        "id": 24,
+        "address": "KLJ Consultants, 1554 Maple Ave, Hillside, NJ 07205-1437, United States",
+        "distance": 332,
+        "totalDistance": 411,
+        "duration": 19920000,
+        "loadStatus": "LOADED",
+        "orderIndex": 2,
+        "latitude": 40.70342,
+        "longitude": -74.2202,
+        "stopType": "DELIVERY",
+        "active": true,
+        "created": "2025-07-25T12:39:11.908042",
+        "updated": "2025-07-25T12:39:11.908048"
+    }
+]

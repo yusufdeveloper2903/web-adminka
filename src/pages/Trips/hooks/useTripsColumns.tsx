@@ -17,6 +17,8 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
   const { setCalculatingRoute } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
+  // Fetch selected trip data for edit mode
+
   const handleRouteClick = useCallback(
     (trip: any) => {
       setSelectedTripId(trip.id)
@@ -41,7 +43,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
       // Open drawer with edit form
       setDrawerConfig({
         title: `Edit Trip: ${trip.loadNumber}`,
-        content: <NewRouteForm />, // TODO: Create EditTripForm component
+        content: <NewRouteForm editMode={true} />,
         headerActions: [
           {
             id: "route-icon",
