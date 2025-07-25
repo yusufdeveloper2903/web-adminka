@@ -6,6 +6,7 @@ import { useTripsStore } from "@/store"
 import { cn } from "@/lib/utils"
 import { useTripsInfiniteQuery } from "@/hooks/trips"
 import type { ITripsFiltersRequest } from "@/types"
+import { TripsMapView } from "./components"
 
 const TripsPage = () => {
   const [filters] = useState<ITripsFiltersRequest>({
@@ -13,7 +14,8 @@ const TripsPage = () => {
     active: true
   })
 
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTripsInfiniteQuery(filters)
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
+    useTripsInfiniteQuery(filters)
   const { view } = useTripsStore()
 
   const flatData = useMemo(() => {
@@ -24,7 +26,7 @@ const TripsPage = () => {
 
   // Header Configuration Hook
   useTripsHeader({
-    isLoading,
+    isLoading: isFetching,
     totalDBRowCount,
     refetch
   })
@@ -59,7 +61,7 @@ const TripsPage = () => {
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        {/* <TripsMapView isVisible={view === "map"} /> */}
+        <TripsMapView isVisible={view === "map"} />
       </div>
     </div>
   )

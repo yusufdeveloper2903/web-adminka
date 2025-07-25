@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui"
 import { useDrawerStore, useHeaderStore, useTripsStore } from "@/store"
-import { Loader2, Plus, RefreshCw, RouteIcon } from "lucide-react"
+import { Plus, RefreshCw, RouteIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib"
 
 interface UseTripsHeaderParams {
   isLoading: boolean
@@ -23,7 +24,6 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
 
   useEffect(() => {
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
-    const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
 
     setHeaderConfig({
       title: "Trips",
@@ -33,6 +33,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           id: "add_trip",
           label: "Add Trip",
           icon: addTripIcon,
+          disabled: isLoading, // Disable when loading
           onClick: () =>
             setDrawerConfig({
               title: "New route: Practical, 53' Trailer, Miles",
@@ -55,7 +56,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
         },
         {
           id: "refresh_trips",
-          icon: refreshIcon,
+          icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
           onClick: () => refetch(),
           variant: "outline",
           disabled: isLoading
