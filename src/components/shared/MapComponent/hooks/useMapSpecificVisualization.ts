@@ -120,143 +120,74 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
 
   // Create professional info bubble for fallback stops
   const createFallbackStopInfoBubble = useCallback((stop: any, index: number) => {
-    const label = String.fromCharCode(65 + index) // A, B, C, etc.
-    const isActive = stop.active !== false // Default to true if not specified
-    
-    // Get status colors
-    const getStatusColor = (active: boolean) => active ? "#10B981" : "#EF4444" // Green or Red
-    const getStatusText = (active: boolean) => active ? "Active" : "Inactive"
-    const getStatusBg = (active: boolean) => active ? "#ECFDF5" : "#FEF2F2" // Light green or light red
-    
-    // Format distance
-    const formatDistance = (distance: number) => distance > 0 ? `${distance.toFixed(1)} mi` : "0 mi"
-    
-    // Format duration
-    const formatDuration = (duration: number) => {
-      const hours = Math.floor(duration / 3600000)
-      const minutes = Math.floor((duration % 3600000) / 60000)
-      if (hours > 0) return `${hours}h ${minutes}m`
-      return `${minutes}m`
+    const stopLetter = String.fromCharCode(65 + index)
+
+    const formatDuration = (d: number) => {
+      const hours = Math.floor(d / 3600000)
+      const minutes = Math.floor((d % 3600000) / 60000)
+      return `${hours}h ${minutes}m`
     }
 
+    const formatDistance = (dist: number) => `${dist.toFixed(1)} mi`
+
+    const stopTypeColors: { [key: string]: { bg: string; text: string } } = {
+      START: { bg: "#E0F2FE", text: "#0284C7" },
+      PICKUP: { bg: "#D1FAE5", text: "#059669" },
+      DELIVERY: { bg: "#FEE2E2", text: "#DC2626" },
+      SHOP: { bg: "#F3E8FF", text: "#8B5CF6" },
+      HOME: { bg: "#EADDD7", text: "#795548" },
+      DEFAULT: { bg: "#F3F4F6", text: "#4B5563" }
+    }
+
+    const typeColor = stopTypeColors[stop.stopType] || stopTypeColors.DEFAULT
+    const loadStatusColor = stop.loadStatus === "LOADED" ? "#16A34A" : "#E11D48"
+
     return `
-      <div style="
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        min-width: 280px;
-        max-width: 320px;
-        padding: 0;
-        margin: 0;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        background: white;
-      ">
-        <!-- Header -->
-        <div style="
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 16px;
-          text-align: center;
-        ">
-          <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">
-            Stop ${label}
+      <div style="width: 300px; font-family: 'Inter', sans-serif; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden;">
+        <div style="padding: 12px; border-bottom: 1px solid #E5E7EB;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-weight: 600; font-size: 16px; color: #111827;">Stop ${stopLetter}: <span style="color: ${typeColor.text}">${stop.stopType}</span></div>
+            <div style="font-size: 12px; font-weight: 500; color: ${typeColor.text}; background-color: ${typeColor.bg}; padding: 2px 8px; border-radius: 12px;">
+              #${stop.orderIndex}
+            </div>
           </div>
-          <div style="font-size: 14px; opacity: 0.9;">
-            ${stop.stopType}
-          </div>
+          <div style="font-size: 13px; color: #6B7280; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${stop.address}</div>
         </div>
-
-        <!-- Content -->
-        <div style="padding: 16px;">
-          <!-- Status Badge -->
-          <div style="
-            display: inline-block;
-            background: ${getStatusBg(isActive)};
-            color: ${getStatusColor(isActive)};
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 12px;
-          ">
-            ● ${getStatusText(isActive)}
-          </div>
-
-          <!-- Address -->
-          <div style="margin-bottom: 12px;">
-            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
-              ADDRESS
-            </div>
-            <div style="font-size: 14px; color: #1F2937; line-height: 1.4;">
-              ${stop.address}
+        
+        <div style="padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #F9FAFB;">
+          <div style="display: flex; align-items: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="margin-left: 8px;">
+              <div style="font-size: 11px; color: #6B7280; font-weight: 500;">DISTANCE</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDistance(stop.distance)}</div>
             </div>
           </div>
 
-          <!-- Stats Grid -->
-          <div style="
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-          ">
-            <div>
-              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
-                DISTANCE
-              </div>
-              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
-                ${formatDistance(stop.distance)}
-              </div>
-            </div>
-            <div>
-              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
-                TOTAL DISTANCE
-              </div>
-              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
-                ${formatDistance(stop.totalDistance)}
-              </div>
+          <div style="display: flex; align-items: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div style="margin-left: 8px;">
+              <div style="font-size: 11px; color: #6B7280; font-weight: 500;">DURATION</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDuration(stop.duration)}</div>
             </div>
           </div>
 
-          <div style="
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-          ">
-            <div>
-              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
-                DURATION
-              </div>
-              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
-                ${formatDuration(stop.duration)}
-              </div>
+          <div style="display: flex; align-items: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+            <div style="margin-left: 8px;">
+              <div style="font-size: 11px; color: #6B7280; font-weight: 500;">TOTAL DIST.</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDistance(stop.totalDistance)}</div>
             </div>
-            <div>
-              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
-                LOAD STATUS
-              </div>
-              <div style="
-                font-size: 14px; 
-                color: ${stop.loadStatus === 'LOADED' ? '#059669' : '#DC2626'}; 
-                font-weight: 600;
-              ">
-                ${stop.loadStatus}
-              </div>
+          </div>
+
+          <div style="display: flex; align-items: center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="${loadStatusColor}" stroke="${loadStatusColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="margin-left: 8px;">
+              <div style="font-size: 11px; color: #6B7280; font-weight: 500;">LOAD</div>
+              <div style="font-size: 14px; color: ${loadStatusColor}; font-weight: 700;">${stop.loadStatus}</div>
             </div>
           </div>
         </div>
-
-        <!-- Footer -->
-        <div style="
-          background: #F9FAFB;
-          padding: 12px 16px;
-          border-top: 1px solid #E5E7EB;
-          font-size: 12px;
-          color: #6B7280;
-          text-align: center;
-        ">
-          Order Index: ${stop.orderIndex} • ID: ${stop.id || 'N/A'}
-          ${(stop as any).hasOffset ? '<br><span style="color: #F59E0B;">⚠️ Marker offset applied (same location)</span>' : ''}
-        </div>
+        ${(stop as any).hasOffset ? `<div style="background: #FFFBEB; padding: 6px 12px; font-size: 11px; color: #B45309; text-align: center; border-top: 1px solid #F3F4F6;">⚠️ Marker offset due to same location</div>` : ""}
       </div>
     `
   }, [])
@@ -333,28 +264,29 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             // Detect overlapping markers and apply offset - FALLBACK VERSION
             const processedStops = stops.map((stop, index) => {
               // Check if there are other stops with same coordinates
-              const sameLocationStops = stops.filter((otherStop, otherIndex) => 
-                otherIndex !== index &&
-                Math.abs(otherStop.latitude - stop.latitude) < 0.0001 && // Very small threshold
-                Math.abs(otherStop.longitude - stop.longitude) < 0.0001
+              const sameLocationStops = stops.filter(
+                (otherStop, otherIndex) =>
+                  otherIndex !== index &&
+                  Math.abs(otherStop.latitude - stop.latitude) < 0.0001 && // Very small threshold
+                  Math.abs(otherStop.longitude - stop.longitude) < 0.0001
               )
 
               if (sameLocationStops.length > 0) {
                 // Apply small offset to avoid overlap
-                const offsetIndex = stops.findIndex(s => s === stop)
+                const offsetIndex = stops.findIndex((s) => s === stop)
                 const offsetDistance = 0.0002 // Small offset in degrees
-                const angle = (offsetIndex * 60) * (Math.PI / 180) // 60 degrees apart
-                
+                const angle = offsetIndex * 60 * (Math.PI / 180) // 60 degrees apart
+
                 return {
                   ...stop,
-                  latitude: stop.latitude + (Math.cos(angle) * offsetDistance),
-                  longitude: stop.longitude + (Math.sin(angle) * offsetDistance),
+                  latitude: stop.latitude + Math.cos(angle) * offsetDistance,
+                  longitude: stop.longitude + Math.sin(angle) * offsetDistance,
                   originalLatitude: stop.latitude,
                   originalLongitude: stop.longitude,
                   hasOffset: true
                 }
               }
-              
+
               return { ...stop, hasOffset: false }
             })
 
@@ -414,9 +346,9 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                     }
                   } catch (error) {
                     // Fallback - try different approach
-                    const mapContainer = document.querySelector('.H_Map')
+                    const mapContainer = document.querySelector(".H_Map")
                     if (mapContainer) {
-                      (mapContainer as HTMLElement).style.cursor = "pointer"
+                      ;(mapContainer as HTMLElement).style.cursor = "pointer"
                     }
                   }
                 })
@@ -433,9 +365,9 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                     }
                   } catch (error) {
                     // Fallback - try different approach
-                    const mapContainer = document.querySelector('.H_Map')
+                    const mapContainer = document.querySelector(".H_Map")
                     if (mapContainer) {
-                      (mapContainer as HTMLElement).style.cursor = "default"
+                      ;(mapContainer as HTMLElement).style.cursor = "default"
                     }
                   }
                 })
@@ -444,43 +376,43 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                 marker.addEventListener("tap", (evt: any) => {
                   console.log("Fallback marker clicked:", index, stop.stopType, stop)
                   evt.stopPropagation() // Prevent map click
-                  
+
                   try {
                     // Remove any existing custom tooltips
-                    const existingTooltips = document.querySelectorAll('.custom-map-tooltip')
-                    existingTooltips.forEach(tooltip => tooltip.remove())
-                    
+                    const existingTooltips = document.querySelectorAll(".custom-map-tooltip")
+                    existingTooltips.forEach((tooltip) => tooltip.remove())
+
                     // Find map container first
-                    const mapContainer = document.querySelector('.here-map-container') as HTMLElement
-                    
+                    const mapContainer = document.querySelector(".here-map-container") as HTMLElement
+
                     if (!mapContainer) {
                       console.error("Could not find .here-map-container for fallback")
                       return
                     }
-                    
+
                     // Get container bounds for positioning
                     const containerRect = mapContainer.getBoundingClientRect()
-                    
+
                     // Get marker position in geo coordinates
                     const markerPosition = marker.getGeometry()
                     const map = mapInstance.current
-                    
+
                     if (map) {
                       // Convert to screen coordinates relative to map
                       const screenPosition = map.geoToScreen(markerPosition)
-                      
+
                       // Create custom tooltip content using the fallback function
                       const tooltipContent = createFallbackStopInfoBubble(stop, index)
-                      
+
                       // Create tooltip element
-                      const tooltip = document.createElement('div')
-                      tooltip.className = 'custom-map-tooltip'
+                      const tooltip = document.createElement("div")
+                      tooltip.className = "custom-map-tooltip"
                       tooltip.innerHTML = tooltipContent
-                      
+
                       // Position tooltip relative to container
                       const tooltipX = Math.min(screenPosition.x + 15, containerRect.width - 320) // 320 is tooltip width
                       const tooltipY = Math.max(screenPosition.y - 200, 10) // 200 is approximate tooltip height
-                      
+
                       tooltip.style.cssText = `
                         position: absolute;
                         z-index: 1000;
@@ -488,10 +420,10 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                         top: ${tooltipY}px;
                         pointer-events: auto;
                       `
-                      
+
                       // Add close button
-                      const closeButton = document.createElement('button')
-                      closeButton.innerHTML = '×'
+                      const closeButton = document.createElement("button")
+                      closeButton.innerHTML = "×"
                       closeButton.style.cssText = `
                         position: absolute;
                         top: 8px;
@@ -509,34 +441,40 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                         align-items: center;
                         justify-content: center;
                       `
-                      
-                      closeButton.addEventListener('click', () => {
+
+                      closeButton.addEventListener("click", () => {
                         tooltip.remove()
                       })
-                      
+
                       tooltip.appendChild(closeButton)
-                      
+
                       // Make sure container has relative positioning
                       const containerStyle = window.getComputedStyle(mapContainer)
-                      if (containerStyle.position === 'static') {
-                        mapContainer.style.position = 'relative'
+                      if (containerStyle.position === "static") {
+                        mapContainer.style.position = "relative"
                       }
-                      
+
                       mapContainer.appendChild(tooltip)
-                      
+
                       // Auto-close after 10 seconds
                       setTimeout(() => {
                         if (tooltip.parentNode) {
                           tooltip.remove()
                         }
                       }, 10000)
-                      
-                      console.log("Fallback custom tooltip created successfully at position:", { x: tooltipX, y: tooltipY })
+
+                      console.log("Fallback custom tooltip created successfully at position:", {
+                        x: tooltipX,
+                        y: tooltipY
+                      })
                     } else {
                       console.error("No map available for fallback tooltip")
                     }
                   } catch (error) {
-                    console.error("Error creating fallback custom tooltip:", error instanceof Error ? error.message : String(error))
+                    console.error(
+                      "Error creating fallback custom tooltip:",
+                      error instanceof Error ? error.message : String(error)
+                    )
                   }
                 })
 
@@ -711,7 +649,10 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             // Stop loading state for polyline maps
             setMapLoading(mapType as "samsara" | "gle", false)
           } catch (error) {
-            console.error(`Error decoding ${mapType.toUpperCase()} polyline:`, error instanceof Error ? error.message : String(error))
+            console.error(
+              `Error decoding ${mapType.toUpperCase()} polyline:`,
+              error instanceof Error ? error.message : String(error)
+            )
             // Stop loading state on error
             setMapLoading(mapType as "samsara" | "gle", false)
           }
