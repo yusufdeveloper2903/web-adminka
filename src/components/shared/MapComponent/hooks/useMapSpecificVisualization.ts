@@ -118,6 +118,149 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     []
   )
 
+  // Create professional info bubble for fallback stops
+  const createFallbackStopInfoBubble = useCallback((stop: any, index: number) => {
+    const label = String.fromCharCode(65 + index) // A, B, C, etc.
+    const isActive = stop.active !== false // Default to true if not specified
+    
+    // Get status colors
+    const getStatusColor = (active: boolean) => active ? "#10B981" : "#EF4444" // Green or Red
+    const getStatusText = (active: boolean) => active ? "Active" : "Inactive"
+    const getStatusBg = (active: boolean) => active ? "#ECFDF5" : "#FEF2F2" // Light green or light red
+    
+    // Format distance
+    const formatDistance = (distance: number) => distance > 0 ? `${distance.toFixed(1)} mi` : "0 mi"
+    
+    // Format duration
+    const formatDuration = (duration: number) => {
+      const hours = Math.floor(duration / 3600000)
+      const minutes = Math.floor((duration % 3600000) / 60000)
+      if (hours > 0) return `${hours}h ${minutes}m`
+      return `${minutes}m`
+    }
+
+    return `
+      <div style="
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        min-width: 280px;
+        max-width: 320px;
+        padding: 0;
+        margin: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        background: white;
+      ">
+        <!-- Header -->
+        <div style="
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 16px;
+          text-align: center;
+        ">
+          <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">
+            Stop ${label}
+          </div>
+          <div style="font-size: 14px; opacity: 0.9;">
+            ${stop.stopType}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 16px;">
+          <!-- Status Badge -->
+          <div style="
+            display: inline-block;
+            background: ${getStatusBg(isActive)};
+            color: ${getStatusColor(isActive)};
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+          ">
+            ● ${getStatusText(isActive)}
+          </div>
+
+          <!-- Address -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+              ADDRESS
+            </div>
+            <div style="font-size: 14px; color: #1F2937; line-height: 1.4;">
+              ${stop.address}
+            </div>
+          </div>
+
+          <!-- Stats Grid -->
+          <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+          ">
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                DISTANCE
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDistance(stop.distance)}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                TOTAL DISTANCE
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDistance(stop.totalDistance)}
+              </div>
+            </div>
+          </div>
+
+          <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          ">
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                DURATION
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDuration(stop.duration)}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                LOAD STATUS
+              </div>
+              <div style="
+                font-size: 14px; 
+                color: ${stop.loadStatus === 'LOADED' ? '#059669' : '#DC2626'}; 
+                font-weight: 600;
+              ">
+                ${stop.loadStatus}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="
+          background: #F9FAFB;
+          padding: 12px 16px;
+          border-top: 1px solid #E5E7EB;
+          font-size: 12px;
+          color: #6B7280;
+          text-align: center;
+        ">
+          Order Index: ${stop.orderIndex} • ID: ${stop.id || 'N/A'}
+          ${(stop as any).hasOffset ? '<br><span style="color: #F59E0B;">⚠️ Marker offset applied (same location)</span>' : ''}
+        </div>
+      </div>
+    `
+  }, [])
+
   // Memoize the visualization handler to prevent infinite loops
   const handleVisualization = useCallback(async () => {
     // Only proceed if mapType is provided (for specific visualization)
@@ -187,9 +330,37 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             const map = mapInstance.current
             const routeGroup = new H.map.Group()
 
+            // Detect overlapping markers and apply offset - FALLBACK VERSION
+            const processedStops = stops.map((stop, index) => {
+              // Check if there are other stops with same coordinates
+              const sameLocationStops = stops.filter((otherStop, otherIndex) => 
+                otherIndex !== index &&
+                Math.abs(otherStop.latitude - stop.latitude) < 0.0001 && // Very small threshold
+                Math.abs(otherStop.longitude - stop.longitude) < 0.0001
+              )
+
+              if (sameLocationStops.length > 0) {
+                // Apply small offset to avoid overlap
+                const offsetIndex = stops.findIndex(s => s === stop)
+                const offsetDistance = 0.0002 // Small offset in degrees
+                const angle = (offsetIndex * 60) * (Math.PI / 180) // 60 degrees apart
+                
+                return {
+                  ...stop,
+                  latitude: stop.latitude + (Math.cos(angle) * offsetDistance),
+                  longitude: stop.longitude + (Math.sin(angle) * offsetDistance),
+                  originalLatitude: stop.latitude,
+                  originalLongitude: stop.longitude,
+                  hasOffset: true
+                }
+              }
+              
+              return { ...stop, hasOffset: false }
+            })
+
             // Add markers with labels - FALLBACK VERSION
-            console.log("Drawing fallback markers for", stops.length, "stops")
-            stops.forEach((stop, index) => {
+            console.log("Drawing fallback markers for", processedStops.length, "stops")
+            processedStops.forEach((stop, index) => {
               console.log(`Adding marker ${index + 1}:`, stop.stopType, stop.address.substring(0, 50))
 
               const getMarkerColor = (stopType: string, orderIndex: number) => {
@@ -229,10 +400,150 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                     )
                   }
                 )
+
+                // Add hover effect for cursor pointer
+                marker.addEventListener("pointerenter", () => {
+                  console.log("Fallback marker hover enter:", index, stop.stopType)
+                  try {
+                    const map = mapInstance.current
+                    if (map) {
+                      const mapElement = map.getViewPort().getElement()
+                      if (mapElement) {
+                        mapElement.style.cursor = "pointer"
+                      }
+                    }
+                  } catch (error) {
+                    // Fallback - try different approach
+                    const mapContainer = document.querySelector('.H_Map')
+                    if (mapContainer) {
+                      (mapContainer as HTMLElement).style.cursor = "pointer"
+                    }
+                  }
+                })
+
+                marker.addEventListener("pointerleave", () => {
+                  console.log("Fallback marker hover leave:", index, stop.stopType)
+                  try {
+                    const map = mapInstance.current
+                    if (map) {
+                      const mapElement = map.getViewPort().getElement()
+                      if (mapElement) {
+                        mapElement.style.cursor = "default"
+                      }
+                    }
+                  } catch (error) {
+                    // Fallback - try different approach
+                    const mapContainer = document.querySelector('.H_Map')
+                    if (mapContainer) {
+                      (mapContainer as HTMLElement).style.cursor = "default"
+                    }
+                  }
+                })
+
+                // Add click event for custom tooltip using DOM overlay (fallback version)
+                marker.addEventListener("tap", (evt: any) => {
+                  console.log("Fallback marker clicked:", index, stop.stopType, stop)
+                  evt.stopPropagation() // Prevent map click
+                  
+                  try {
+                    // Remove any existing custom tooltips
+                    const existingTooltips = document.querySelectorAll('.custom-map-tooltip')
+                    existingTooltips.forEach(tooltip => tooltip.remove())
+                    
+                    // Find map container first
+                    const mapContainer = document.querySelector('.here-map-container') as HTMLElement
+                    
+                    if (!mapContainer) {
+                      console.error("Could not find .here-map-container for fallback")
+                      return
+                    }
+                    
+                    // Get container bounds for positioning
+                    const containerRect = mapContainer.getBoundingClientRect()
+                    
+                    // Get marker position in geo coordinates
+                    const markerPosition = marker.getGeometry()
+                    const map = mapInstance.current
+                    
+                    if (map) {
+                      // Convert to screen coordinates relative to map
+                      const screenPosition = map.geoToScreen(markerPosition)
+                      
+                      // Create custom tooltip content using the fallback function
+                      const tooltipContent = createFallbackStopInfoBubble(stop, index)
+                      
+                      // Create tooltip element
+                      const tooltip = document.createElement('div')
+                      tooltip.className = 'custom-map-tooltip'
+                      tooltip.innerHTML = tooltipContent
+                      
+                      // Position tooltip relative to container
+                      const tooltipX = Math.min(screenPosition.x + 15, containerRect.width - 320) // 320 is tooltip width
+                      const tooltipY = Math.max(screenPosition.y - 200, 10) // 200 is approximate tooltip height
+                      
+                      tooltip.style.cssText = `
+                        position: absolute;
+                        z-index: 1000;
+                        left: ${tooltipX}px;
+                        top: ${tooltipY}px;
+                        pointer-events: auto;
+                      `
+                      
+                      // Add close button
+                      const closeButton = document.createElement('button')
+                      closeButton.innerHTML = '×'
+                      closeButton.style.cssText = `
+                        position: absolute;
+                        top: 8px;
+                        right: 8px;
+                        background: rgba(0,0,0,0.5);
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 24px;
+                        height: 24px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        line-height: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      `
+                      
+                      closeButton.addEventListener('click', () => {
+                        tooltip.remove()
+                      })
+                      
+                      tooltip.appendChild(closeButton)
+                      
+                      // Make sure container has relative positioning
+                      const containerStyle = window.getComputedStyle(mapContainer)
+                      if (containerStyle.position === 'static') {
+                        mapContainer.style.position = 'relative'
+                      }
+                      
+                      mapContainer.appendChild(tooltip)
+                      
+                      // Auto-close after 10 seconds
+                      setTimeout(() => {
+                        if (tooltip.parentNode) {
+                          tooltip.remove()
+                        }
+                      }, 10000)
+                      
+                      console.log("Fallback custom tooltip created successfully at position:", { x: tooltipX, y: tooltipY })
+                    } else {
+                      console.error("No map available for fallback tooltip")
+                    }
+                  } catch (error) {
+                    console.error("Error creating fallback custom tooltip:", error instanceof Error ? error.message : String(error))
+                  }
+                })
+
                 routeGroup.addObject(marker)
                 console.log(`Successfully added marker ${label}`)
               } catch (error) {
-                console.error(`Error adding marker ${label}:`, error)
+                console.error(`Error adding marker ${label}:`, error instanceof Error ? error.message : String(error))
               }
             })
 
@@ -256,7 +567,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
               routeGroup.addObject(routeLine)
               console.log("Successfully added fallback route line")
             } catch (error) {
-              console.error("Error adding fallback route line:", error)
+              console.error("Error adding fallback route line:", error instanceof Error ? error.message : String(error))
             }
 
             map.addObject(routeGroup)
@@ -400,7 +711,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             // Stop loading state for polyline maps
             setMapLoading(mapType as "samsara" | "gle", false)
           } catch (error) {
-            console.error(`Error decoding ${mapType.toUpperCase()} polyline:`, error)
+            console.error(`Error decoding ${mapType.toUpperCase()} polyline:`, error instanceof Error ? error.message : String(error))
             // Stop loading state on error
             setMapLoading(mapType as "samsara" | "gle", false)
           }
@@ -412,7 +723,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
         // These maps should ONLY show polyline data, nothing else
       }
     } catch (error) {
-      console.error(`Error visualizing ${mapType} route:`, error)
+      console.error(`Error visualizing ${mapType} route:`, error instanceof Error ? error.message : String(error))
     }
   }, [
     mapType,

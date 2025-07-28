@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useRef, useEffect } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
@@ -115,7 +115,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
         return result.routes || null
       } catch (error) {
-        console.error("Error calculating route:", error)
+        console.error("Error calculating route:", error instanceof Error ? error.message : String(error))
         return null
       }
     },
@@ -150,11 +150,155 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     const label = String.fromCharCode(65 + index) // A, B, C, etc.
 
     return new H.map.DomIcon(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px" title="Stop ${label}: ${stopType}">
         <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
         <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
-      </svg>`
+      </svg>`,
+      { size: { w: 30, h: 40 } }
     )
+  }, [])
+
+  // Create professional info bubble for stop details
+  const createStopInfoBubble = useCallback((stop: ITripStopResponse, index: number) => {
+    const label = String.fromCharCode(65 + index) // A, B, C, etc.
+    const isActive = (stop as any).active !== false // Default to true if not specified
+    
+    // Get status colors
+    const getStatusColor = (active: boolean) => active ? "#10B981" : "#EF4444" // Green or Red
+    const getStatusText = (active: boolean) => active ? "Active" : "Inactive"
+    const getStatusBg = (active: boolean) => active ? "#ECFDF5" : "#FEF2F2" // Light green or light red
+    
+    // Format distance
+    const formatDistance = (distance: number) => distance > 0 ? `${distance.toFixed(1)} mi` : "0 mi"
+    
+    // Format duration
+    const formatDuration = (duration: number) => {
+      const hours = Math.floor(duration / 3600000)
+      const minutes = Math.floor((duration % 3600000) / 60000)
+      if (hours > 0) return `${hours}h ${minutes}m`
+      return `${minutes}m`
+    }
+
+    return `
+      <div style="
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        min-width: 280px;
+        max-width: 320px;
+        padding: 0;
+        margin: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        background: white;
+      ">
+        <!-- Header -->
+        <div style="
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 16px;
+          text-align: center;
+        ">
+          <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px;">
+            Stop ${label}
+          </div>
+          <div style="font-size: 14px; opacity: 0.9;">
+            ${stop.stopType}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 16px;">
+          <!-- Status Badge -->
+          <div style="
+            display: inline-block;
+            background: ${getStatusBg(isActive)};
+            color: ${getStatusColor(isActive)};
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+          ">
+            ● ${getStatusText(isActive)}
+          </div>
+
+          <!-- Address -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+              ADDRESS
+            </div>
+            <div style="font-size: 14px; color: #1F2937; line-height: 1.4;">
+              ${stop.address}
+            </div>
+          </div>
+
+          <!-- Stats Grid -->
+          <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+          ">
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                DISTANCE
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDistance(stop.distance)}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                TOTAL DISTANCE
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDistance(stop.totalDistance)}
+              </div>
+            </div>
+          </div>
+
+          <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+          ">
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                DURATION
+              </div>
+              <div style="font-size: 16px; color: #1F2937; font-weight: 600;">
+                ${formatDuration(stop.duration)}
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #6B7280; margin-bottom: 4px; font-weight: 500;">
+                LOAD STATUS
+              </div>
+              <div style="
+                font-size: 14px; 
+                color: ${stop.loadStatus === 'LOADED' ? '#059669' : '#DC2626'}; 
+                font-weight: 600;
+              ">
+                ${stop.loadStatus}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="
+          background: #F9FAFB;
+          padding: 12px 16px;
+          border-top: 1px solid #E5E7EB;
+          font-size: 12px;
+          color: #6B7280;
+          text-align: center;
+        ">
+          Order Index: ${stop.orderIndex} • ID: ${stop.id || 'N/A'}
+          ${(stop as any).hasOffset ? '<br><span style="color: #F59E0B;">⚠️ Marker offset applied (same location)</span>' : ''}
+        </div>
+      </div>
+    `
   }, [])
 
   // Calculate route metrics from route data
@@ -195,7 +339,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         try {
           map.removeObject(routeGroupRef.current)
         } catch (error) {
-          console.warn("Error removing existing route group:", error)
+          console.warn("Error removing existing route group:", error instanceof Error ? error.message : String(error))
         }
         routeGroupRef.current = null
       }
@@ -222,7 +366,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
               const sectionBounds = lineString.getBoundingBox()
               boundingBox = boundingBox ? boundingBox.mergeRect(sectionBounds) : sectionBounds
             } catch (error) {
-              console.warn("Error creating lineString from polyline:", error)
+              console.warn("Error creating lineString from polyline:", error instanceof Error ? error.message : String(error))
             }
           })
 
@@ -283,16 +427,190 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           }
         })
 
-        // Add markers for stops - inspired by Vue project
-        validStops.forEach((stop, index) => {
+        // Detect overlapping markers and apply offset
+        const processedStops = validStops.map((stop, index) => {
+          // Check if there are other stops with same coordinates
+          const sameLocationStops = validStops.filter((otherStop, otherIndex) => 
+            otherIndex !== index &&
+            Math.abs(otherStop.latitude - stop.latitude) < 0.0001 && // Very small threshold
+            Math.abs(otherStop.longitude - stop.longitude) < 0.0001
+          )
+
+          if (sameLocationStops.length > 0) {
+            // Apply small offset to avoid overlap
+            const offsetIndex = validStops.findIndex(s => s === stop)
+            const offsetDistance = 0.0002 // Small offset in degrees
+            const angle = (offsetIndex * 60) * (Math.PI / 180) // 60 degrees apart
+            
+            return {
+              ...stop,
+              latitude: stop.latitude + (Math.cos(angle) * offsetDistance),
+              longitude: stop.longitude + (Math.sin(angle) * offsetDistance),
+              originalLatitude: stop.latitude,
+              originalLongitude: stop.longitude,
+              hasOffset: true
+            }
+          }
+          
+          return { ...stop, hasOffset: false }
+        })
+
+        // Add markers for stops with interactive tooltips
+        processedStops.forEach((stop, index) => {
           try {
             const marker = new H.map.DomMarker(
               { lat: stop.latitude, lng: stop.longitude },
-              { icon: createMarkerIcon(stop.stopType, index, stop.orderIndex) }
+              { 
+                icon: createMarkerIcon(stop.stopType, index, stop.orderIndex),
+                data: { 
+                  title: `Stop ${String.fromCharCode(65 + index)}: ${stop.stopType}`,
+                  address: stop.address,
+                  distance: stop.distance,
+                  status: stop.loadStatus
+                }
+              }
             )
+
+            // Add hover effect for cursor pointer
+            marker.addEventListener("pointerenter", () => {
+              console.log("Marker hover enter:", index, stop.stopType)
+              try {
+                const mapElement = map.getViewPort().getElement()
+                if (mapElement) {
+                  mapElement.style.cursor = "pointer"
+                }
+              } catch (error) {
+                // Fallback - try different approach
+                const mapContainer = document.querySelector('.H_Map')
+                if (mapContainer) {
+                  (mapContainer as HTMLElement).style.cursor = "pointer"
+                }
+              }
+            })
+
+            marker.addEventListener("pointerleave", () => {
+              console.log("Marker hover leave:", index, stop.stopType)
+              try {
+                const mapElement = map.getViewPort().getElement()
+                if (mapElement) {
+                  mapElement.style.cursor = "default"
+                }
+              } catch (error) {
+                // Fallback - try different approach
+                const mapContainer = document.querySelector('.H_Map')
+                if (mapContainer) {
+                  (mapContainer as HTMLElement).style.cursor = "default"
+                }
+              }
+            })
+
+            // Add map resize listener to reposition tooltips
+            const resizeHandler = () => {
+              const tooltips = document.querySelectorAll('.custom-map-tooltip')
+              tooltips.forEach(tooltip => tooltip.remove())
+            }
+            
+            // Listen for window resize to close tooltips
+            window.addEventListener('resize', resizeHandler)
+
+            // Add click event for custom tooltip using DOM overlay
+            marker.addEventListener("tap", (evt: any) => {
+              console.log("Marker clicked:", index, stop.stopType, stop)
+              evt.stopPropagation() // Prevent map click
+              
+              try {
+                // Remove any existing custom tooltips
+                const existingTooltips = document.querySelectorAll('.custom-map-tooltip')
+                existingTooltips.forEach(tooltip => tooltip.remove())
+                
+                // Find map container first
+                const mapContainer = document.querySelector('.here-map-container') as HTMLElement
+                
+                if (!mapContainer) {
+                  console.error("Could not find .here-map-container")
+                  return
+                }
+                
+                // Get container bounds for positioning
+                const containerRect = mapContainer.getBoundingClientRect()
+                
+                // Get marker position in geo coordinates
+                const markerPosition = marker.getGeometry()
+                
+                // Convert to screen coordinates relative to map
+                const screenPosition = map.geoToScreen(markerPosition)
+                
+                // Create custom tooltip content
+                const tooltipContent = createStopInfoBubble(stop, index)
+                
+                // Create tooltip element
+                const tooltip = document.createElement('div')
+                tooltip.className = 'custom-map-tooltip'
+                tooltip.innerHTML = tooltipContent
+                
+                // Position tooltip relative to container
+                const tooltipX = Math.min(screenPosition.x + 15, containerRect.width - 320) // 320 is tooltip width
+                const tooltipY = Math.max(screenPosition.y - 200, 10) // 200 is approximate tooltip height
+                
+                tooltip.style.cssText = `
+                  position: absolute;
+                  z-index: 1000;
+                  left: ${tooltipX}px;
+                  top: ${tooltipY}px;
+                  pointer-events: auto;
+                `
+                
+                // Add close button
+                const closeButton = document.createElement('button')
+                closeButton.innerHTML = '×'
+                closeButton.style.cssText = `
+                  position: absolute;
+                  top: 8px;
+                  right: 8px;
+                  background: rgba(0,0,0,0.5);
+                  color: white;
+                  border: none;
+                  border-radius: 50%;
+                  width: 24px;
+                  height: 24px;
+                  cursor: pointer;
+                  font-size: 16px;
+                  line-height: 1;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                `
+                
+                closeButton.addEventListener('click', () => {
+                  tooltip.remove()
+                })
+                
+                tooltip.appendChild(closeButton)
+                
+                // Make sure container has relative positioning
+                const containerStyle = window.getComputedStyle(mapContainer)
+                if (containerStyle.position === 'static') {
+                  mapContainer.style.position = 'relative'
+                }
+                
+                mapContainer.appendChild(tooltip)
+                
+                // Auto-close after 10 seconds
+                setTimeout(() => {
+                  if (tooltip.parentNode) {
+                    tooltip.remove()
+                  }
+                }, 10000)
+                
+                console.log("Custom tooltip created successfully at position:", { x: tooltipX, y: tooltipY })
+              } catch (error) {
+                console.error("Error creating custom tooltip:", error instanceof Error ? error.message : String(error))
+              }
+            })
+
             group.addObject(marker)
           } catch (error) {
-            console.warn(`Error adding marker for stop ${index}:`, error)
+            console.warn(`Error adding marker for stop ${index}:`, error instanceof Error ? error.message : String(error))
           }
         })
 
@@ -313,12 +631,12 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         // Stop loading state after route is drawn
         setCalculatingRoute(false)
       } catch (error) {
-        console.error("Error drawing routes:", error)
+        console.error("Error drawing routes:", error instanceof Error ? error.message : String(error))
         // Stop loading state on error as well
         setCalculatingRoute(false)
       }
     },
-    [mapInstance, getValidStops, createMarkerIcon, calculateRouteMetrics, setHereRouteData, setCalculatingRoute]
+    [mapInstance, getValidStops, calculateRouteMetrics, setHereRouteData, setCalculatingRoute, createMarkerIcon, createStopInfoBubble]
   )
 
   // Remove all route objects - inspired by Vue project's removeMapObjectsExceptTruckMarker
@@ -328,12 +646,16 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     try {
       const map = mapInstance.current
 
+      // Remove any existing custom tooltips
+      const existingTooltips = document.querySelectorAll('.custom-map-tooltip')
+      existingTooltips.forEach(tooltip => tooltip.remove())
+
       // Remove the tracked route group first
       if (routeGroupRef.current) {
         try {
           map.removeObject(routeGroupRef.current)
         } catch (error) {
-          console.warn("Error removing tracked route group:", error)
+          console.warn("Error removing tracked route group:", error instanceof Error ? error.message : String(error))
         }
         routeGroupRef.current = null
       }
@@ -355,9 +677,25 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
       // Clear references
       routePolylinesRef.current = []
     } catch (error) {
-      console.warn("Error removing route objects:", error)
+      console.warn("Error removing route objects:", error instanceof Error ? error.message : String(error))
     }
   }, [mapInstance])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Remove tooltips
+      const tooltips = document.querySelectorAll('.custom-map-tooltip')
+      tooltips.forEach(tooltip => tooltip.remove())
+      
+      // Remove resize listener
+      const resizeHandler = () => {
+        const tooltips = document.querySelectorAll('.custom-map-tooltip')
+        tooltips.forEach(tooltip => tooltip.remove())
+      }
+      window.removeEventListener('resize', resizeHandler)
+    }
+  }, [])
 
   return {
     calculateRoute,
