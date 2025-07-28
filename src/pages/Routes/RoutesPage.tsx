@@ -13,7 +13,11 @@ const RoutesPage = () => {
   const [shouldFetchTrip, setShouldFetchTrip] = useState(false)
 
   const handleSetFilters = (newFilters: Partial<RouteFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }))
+    const updatedFilters = { ...filters, ...newFilters }
+    setFilters(updatedFilters)
+
+    // Reset shouldFetchTrip when filters change (so route disappears until Submit is clicked again)
+    setShouldFetchTrip(false)
   }
 
   const handleResetFilters = () => {
