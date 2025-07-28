@@ -1,6 +1,7 @@
 export * from "./sidebar-store"
 export * from "./header-store"
 export * from "./drawer-store"
+export * from "./dispatcher-store"
 export * from "./trips-store"
 export * from "./trucks-store"
 export * from "./route-store"

@@ -12,9 +12,10 @@ const fetchDispatchers = async (
   return response.data.data
 }
 
-export const useDispatchersInfiniteQuery = (filters: IDispatchersFiltersRequest = {}) => {
+export const useDispatchersInfiniteQuery = (filters: IDispatchersFiltersRequest = {}, enabled = true) => {
   return useInfiniteQuery({
     queryKey: ["dispatchers", filters],
+    enabled,
     queryFn: ({ pageParam = 0 }) => fetchDispatchers(filters, pageParam),
     getNextPageParam,
     initialPageParam: 0

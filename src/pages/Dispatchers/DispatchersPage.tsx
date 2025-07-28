@@ -1,68 +1,78 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useDispatchersHeader, useDispatchersColumns, useTeamsColumns, useDispatchersTab } from "./hooks"
 import { DataTable } from "@/components/shared"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
 import { useTeamsInfiniteQuery } from "@/hooks/teams"
-import type { IDispatchersFiltersRequest, ITeamsFiltersRequest } from "@/types"
+import { useDispatchersStore } from "@/store"
 
 const DispatchersPage = () => {
   const { currentTab } = useDispatchersTab()
+  const { filters: globalDispatchersFilters } = useDispatchersStore()
 
-  // Filters for dispatchers
-  const [dispatchersFilters] = useState<IDispatchersFiltersRequest>({
-    size: 20,
-    active: true
-  })
+  const isDispatchersTab = currentTab === "dispatchers"
 
-  // Filters for teams
-  const [teamsFilters] = useState<ITeamsFiltersRequest>({
-    size: 20,
-    active: true
-  })
+  // Initial keyword for teams tab is empty, it will be updated by the header hook
+  const [teamKeyword, setTeamKeyword] = useState("")
 
-  // Dispatchers data
+  // Dispatchers data query with global filters
   const {
     data: dispatchersData,
     fetchNextPage: fetchNextDispatchersPage,
     isLoading: isDispatchersLoading,
+    isFetching: isDispatchersFetching,
     refetch: refetchDispatchers,
     hasNextPage: hasNextDispatchersPage,
     isFetchingNextPage: isFetchingNextDispatchersPage
-  } = useDispatchersInfiniteQuery(dispatchersFilters)
+  } = useDispatchersInfiniteQuery(
+    {
+      size: 20,
+      keyword: globalDispatchersFilters.keyword,
+      teamId: globalDispatchersFilters.teamId ? Number(globalDispatchersFilters.teamId) : undefined
+    },
+    isDispatchersTab
+  )
 
-  // Teams data
+  // Teams data query with local debounced keyword
   const {
     data: teamsData,
     fetchNextPage: fetchNextTeamsPage,
     isLoading: isTeamsLoading,
+    isFetching: isTeamsFetching,
     refetch: refetchTeams,
     hasNextPage: hasNextTeamsPage,
     isFetchingNextPage: isFetchingNextTeamsPage
-  } = useTeamsInfiniteQuery(teamsFilters)
-
-  // Current data based on active tab
-  const isDispatchersTab = currentTab === "dispatchers"
-  const currentData = isDispatchersTab ? dispatchersData : teamsData
-  const isLoading = isDispatchersTab ? isDispatchersLoading : isTeamsLoading
-  const fetchNextPage = isDispatchersTab ? fetchNextDispatchersPage : fetchNextTeamsPage
-  const refetch = isDispatchersTab ? refetchDispatchers : refetchTeams
-  const hasNextPage = isDispatchersTab ? hasNextDispatchersPage : hasNextTeamsPage
-  const isFetchingNextPage = isDispatchersTab ? isFetchingNextDispatchersPage : isFetchingNextTeamsPage
-
-  // Memoized data from API
-  const flatData = useMemo(() => {
-    return currentData?.pages?.flatMap((page) => page.content as any) ?? []
-  }, [currentData])
-
-  const totalDBRowCount = currentData?.pages?.[0]?.totalElements ?? flatData.length
+  } = useTeamsInfiniteQuery(
+    {
+      size: 20,
+      keyword: teamKeyword
+    },
+    !isDispatchersTab
+  )
 
   // Header Configuration Hook
-  useDispatchersHeader({
-    isLoading,
-    totalDBRowCount,
-    refetch,
+  const { teamKeyword: debouncedTeamKeyword } = useDispatchersHeader({
+    isLoading: isDispatchersFetching || isTeamsFetching,
+    totalDBRowCount:
+      (isDispatchersTab ? dispatchersData?.pages?.[0]?.totalElements : teamsData?.pages?.[0]?.totalElements) ?? 0,
+    refetch: isDispatchersTab ? refetchDispatchers : refetchTeams,
     currentTab
   })
+
+  // Update teamKeyword when debounced value changes
+  useEffect(() => {
+    setTeamKeyword(debouncedTeamKeyword)
+  }, [debouncedTeamKeyword])
+
+  // Memoized data from API based on the active tab
+  const flatData = useMemo(() => {
+    const currentData = isDispatchersTab ? dispatchersData : teamsData
+    return currentData?.pages?.flatMap((page) => page.content as any) ?? []
+  }, [dispatchersData, teamsData, isDispatchersTab])
+
+  const totalDBRowCount = useMemo(() => {
+    const currentData = isDispatchersTab ? dispatchersData : teamsData
+    return currentData?.pages?.[0]?.totalElements ?? 0
+  }, [dispatchersData, teamsData, isDispatchersTab])
 
   // Columns based on current tab
   const dispatchersColumns = useDispatchersColumns()
@@ -74,11 +84,11 @@ const DispatchersPage = () => {
       key={currentTab} // Force re-render when tab changes
       columns={columns as any}
       data={flatData}
-      isLoading={isLoading}
-      isFetching={isFetchingNextPage}
-      fetchNextPage={fetchNextPage}
+      isFetching={isDispatchersTab ? isFetchingNextDispatchersPage : isFetchingNextTeamsPage}
+      hasNextPage={isDispatchersTab ? hasNextDispatchersPage : hasNextTeamsPage}
+      fetchNextPage={isDispatchersTab ? fetchNextDispatchersPage : fetchNextTeamsPage}
+      isLoading={isDispatchersTab ? isDispatchersLoading : isTeamsLoading}
       totalDBRowCount={totalDBRowCount}
-      hasNextPage={!!hasNextPage}
     />
   )
 }

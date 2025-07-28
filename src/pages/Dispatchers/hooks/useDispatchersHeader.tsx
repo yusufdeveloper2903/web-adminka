@@ -1,9 +1,15 @@
-import { useHeaderStore, useDrawerStore } from "@/store"
-import { Loader2, Plus, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Button, Input, SearchableSelect } from "@/components/ui"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useTeamsInfiniteQuery } from "@/hooks/teams"
+import { useDrawerStore, useHeaderStore, useDispatchersStore } from "@/store"
+import type { IPaginatedResponse, ITeamResponse } from "@/types"
+import { Loader2, Plus, RefreshCw, RotateCcw } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import type { SingleValue } from "react-select"
+import { useDebounceValue } from "usehooks-ts"
 import { NewDispatcherForm, NewTeamForm } from "../components"
 import { useDispatchersTab, type DispatchersTabType } from "./useDispatchersTab"
+import { cn } from "@/lib"
 
 interface UseDispatchersHeaderParams {
   isLoading: boolean
@@ -15,16 +21,114 @@ interface UseDispatchersHeaderParams {
 const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab }: UseDispatchersHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
+  const { filters, setFilters, resetFilters } = useDispatchersStore()
   const { setTab } = useDispatchersTab()
 
-  // State for each filter
-  const [teamFilter, setTeamFilter] = useState<string | undefined>()
-  const [keywordFilter, setKeywordFilter] = useState<string | undefined>()
+  const isDispatchersTab = currentTab === "dispatchers"
+
+  // Local state for UI controls
+  const [dispatcherKeyword, setDispatcherKeyword] = useState(filters.keyword || "")
+  const [teamKeyword, setTeamKeyword] = useState("") // For searching teams in the teams tab
+  const [teamSelectSearch, setTeamSelectSearch] = useState("") // For searching teams in the select dropdown
+
+  // Debounced values
+  const [debouncedDispatcherKeyword] = useDebounceValue(dispatcherKeyword, 500)
+  const [debouncedTeamKeyword] = useDebounceValue(teamKeyword, 500)
+
+  // Sync debounced dispatcher keyword with global store
+  useEffect(() => {
+    if (isDispatchersTab) {
+      setFilters({ keyword: debouncedDispatcherKeyword })
+    }
+  }, [debouncedDispatcherKeyword, isDispatchersTab, setFilters])
+
+  // Fetch teams for the searchable select
+  const {
+    data: teamsData,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: isTeamsLoading
+  } = useTeamsInfiniteQuery({ keyword: teamSelectSearch }, isDispatchersTab)
+
+  const teamOptions = useMemo(
+    () =>
+      teamsData?.pages
+        .flatMap((page: IPaginatedResponse<ITeamResponse>) => page.content)
+        .map((team: ITeamResponse) => ({ value: team.id.toString(), label: team.name })) ?? [],
+    [teamsData]
+  )
 
   useEffect(() => {
-    const isDispatchersTab = currentTab === "dispatchers"
     const addIcon = <Plus className="mr-2 h-4 w-4" />
-    const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
+
+    const dispatcherFilters = [
+      {
+        id: "dispatcher-keyword-filter",
+        node: (
+          <Input
+            placeholder="Search by name..."
+            value={dispatcherKeyword}
+            onChange={(e) => setDispatcherKeyword(e.target.value)}
+            className="w-48"
+          />
+        )
+      },
+      {
+        id: "team-select-filter",
+        node: (
+          <SearchableSelect
+            options={teamOptions}
+            placeholder="Filter by Team..."
+            isLoading={isTeamsLoading}
+            onDebouncedInputChange={setTeamSelectSearch}
+            onFetchNextPage={fetchNextPage}
+            hasNextPage={hasNextPage}
+            isClearable
+            value={
+              filters.teamId
+                ? {
+                    value: filters.teamId,
+                    label: teamOptions.find((opt) => opt.value === filters.teamId)?.label || ""
+                  }
+                : null
+            }
+            onChange={(option: SingleValue<{ value: string; label: string }>) =>
+              setFilters({ teamId: option ? option.value : undefined })
+            }
+          />
+        )
+      },
+      {
+        id: "reset-filters",
+        node: (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              resetFilters()
+              setDispatcherKeyword("")
+            }}
+            disabled={!filters.keyword && !filters.teamId}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        )
+      }
+    ]
+
+    const teamFilters = [
+      {
+        id: "team-keyword-filter",
+        node: (
+          <Input
+            placeholder="Search by team name..."
+            value={teamKeyword}
+            onChange={(e) => setTeamKeyword(e.target.value)}
+            className="w-48"
+          />
+        )
+      }
+    ]
 
     setHeaderConfig({
       title: isDispatchersTab ? "Dispatchers" : "Teams",
@@ -33,6 +137,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
         {
           id: isDispatchersTab ? "add_dispatcher" : "add_team",
           label: isDispatchersTab ? "Add Dispatcher" : "Add Team",
+          disabled: isLoading,
           icon: addIcon,
           onClick: () =>
             setDrawerConfig({
@@ -41,45 +146,16 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             })
         },
         {
-          id: "refresh_data",
-          icon: refreshIcon,
+          id: "refresh_trips",
+          icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
           onClick: () => refetch(),
           variant: "outline",
           disabled: isLoading
         }
       ],
-      filters: isDispatchersTab
-        ? [
-            {
-              id: "keyword",
-              placeholder: "Search",
-              value: keywordFilter,
-              options: [],
-              onValueChange: setKeywordFilter
-            },
-            {
-              id: "team",
-              placeholder: "Team",
-              value: teamFilter,
-              options: [
-                { value: "1", label: "Team 1" },
-                { value: "2", label: "Team 2" },
-                { value: "3", label: "Team 3" }
-              ],
-              onValueChange: setTeamFilter
-            }
-          ]
-        : [
-            {
-              id: "keyword",
-              placeholder: "Search Teams",
-              value: keywordFilter,
-              options: [],
-              onValueChange: setKeywordFilter
-            }
-          ],
+      filters: isDispatchersTab ? dispatcherFilters : teamFilters,
       viewSwitcher: (
-        <Tabs value={currentTab} onValueChange={(value) => setTab(value as DispatchersTabType)}>
+        <Tabs value={currentTab} onValueChange={(value: string) => setTab(value as DispatchersTabType)}>
           <TabsList>
             <TabsTrigger value="dispatchers">Dispatchers</TabsTrigger>
             <TabsTrigger value="teams">Teams</TabsTrigger>
@@ -98,13 +174,21 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
     isLoading,
     refetch,
     totalDBRowCount,
-    teamFilter,
-    keywordFilter,
     currentTab,
-    setTab
+    setTab,
+    dispatcherKeyword,
+    teamKeyword,
+    filters,
+    resetFilters,
+    setFilters,
+    teamOptions,
+    isTeamsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isDispatchersTab
   ])
 
-  return { teamFilter, keywordFilter }
+  return { teamKeyword: debouncedTeamKeyword }
 }
 
 export default useDispatchersHeader
