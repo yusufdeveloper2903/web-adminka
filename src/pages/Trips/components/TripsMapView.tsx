@@ -35,7 +35,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const { selectedTripId } = useTripsStore()
 
   // Get route calculation loading state and current trip data
-  const { isCalculatingRoute, currentTripData } = useRouteStore()
+  const { isCalculatingRoute, mapLoadingStates, currentTripData } = useRouteStore()
 
   // Fetch trip summary data with route information
   const {
@@ -317,8 +317,8 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                   {expandedMap === trip.id ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </Button>
 
-                {/* Route Loading Overlay - Professional loading indicator */}
-                <RouteLoadingOverlay isVisible={isCalculatingRoute} />
+                {/* Route Loading Overlay - Individual loading indicator for each map */}
+                <RouteLoadingOverlay isVisible={mapLoadingStates[trip.id as keyof typeof mapLoadingStates] || false} />
 
                 {/* Map Transition Overlay - Completely hide dark icon */}
                 {transitioningMaps.has(trip.id) && (

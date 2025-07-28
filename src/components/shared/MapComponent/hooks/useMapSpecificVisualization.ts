@@ -34,7 +34,7 @@ interface UseMapSpecificVisualizationProps {
 }
 
 export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }: UseMapSpecificVisualizationProps) => {
-  const { currentTripData, currentRoute, isRouteVisible, setCalculatingRoute } = useRouteStore()
+  const { currentTripData, currentRoute, isRouteVisible, setCalculatingRoute, setMapLoading } = useRouteStore()
 
   // Memoize routeData to prevent unnecessary re-renders
   const memoizedRouteData = useMemo(
@@ -162,7 +162,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           console.log("HERE map stops from routeData:", stops)
 
           // Only set calculating state for HERE maps with real API calls
-          setCalculatingRoute(true)
+          setMapLoading("here", true)
 
           // Add minimum loading time for better UX (at least 800ms)
           const startTime = Date.now()
@@ -244,41 +244,44 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           }
 
           // Always stop loading state after HERE route processing
-          setCalculatingRoute(false)
+          setMapLoading("here", false)
         } else if (currentRoute && currentRoute.tripStops.length > 0) {
           // Use stops from newly created route
           stops = currentRoute.tripStops
           console.log("HERE map stops from new route:", stops)
 
           // Set calculating state for new routes
-          setCalculatingRoute(true)
+          setMapLoading("here", true)
 
           const routes = await calculateRoute(stops)
           if (routes && routes.length > 0) {
             await drawRoutes(routes, stops)
           }
 
-          setCalculatingRoute(false)
+          setMapLoading("here", false)
         } else if (currentTripData) {
           // Use pickup/delivery locations from existing trip
           stops = createStopsFromLocations(currentTripData.pickupLocation, currentTripData.deliveryLocation)
           console.log("HERE map stops from existing trip:", stops)
 
           // Set calculating state for existing trips
-          setCalculatingRoute(true)
+          setMapLoading("here", true)
 
           const routes = await calculateRoute(stops)
           if (routes && routes.length > 0) {
             await drawRoutes(routes, stops)
           }
 
-          setCalculatingRoute(false)
+          setMapLoading("here", false)
         } else {
           return
         }
       } else if (mapType === "samsara" || mapType === "gle") {
         // Samsara and GLE maps: ONLY polyline, NO route calculation
         if (memoizedRouteData?.polyline) {
+          // Set loading state for polyline maps
+          setMapLoading(mapType as "samsara" | "gle", true)
+          
           // Use polyline from routeData prop
           console.log(`Drawing ${mapType.toUpperCase()} polyline ONLY (no route calculation)`)
           const map = mapInstance.current
@@ -368,9 +371,17 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             if (boundingBox) {
               map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
             }
+            
+            // Stop loading state for polyline maps
+            setMapLoading(mapType as "samsara" | "gle", false)
           } catch (error) {
             console.error(`Error decoding ${mapType.toUpperCase()} polyline:`, error)
+            // Stop loading state on error
+            setMapLoading(mapType as "samsara" | "gle", false)
           }
+        } else {
+          // No polyline data - stop loading immediately
+          setMapLoading(mapType as "samsara" | "gle", false)
         }
         // REMOVED: No fallback to drawTripRoutes or currentRoute/currentTripData for samsara/gle
         // These maps should ONLY show polyline data, nothing else

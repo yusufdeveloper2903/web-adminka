@@ -13,11 +13,18 @@ interface RouteData {
   routeIndex: number
 }
 
+interface MapLoadingState {
+  here: boolean
+  samsara: boolean
+  gle: boolean
+}
+
 interface RouteState {
   currentRoute: ICreateTripRequest | null
   routeStops: ITripStopResponse[]
   isRouteVisible: boolean
-  isCalculatingRoute: boolean
+  isCalculatingRoute: boolean // Global loading (backward compatibility)
+  mapLoadingStates: MapLoadingState // Individual map loading states
   routeSettings: RouteSettings
   // Backend trip data for polyline visualization
   currentTripData: any | null
@@ -29,6 +36,7 @@ interface RouteState {
   clearRoute: () => void
   toggleRouteVisibility: () => void
   setCalculatingRoute: (isCalculating: boolean) => void
+  setMapLoading: (mapType: keyof MapLoadingState, isLoading: boolean) => void
   updateRouteSettings: (settings: Partial<RouteSettings>) => void
 }
 
@@ -37,6 +45,11 @@ export const useRouteStore = create<RouteState>((set) => ({
   routeStops: [],
   isRouteVisible: false,
   isCalculatingRoute: false,
+  mapLoadingStates: {
+    here: false,
+    samsara: false,
+    gle: false
+  },
   currentTripData: null,
   hereRouteData: null,
   routeSettings: {
@@ -51,6 +64,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeStops: route.tripStops,
       isRouteVisible: true,
       isCalculatingRoute: false,
+      mapLoadingStates: { here: false, samsara: false, gle: false },
       currentTripData: null // Clear trip data when setting new route
     }),
 
@@ -74,6 +88,7 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeStops: [],
       isRouteVisible: false,
       isCalculatingRoute: false,
+      mapLoadingStates: { here: false, samsara: false, gle: false },
       currentTripData: null
     }),
 
@@ -86,6 +101,14 @@ export const useRouteStore = create<RouteState>((set) => ({
     set({
       isCalculatingRoute: isCalculating
     }),
+
+  setMapLoading: (mapType, isLoading) =>
+    set((state) => ({
+      mapLoadingStates: {
+        ...state.mapLoadingStates,
+        [mapType]: isLoading
+      }
+    })),
 
   updateRouteSettings: (settings) =>
     set((state) => ({
