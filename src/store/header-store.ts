@@ -17,6 +17,7 @@ interface HeaderAction {
 
 interface HeaderState {
   title: string
+  description?: string
   metadata: ReactNode | null
   actions: HeaderAction[]
   filters: HeaderFilter[]

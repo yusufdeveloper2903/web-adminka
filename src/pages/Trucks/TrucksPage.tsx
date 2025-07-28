@@ -1,17 +1,19 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import useTrucksHeader from "./hooks/useTrucksHeader"
 import useTrucksColumns from "./hooks/useTrucksColumns"
 import { DataTable } from "@/components/shared"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
-import type { ITrucksFiltersRequest } from "@/types"
+import { useTrucksStore } from "@/store"
 
 const TrucksPage = () => {
-  const [filters] = useState<ITrucksFiltersRequest>({
-    size: 20,
-    active: true
-  })
+  const { filters } = useTrucksStore()
 
-  const { data, fetchNextPage, isLoading, refetch, hasNextPage, isFetchingNextPage } = useTrucksInfiniteQuery(filters)
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
+    useTrucksInfiniteQuery({
+      ...filters,
+      size: 20,
+      active: true
+    })
 
   // Memoized data from API
   const flatData = useMemo(() => {
@@ -22,7 +24,7 @@ const TrucksPage = () => {
 
   // Header Configuration Hook
   useTrucksHeader({
-    isLoading,
+    isLoading: isFetching,
     totalDBRowCount,
     refetch
   })

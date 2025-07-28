@@ -1,7 +1,13 @@
-import { useHeaderStore, useTripsStore, useDrawerStore } from "@/store"
-import { Loader2, Plus, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Button, SearchableSelect } from "@/components/ui"
+import { useDriversInfiniteQuery } from "@/hooks/drivers"
+import { useTrucksInfiniteQuery } from "@/hooks/trucks"
+import { useDrawerStore, useHeaderStore, useTrucksStore } from "@/store"
+import type { IDriverResponse, ITruckResponse, IPaginatedResponse } from "@/types"
+import { Plus, RefreshCw, RotateCcw } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import type { SingleValue } from "react-select"
 import { NewTruckForm } from "../components"
+import { cn } from "@/lib"
 
 interface UseTrucksHeaderParams {
   isLoading: boolean
@@ -10,36 +16,67 @@ interface UseTrucksHeaderParams {
 }
 
 const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeaderParams) => {
-  const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
+  const { setConfig, resetConfig } = useHeaderStore()
+  const { filters, setFilters, resetFilters } = useTrucksStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
-  const { view, setView } = useTripsStore()
 
-  // State for each filter
-  const [unitFilter, setUnitFilter] = useState<string | undefined>()
-  const [driverFilter, setDriverFilter] = useState<string | undefined>()
-  const [loadFilter] = useState<string | undefined>()
+  const [truckSearch, setTruckSearch] = useState("")
+  const [driverSearch, setDriverSearch] = useState("")
+
+  const {
+    data: trucksData,
+    fetchNextPage: fetchNextTruck,
+    hasNextPage: hasNextTruckPage,
+    isLoading: isTrucksLoading
+  } = useTrucksInfiniteQuery({ q: truckSearch, active: true })
+  const {
+    data: driversData,
+    fetchNextPage: fetchNextDriver,
+    hasNextPage: hasNextDriverPage,
+    isLoading: isDriversLoading
+  } = useDriversInfiniteQuery({ q: driverSearch, active: true })
+
+  const truckOptions = useMemo(
+    () =>
+      trucksData?.pages
+        .flatMap((page: IPaginatedResponse<ITruckResponse>) => page.content)
+        .map((truck: ITruckResponse) => ({ value: truck.unitNumber, label: truck.unitNumber })) ?? [],
+    [trucksData]
+  )
+
+  const driverOptions = useMemo(
+    () =>
+      driversData?.pages
+        .flatMap((page: IPaginatedResponse<IDriverResponse>) => page.content)
+        .map((driver: IDriverResponse) => ({
+          value: driver.id.toString(),
+          label: `${driver.firstName} ${driver.lastName}`
+        })) ?? [],
+    [driversData]
+  )
 
   useEffect(() => {
     const addTruckIcon = <Plus className="mr-2 h-4 w-4" />
-    const refreshIcon = !isLoading ? <RefreshCw className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />
 
-    setHeaderConfig({
+    setConfig({
       title: "Trucks",
-      metadata: `Total: ${totalDBRowCount} trucks`,
+      description: `${totalDBRowCount} trucks in total`,
       actions: [
         {
-          id: "add_truck",
+          id: "add-truck-button",
           label: "Add Truck",
           icon: addTruckIcon,
+          disabled: isLoading,
           onClick: () =>
             setDrawerConfig({
+              isOpen: true,
               title: "Add New Truck",
               content: <NewTruckForm />
             })
         },
         {
-          id: "refresh_trucks",
-          icon: refreshIcon,
+          id: "refresh_trips",
+          icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
           onClick: () => refetch(),
           variant: "outline",
           disabled: isLoading
@@ -47,45 +84,83 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
       ],
       filters: [
         {
-          id: "unit",
-          placeholder: "Unit",
-          value: unitFilter,
-          options: [
-            { value: "unit-1", label: "Unit 1" },
-            { value: "unit-2", label: "Unit 2" }
-          ],
-          onValueChange: setUnitFilter
+          id: "unit-filter",
+          node: (
+            <SearchableSelect
+              options={truckOptions}
+              placeholder="Filter by Unit..."
+              isLoading={isTrucksLoading}
+              onDebouncedInputChange={setTruckSearch}
+              onFetchNextPage={fetchNextTruck}
+              hasNextPage={hasNextTruckPage}
+              isClearable
+              value={filters.unitNumber ? { value: filters.unitNumber, label: filters.unitNumber } : null}
+              onChange={(option: SingleValue<{ value: string; label: string }>) =>
+                setFilters({ unitNumber: option ? option.value : undefined })
+              }
+            />
+          )
         },
         {
-          id: "driver",
-          placeholder: "Driver",
-          value: driverFilter,
-          options: [
-            { value: "driver-1", label: "Driver 1" },
-            { value: "driver-2", label: "Driver 2" }
-          ],
-          onValueChange: setDriverFilter
+          id: "driver-filter",
+          node: (
+            <SearchableSelect
+              options={driverOptions}
+              placeholder="Filter by Driver..."
+              isLoading={isDriversLoading}
+              onDebouncedInputChange={setDriverSearch}
+              onFetchNextPage={fetchNextDriver}
+              hasNextPage={hasNextDriverPage}
+              isClearable
+              value={
+                filters.driverId
+                  ? {
+                      value: filters.driverId,
+                      label: driverOptions.find((opt) => opt.value === filters.driverId)?.label || ""
+                    }
+                  : null
+              }
+              onChange={(option: SingleValue<{ value: string; label: string }>) =>
+                setFilters({ driverId: option ? option.value : undefined })
+              }
+            />
+          )
+        },
+        {
+          id: "reset-filter",
+          node: (
+            <Button variant="ghost" size="icon" onClick={resetFilters}>
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )
         }
       ]
     })
 
     return () => {
-      resetHeaderConfig()
+      resetConfig()
     }
   }, [
-    setHeaderConfig,
-    resetHeaderConfig,
     isLoading,
-    refetch,
     totalDBRowCount,
-    unitFilter,
-    driverFilter,
-    loadFilter,
-    view,
-    setView
+    refetch,
+    setConfig,
+    resetConfig,
+    filters,
+    setFilters,
+    resetFilters,
+    truckOptions,
+    driverOptions,
+    isTrucksLoading,
+    isDriversLoading,
+    fetchNextTruck,
+    fetchNextDriver,
+    hasNextTruckPage,
+    hasNextDriverPage,
+    setDrawerConfig
   ])
 
-  return { unitFilter, driverFilter, loadFilter }
+  return { filters }
 }
 
 export default useTrucksHeader
