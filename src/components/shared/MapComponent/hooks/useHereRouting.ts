@@ -123,14 +123,30 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   )
 
   // Create marker icon - inspired by Vue project
-  const createMarkerIcon = useCallback((stopType: string, index: number) => {
-    const color =
-      stopType === "PICKUP"
-        ? "#469946" // green for origin
-        : stopType === "DELIVERY"
-          ? "#FF4646" // red for destination
-          : "#FFC107" // amber for waypoint
+  const createMarkerIcon = useCallback((stopType: string, index: number, orderIndex?: number) => {
+    const getMarkerColor = (stopType: string, orderIndex: number) => {
+      switch (stopType) {
+        case "START":
+          return "#4285F4" // Ko'k - boshlash nuqtasi
+        case "PICKUP":
+          // Bir nechta PICKUP bo'lsa, har xil yashil ranglar
+          if (orderIndex === 1) return "#469946" // To'q yashil - birinchi pickup
+          if (orderIndex === 2) return "#66BB6A" // Ochiq yashil - ikkinchi pickup
+          return "#81C784" // Eng ochiq yashil - uchinchi pickup
+        case "DELIVERY":
+          return "#FF4646" // Qizil - tushirish
+        case "SHOP":
+          return "#9C27B0" // Binafsha - do'kon/servis
+        case "TRAILER":
+          return "#FF9800" // Orange - trailer
+        case "HOME":
+          return "#795548" // Jigarrang - uy
+        default:
+          return "#757575" // Kulrang - noma'lum
+      }
+    }
 
+    const color = getMarkerColor(stopType, orderIndex || index)
     const label = String.fromCharCode(65 + index) // A, B, C, etc.
 
     return new H.map.DomIcon(
@@ -272,7 +288,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           try {
             const marker = new H.map.DomMarker(
               { lat: stop.latitude, lng: stop.longitude },
-              { icon: createMarkerIcon(stop.stopType, index) }
+              { icon: createMarkerIcon(stop.stopType, index, stop.orderIndex) }
             )
             group.addObject(marker)
           } catch (error) {

@@ -169,6 +169,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
 
           // Calculate and draw route using HERE API
           const routes = await calculateRoute(stops)
+          console.log("HERE API routes result:", routes?.length || 0, "routes")
 
           // Ensure minimum loading time
           const elapsedTime = Date.now() - startTime
@@ -178,61 +179,85 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           }
 
           if (routes && routes.length > 0) {
+            console.log("Using HERE API routes")
             await drawRoutes(routes, stops)
           } else {
+            console.warn("HERE API failed, using fallback route drawing")
             // Fallback: draw simple line between stops
             const map = mapInstance.current
             const routeGroup = new H.map.Group()
 
-            // Add markers with labels
+            // Add markers with labels - FALLBACK VERSION
+            console.log("Drawing fallback markers for", stops.length, "stops")
             stops.forEach((stop, index) => {
-              const getMarkerColor = (stopType: string) => {
+              console.log(`Adding marker ${index + 1}:`, stop.stopType, stop.address.substring(0, 50))
+
+              const getMarkerColor = (stopType: string, orderIndex: number) => {
                 switch (stopType) {
                   case "START":
-                    return "#4285F4"
+                    return "#4285F4" // Ko'k - boshlash nuqtasi
                   case "PICKUP":
-                    return "#469946"
+                    // Bir nechta PICKUP bo'lsa, har xil yashil ranglar
+                    if (orderIndex === 1) return "#469946" // To'q yashil - birinchi pickup
+                    if (orderIndex === 2) return "#66BB6A" // Ochiq yashil - ikkinchi pickup
+                    return "#81C784" // Eng ochiq yashil - uchinchi pickup
                   case "DELIVERY":
-                    return "#FF4646"
+                    return "#FF4646" // Qizil - tushirish
                   case "SHOP":
-                    return "#FF9800"
+                    return "#9C27B0" // Binafsha - do'kon/servis
                   case "TRAILER":
-                    return "#9C27B0"
+                    return "#FF9800" // Orange - trailer
+                  case "HOME":
+                    return "#795548" // Jigarrang - uy
                   default:
-                    return "#757575"
+                    return "#757575" // Kulrang - noma'lum
                 }
               }
 
-              const color = getMarkerColor(stop.stopType)
+              const color = getMarkerColor(stop.stopType, stop.orderIndex)
               const label = String.fromCharCode(65 + index) // A, B, C, etc.
 
-              const marker = new H.map.DomMarker(
-                { lat: stop.latitude, lng: stop.longitude },
-                {
-                  icon: new H.map.DomIcon(
-                    `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
-                        <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
-                        <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
-                      </svg>`
-                  )
-                }
-              )
-              routeGroup.addObject(marker)
-            })
-
-            // Add route line connecting all stops
-            const lineString = new H.geo.LineString()
-            stops.forEach((stop) => lineString.pushPoint(Number(stop.latitude), Number(stop.longitude)))
-
-            const routeLine = new H.map.Polyline(lineString, {
-              style: {
-                strokeColor: "#4285F4",
-                lineWidth: 4,
-                lineTailCap: "round",
-                lineHeadCap: "round"
+              try {
+                const marker = new H.map.DomMarker(
+                  { lat: stop.latitude, lng: stop.longitude },
+                  {
+                    icon: new H.map.DomIcon(
+                      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+                          <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
+                          <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
+                        </svg>`
+                    )
+                  }
+                )
+                routeGroup.addObject(marker)
+                console.log(`Successfully added marker ${label}`)
+              } catch (error) {
+                console.error(`Error adding marker ${label}:`, error)
               }
             })
-            routeGroup.addObject(routeLine)
+
+            // Add route line connecting all stops - FALLBACK VERSION
+            console.log("Drawing fallback route line connecting", stops.length, "stops")
+            try {
+              const lineString = new H.geo.LineString()
+              stops.forEach((stop, index) => {
+                console.log(`Adding point ${index + 1} to route:`, stop.latitude, stop.longitude)
+                lineString.pushPoint(Number(stop.latitude), Number(stop.longitude))
+              })
+
+              const routeLine = new H.map.Polyline(lineString, {
+                style: {
+                  strokeColor: "#4285F4",
+                  lineWidth: 4,
+                  lineTailCap: "round",
+                  lineHeadCap: "round"
+                }
+              })
+              routeGroup.addObject(routeLine)
+              console.log("Successfully added fallback route line")
+            } catch (error) {
+              console.error("Error adding fallback route line:", error)
+            }
 
             map.addObject(routeGroup)
 
@@ -281,7 +306,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
         if (memoizedRouteData?.polyline) {
           // Set loading state for polyline maps
           setMapLoading(mapType as "samsara" | "gle", true)
-          
+
           // Use polyline from routeData prop
           console.log(`Drawing ${mapType.toUpperCase()} polyline ONLY (no route calculation)`)
           const map = mapInstance.current
@@ -371,7 +396,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             if (boundingBox) {
               map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
             }
-            
+
             // Stop loading state for polyline maps
             setMapLoading(mapType as "samsara" | "gle", false)
           } catch (error) {
