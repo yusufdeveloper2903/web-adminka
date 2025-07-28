@@ -325,7 +325,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                     icon: new H.map.DomIcon(
                       `<div style="
                         position: relative;
-                        transform: translate(-50%, -100%);
+                        margin-left: -25px;
+                        margin-top: -30px;
                       ">
                         <div style="
                           background-color: ${color};
