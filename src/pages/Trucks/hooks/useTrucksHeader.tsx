@@ -56,32 +56,32 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
   )
 
   useEffect(() => {
-    const addTruckIcon = <Plus className="mr-2 h-4 w-4" />
 
     setConfig({
       title: "Trucks",
-      description: `${totalDBRowCount} trucks in total`,
-      actions: [
-        {
-          id: "add-truck-button",
-          label: "Add Truck",
-          icon: addTruckIcon,
-          disabled: isLoading,
-          onClick: () =>
-            setDrawerConfig({
-              isOpen: true,
-              title: "Add New Truck",
-              content: <NewTruckForm />
-            })
-        },
-        {
-          id: "refresh_trips",
-          icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
-          onClick: () => refetch(),
-          variant: "outline",
-          disabled: isLoading
-        }
-      ],
+      metadata: `Total: ${totalDBRowCount} trucks`,
+      // FIXME: disabled temporary
+      // actions: [
+      //   {
+      //     id: "add-truck-button",
+      //     label: "Add Truck",
+      //     icon: addTruckIcon,
+      //     disabled: isLoading,
+      //     onClick: () =>
+      //       setDrawerConfig({
+      //         isOpen: true,
+      //         title: "Add New Truck",
+      //         content: <NewTruckForm />
+      //       })
+      //   },
+      //   {
+      //     id: "refresh_trips",
+      //     icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
+      //     onClick: () => refetch(),
+      //     variant: "outline",
+      //     disabled: isLoading
+      //   }
+      // ],
       filters: [
         {
           id: "unit-filter",
