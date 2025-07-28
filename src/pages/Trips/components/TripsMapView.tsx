@@ -22,9 +22,10 @@ interface TripMapData {
 
 interface TripsMapViewProps {
   isVisible: boolean
+  mapOnly?: boolean
 }
 
-const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
+const TripsMapView = ({ isVisible, mapOnly = false }: TripsMapViewProps) => {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
@@ -35,7 +36,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const { selectedTripId } = useTripsStore()
 
   // Get route calculation loading state and current trip data
-  const { isCalculatingRoute, mapLoadingStates, currentTripData } = useRouteStore()
+  const { mapLoadingStates, currentTripData } = useRouteStore()
 
   // Fetch trip summary data with route information
   const {
@@ -148,6 +149,13 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
     ]
   }, [tripSummaryData])
 
+  const displayedTrips = useMemo(() => {
+    if (mapOnly) {
+      return tripsData.filter((trip) => trip.id === "here")
+    }
+    return tripsData
+  }, [tripsData, mapOnly])
+
   const handleToggleExpand = (mapId: string) => {
     // Only transition this specific map
     setTransitioningMaps((prev) => new Set([...prev, mapId]))
@@ -197,10 +205,10 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
       <div
         className={cn(
           "grid h-full gap-4 transition-all duration-300 ease-in-out",
-          expandedMap ? "grid-cols-1 grid-rows-1" : "grid-cols-2 grid-rows-2"
+          mapOnly || expandedMap ? "grid-cols-1 grid-rows-1" : "grid-cols-2 grid-rows-2"
         )}
       >
-        {tripsData.map((trip) => (
+        {displayedTrips.map((trip) => (
           <div
             key={trip.id}
             className={cn(
@@ -216,44 +224,46 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
             }}
           >
             {/* Header */}
-            <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg border-b p-3 backdrop-blur-sm">
-              <h3 className="text-sm font-semibold">{trip.title}</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">Total Miles:</span>
-                    <span className="font-medium text-blue-600">{formatMiles(trip.totalMiles)}</span>
-                    {trip.milesChange && (
-                      <span className={cn("text-xs", trip.milesChange > 0 ? "text-green-600" : "text-red-600")}>
-                        ({formatChange(trip.milesChange)})
-                      </span>
-                    )}
+            {!mapOnly && (
+              <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg border-b p-3 backdrop-blur-sm">
+                <h3 className="text-sm font-semibold">{trip.title}</h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Total Miles:</span>
+                      <span className="font-medium text-blue-600">{formatMiles(trip.totalMiles)}</span>
+                      {trip.milesChange && (
+                        <span className={cn("text-xs", trip.milesChange > 0 ? "text-green-600" : "text-red-600")}>
+                          ({formatChange(trip.milesChange)})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Hours:</span>
+                      <span className="font-medium text-blue-600">{formatHours(trip.hours)}</span>
+                      {trip.hoursChange && (
+                        <span className={cn("text-xs", trip.hoursChange > 0 ? "text-green-600" : "text-red-600")}>
+                          ({formatChange(trip.hoursChange)})
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">Hours:</span>
-                    <span className="font-medium text-blue-600">{formatHours(trip.hours)}</span>
-                    {trip.hoursChange && (
-                      <span className={cn("text-xs", trip.hoursChange > 0 ? "text-green-600" : "text-red-600")}>
-                        ({formatChange(trip.hoursChange)})
-                      </span>
-                    )}
-                  </div>
+                  {/* Report Icon */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setIsReportDialogOpen(true)}
+                    title="View Report"
+                  >
+                    <FileText className="h-4 w-4" />
+                  </Button>
                 </div>
-                {/* Report Icon */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setIsReportDialogOpen(true)}
-                  title="View Report"
-                >
-                  <FileText className="h-4 w-4" />
-                </Button>
               </div>
-            </div>
+            )}
 
             {/* Map Container */}
-            <div className="h-full px-2 pt-16 pb-2">
+            <div className={cn("h-full px-2 pb-2", mapOnly ? "pt-2" : "pt-16")}>
               <div className="bg-muted/10 relative h-full w-full overflow-hidden rounded-md">
                 <LazyMap
                   key={trip.id} // Stable key - no unnecessary re-renders
@@ -308,14 +318,20 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
                 </div>
 
                 {/* Expand/Collapse Button */}
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="bg-background/90 hover:bg-background absolute top-2 right-2 z-10 h-8 w-8 backdrop-blur-sm"
-                  onClick={() => handleToggleExpand(trip.id)}
-                >
-                  {expandedMap === trip.id ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                </Button>
+                {!mapOnly && (
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="bg-background/90 hover:bg-background absolute top-2 right-2 z-10 h-8 w-8 backdrop-blur-sm"
+                    onClick={() => handleToggleExpand(trip.id)}
+                  >
+                    {expandedMap === trip.id ? (
+                      <Minimize2 className="h-4 w-4" />
+                    ) : (
+                      <Maximize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
 
                 {/* Route Loading Overlay - Individual loading indicator for each map */}
                 <RouteLoadingOverlay isVisible={mapLoadingStates[trip.id as keyof typeof mapLoadingStates] || false} />
