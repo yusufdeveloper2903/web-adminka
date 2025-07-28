@@ -1,13 +1,14 @@
 import { LazyMap } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Maximize2, Minimize2 } from "lucide-react"
+import { Maximize2, Minimize2, FileText } from "lucide-react"
 import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouteStore, useTripsStore } from "@/store"
 import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 import { useTripSummaryQuery } from "@/hooks/trips"
+import TripReportDialog from "./TripReportDialog"
 
 interface TripMapData {
   id: string
@@ -28,6 +29,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
 
   // Get selected trip data from store
   const { selectedTripId } = useTripsStore()
@@ -53,7 +55,7 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
   if (selectedTripId && !currentTripData) {
     console.log("Trip selected but currentTripData is null:", { selectedTripId, currentTripData })
   }
-  
+
   if (currentTripData && !tripSummaryData && !isTripSummaryLoading && !tripSummaryError) {
     console.log("Query should be enabled but no data:", {
       enabled: !!currentTripData && !!selectedTripId,
@@ -216,25 +218,37 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
             {/* Header */}
             <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg border-b p-3 backdrop-blur-sm">
               <h3 className="text-sm font-semibold">{trip.title}</h3>
-              <div className="flex items-center gap-4 text-xs">
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Total Miles:</span>
-                  <span className="font-medium text-blue-600">{formatMiles(trip.totalMiles)}</span>
-                  {trip.milesChange && (
-                    <span className={cn("text-xs", trip.milesChange > 0 ? "text-green-600" : "text-red-600")}>
-                      ({formatChange(trip.milesChange)})
-                    </span>
-                  )}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Total Miles:</span>
+                    <span className="font-medium text-blue-600">{formatMiles(trip.totalMiles)}</span>
+                    {trip.milesChange && (
+                      <span className={cn("text-xs", trip.milesChange > 0 ? "text-green-600" : "text-red-600")}>
+                        ({formatChange(trip.milesChange)})
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Hours:</span>
+                    <span className="font-medium text-blue-600">{formatHours(trip.hours)}</span>
+                    {trip.hoursChange && (
+                      <span className={cn("text-xs", trip.hoursChange > 0 ? "text-green-600" : "text-red-600")}>
+                        ({formatChange(trip.hoursChange)})
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Hours:</span>
-                  <span className="font-medium text-blue-600">{formatHours(trip.hours)}</span>
-                  {trip.hoursChange && (
-                    <span className={cn("text-xs", trip.hoursChange > 0 ? "text-green-600" : "text-red-600")}>
-                      ({formatChange(trip.hoursChange)})
-                    </span>
-                  )}
-                </div>
+                {/* Report Icon */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setIsReportDialogOpen(true)}
+                  title="View Report"
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
@@ -329,6 +343,13 @@ const TripsMapView = ({ isVisible }: TripsMapViewProps) => {
           </div>
         ))}
       </div>
+
+      {/* Trip Report Dialog */}
+      <TripReportDialog
+        isOpen={isReportDialogOpen}
+        onClose={() => setIsReportDialogOpen(false)}
+        tripData={tripSummaryData}
+      />
     </div>
   )
 }

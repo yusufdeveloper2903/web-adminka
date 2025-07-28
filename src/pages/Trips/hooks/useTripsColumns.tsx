@@ -23,7 +23,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     (trip: any) => {
       setSelectedTripId(trip.id)
       setCalculatingRoute(true)
-      
+
       // Set trip data to route store for map visualization
       setTripData(trip)
 
