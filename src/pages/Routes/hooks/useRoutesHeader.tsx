@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui"
-import { useHeaderStore, useRouteFiltersStore } from "@/store"
+import { useHeaderStore } from "@/store"
 import { useEffect, useMemo, useState } from "react"
-import { RotateCcw } from "lucide-react"
-
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDriversInfiniteQuery } from "@/hooks/drivers"
 import { useLoadNumbersQuery } from "@/hooks/trips"
@@ -10,9 +8,21 @@ import { SearchableSelect } from "@/components/ui"
 import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/types"
 import type { SingleValue } from "react-select"
 
-const useRoutesHeader = () => {
+interface RouteFilters {
+  truckId?: string
+  driverId?: string
+  loadNumber?: string
+}
+
+interface UseRoutesHeaderProps {
+  filters: RouteFilters
+  setFilters: (filters: Partial<RouteFilters>) => void
+  resetFilters: () => void
+  onSubmit: () => void
+}
+
+const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRoutesHeaderProps) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
-  const { filters, setFilters, resetFilters } = useRouteFiltersStore()
 
   const [truckSearch, setTruckSearch] = useState("")
   const [driverSearch, setDriverSearch] = useState("")
@@ -64,16 +74,19 @@ const useRoutesHeader = () => {
     [loadsData]
   )
 
+  const canSubmit = filters.truckId && filters.driverId && filters.loadNumber
+
   useEffect(() => {
     setHeaderConfig({
       title: "Routes",
+      description: "Select a truck, driver, and load number to display the route.",
       filters: [
         {
-          id: "unit-filter",
+          id: "truck-filter",
           node: (
             <SearchableSelect
               options={truckOptions}
-              placeholder="Filter by Unit..."
+              placeholder="Select Truck..."
               isLoading={isTrucksLoading}
               onDebouncedInputChange={setTruckSearch}
               onFetchNextPage={fetchNextTruck}
@@ -98,7 +111,7 @@ const useRoutesHeader = () => {
           node: (
             <SearchableSelect
               options={driverOptions}
-              placeholder="Filter by Driver..."
+              placeholder="Select Driver..."
               isLoading={isDriversLoading}
               onDebouncedInputChange={setDriverSearch}
               onFetchNextPage={fetchNextDriver}
@@ -123,7 +136,7 @@ const useRoutesHeader = () => {
           node: (
             <SearchableSelect
               options={loadOptions}
-              placeholder="Filter by Load number..."
+              placeholder="Select Load Number..."
               isLoading={isLoadsLoading}
               onDebouncedInputChange={setLoadSearch}
               onFetchNextPage={fetchNextLoad}
@@ -137,10 +150,18 @@ const useRoutesHeader = () => {
           )
         },
         {
+          id: "submit-filter",
+          node: (
+            <Button type="button" onClick={onSubmit} disabled={!canSubmit}>
+              Submit
+            </Button>
+          )
+        },
+        {
           id: "reset-filter",
           node: (
-            <Button variant="ghost" size="icon" onClick={resetFilters}>
-              <RotateCcw className="h-4 w-4" />
+            <Button variant="ghost" onClick={resetFilters}>
+              Reset
             </Button>
           )
         }
@@ -151,31 +172,28 @@ const useRoutesHeader = () => {
       resetHeaderConfig()
     }
   }, [
-    // Data
-    trucksData,
-    driversData,
-    loadsData,
-    truckOptions,
-    driverOptions,
-    loadOptions,
-    // Filters
+    setHeaderConfig,
+    resetHeaderConfig,
     filters,
     setFilters,
     resetFilters,
-    // Loading states
+    onSubmit,
+    canSubmit,
+    truckOptions,
+    driverOptions,
+    loadOptions,
     isTrucksLoading,
     isDriversLoading,
     isLoadsLoading,
-    // Pagination
+    setTruckSearch,
+    setDriverSearch,
+    setLoadSearch,
     fetchNextTruck,
-    fetchNextDriver,
-    fetchNextLoad,
     hasNextTruckPage,
+    fetchNextDriver,
     hasNextDriverPage,
-    hasNextLoadPage,
-    // Header config
-    setHeaderConfig,
-    resetHeaderConfig
+    fetchNextLoad,
+    hasNextLoadPage
   ])
 }
 

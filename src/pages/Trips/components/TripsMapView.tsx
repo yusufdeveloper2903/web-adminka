@@ -20,23 +20,33 @@ interface TripMapData {
   hoursChange?: number
 }
 
+interface TripData {
+  truckId: number
+  driverId?: number
+  loadNumber: string
+}
+
 interface TripsMapViewProps {
   isVisible: boolean
   mapOnly?: boolean
+  tripData?: TripData
 }
 
-const TripsMapView = ({ isVisible, mapOnly = false }: TripsMapViewProps) => {
+const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProps) => {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   const [expandedMap, setExpandedMap] = useState<string | null>(null)
   const [transitioningMaps, setTransitioningMaps] = useState<Set<string>>(new Set())
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
 
-  // Get selected trip data from store
+  // Get selected trip data from store (for backward compatibility with Trips page)
   const { selectedTripId } = useTripsStore()
 
   // Get route calculation loading state and current trip data
   const { mapLoadingStates, currentTripData } = useRouteStore()
+
+  // Use tripData prop if provided, otherwise fall back to currentTripData from store
+  const effectiveTripData = tripData || currentTripData
 
   // Fetch trip summary data with route information
   const {
@@ -45,19 +55,19 @@ const TripsMapView = ({ isVisible, mapOnly = false }: TripsMapViewProps) => {
     error: tripSummaryError
   } = useTripSummaryQuery(
     {
-      truckId: currentTripData?.truckId || 0,
-      driverId: currentTripData?.driverId,
-      loadNumber: currentTripData?.loadNumber || ""
+      truckId: effectiveTripData?.truckId || 0,
+      driverId: effectiveTripData?.driverId,
+      loadNumber: effectiveTripData?.loadNumber || ""
     },
-    !!currentTripData && !!selectedTripId
+    !!effectiveTripData && (tripData ? true : !!selectedTripId)
   )
 
-  // Debug query state only when there are issues
-  if (selectedTripId && !currentTripData) {
+  // Debug query state only when there are issues (only for store-based data)
+  if (!tripData && selectedTripId && !currentTripData) {
     console.log("Trip selected but currentTripData is null:", { selectedTripId, currentTripData })
   }
 
-  if (currentTripData && !tripSummaryData && !isTripSummaryLoading && !tripSummaryError) {
+  if (!tripData && currentTripData && !tripSummaryData && !isTripSummaryLoading && !tripSummaryError) {
     console.log("Query should be enabled but no data:", {
       enabled: !!currentTripData && !!selectedTripId,
       params: {

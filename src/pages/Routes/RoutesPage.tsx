@@ -1,13 +1,53 @@
+import { useState } from "react"
 import { TripsMapView } from "../Trips/components"
 import useRoutesHeader from "./hooks/useRoutesHeader"
 
+interface RouteFilters {
+  truckId?: string
+  driverId?: string
+  loadNumber?: string
+}
+
 const RoutesPage = () => {
+  const [filters, setFilters] = useState<RouteFilters>({})
+  const [shouldFetchTrip, setShouldFetchTrip] = useState(false)
+
+  const handleSetFilters = (newFilters: Partial<RouteFilters>) => {
+    setFilters((prev) => ({ ...prev, ...newFilters }))
+  }
+
+  const handleResetFilters = () => {
+    setFilters({})
+    setShouldFetchTrip(false)
+  }
+
+  const handleSubmit = () => {
+    if (filters.truckId && filters.driverId && filters.loadNumber) {
+      setShouldFetchTrip(true)
+    }
+  }
+
+  // Prepare trip data for TripsMapView when submit is clicked
+  const tripData =
+    shouldFetchTrip && filters.truckId && filters.driverId && filters.loadNumber
+      ? {
+          truckId: Number(filters.truckId),
+          driverId: Number(filters.driverId),
+          loadNumber: filters.loadNumber
+        }
+      : undefined
+
   // Header Configuration Hook
-  useRoutesHeader()
+  useRoutesHeader({
+    filters,
+    setFilters: handleSetFilters,
+    resetFilters: handleResetFilters,
+    onSubmit: handleSubmit
+  })
 
   return (
     <div className="relative h-full w-full">
-      <TripsMapView isVisible={true} mapOnly={true} />
+      <TripsMapView isVisible={true} mapOnly={true} tripData={tripData} />
     </div>
   )
 }
