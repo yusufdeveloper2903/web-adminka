@@ -5,7 +5,7 @@ import type { ITripSummaryResponse } from "@/types"
 interface TripReportDialogProps {
   isOpen: boolean
   onClose: () => void
-  tripData: ITripSummaryResponse | null
+  tripData?: ITripSummaryResponse
 }
 
 const TripReportDialog = ({ isOpen, onClose, tripData }: TripReportDialogProps) => {
