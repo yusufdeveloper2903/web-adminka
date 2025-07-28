@@ -6,7 +6,6 @@ import { useEffect, useCallback, useMemo } from "react"
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
-import { usePolylineVisualization } from "./usePolylineVisualization"
 import type { ITripStopResponse } from "@/types"
 
 interface UseMapSpecificVisualizationProps {
@@ -43,11 +42,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     [routeData?.tripStops?.length, routeData?.polyline, routeData?.nearbyPoints?.length]
   )
 
-  // Use HERE routing API for HERE map
+  // Use HERE routing API for HERE map ONLY
   const { calculateRoute, drawRoutes, removeRouteObjects } = useHereRouting(mapInstance)
-
-  // Use polyline visualization for GLE and Samsara maps
-  const { drawTripRoutes, clearPolylines } = usePolylineVisualization(mapInstance)
 
   // Convert pickup/delivery locations to stops format for HERE routing
   const createStopsFromLocations = useCallback(
@@ -136,7 +132,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     if (!hasRouteData && !hasStoreData) {
       // Clear existing routes
       removeRouteObjects()
-      clearPolylines()
       return
     }
 
@@ -281,11 +276,11 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
         } else {
           return
         }
-      } else if (mapType === "samsara") {
-        // Samsara map: prioritize memoizedRouteData.polyline, then store data
+      } else if (mapType === "samsara" || mapType === "gle") {
+        // Samsara and GLE maps: ONLY polyline, NO route calculation
         if (memoizedRouteData?.polyline) {
           // Use polyline from routeData prop
-          console.log("Drawing Samsara polyline from routeData")
+          console.log(`Drawing ${mapType.toUpperCase()} polyline ONLY (no route calculation)`)
           const map = mapInstance.current
           const routeGroup = new H.map.Group()
 
@@ -328,10 +323,36 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                   { lat: point.lat, lng: point.lng },
                   {
                     icon: new H.map.DomIcon(
-                      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 384 512" style="margin-left: -12px; margin-top: -32px">
-                          <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
-                          <text x="192" y="280" font-family="Arial" font-size="180" text-anchor="middle" fill="#FFF">${point.type.charAt(0)}</text>
-                        </svg>`
+                      `<div style="
+                        position: relative;
+                        transform: translate(-50%, -100%);
+                      ">
+                        <div style="
+                          background-color: ${color};
+                          color: white;
+                          padding: 6px 12px;
+                          border-radius: 16px;
+                          font-size: 11px;
+                          font-weight: 600;
+                          text-align: center;
+                          white-space: nowrap;
+                          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                          border: 2px solid white;
+                          min-width: 60px;
+                          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        ">${point.type}</div>
+                        <div style="
+                          position: absolute;
+                          bottom: -6px;
+                          left: 50%;
+                          transform: translateX(-50%);
+                          width: 0;
+                          height: 0;
+                          border-left: 8px solid transparent;
+                          border-right: 8px solid transparent;
+                          border-top: 8px solid ${color};
+                        "></div>
+                      </div>`
                     )
                   }
                 )
@@ -347,178 +368,11 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
               map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
             }
           } catch (error) {
-            console.error("Error decoding Samsara polyline:", error)
-          }
-        } else if (currentTripData && currentTripData.samsaraLocation?.polyline) {
-          // Samsara map: use polyline data from existing trip
-          console.log("Drawing Samsara polyline from existing trip")
-          drawTripRoutes(currentTripData, "samsara")
-        } else if (currentRoute && currentRoute.tripStops.length >= 2) {
-          // Samsara map: draw route from new route stops
-          console.log("Drawing Samsara route from new route stops")
-          const map = mapInstance.current
-          const routeGroup = new H.map.Group()
-
-          // Add markers
-          currentRoute.tripStops.forEach((stop, index) => {
-            const color = stop.stopType === "PICKUP" ? "#469946" : "#FF4646"
-            const label = String.fromCharCode(65 + index) // A, B, C, etc.
-
-            const marker = new H.map.DomMarker(
-              { lat: stop.latitude, lng: stop.longitude },
-              {
-                icon: new H.map.DomIcon(
-                  `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
-                      <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
-                      <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
-                    </svg>`
-                )
-              }
-            )
-            routeGroup.addObject(marker)
-          })
-
-          // Add route line connecting all stops
-          const lineString = new H.geo.LineString()
-          currentRoute.tripStops.forEach((stop) => lineString.pushPoint(Number(stop.latitude), Number(stop.longitude)))
-
-          const routeLine = new H.map.Polyline(lineString, {
-            style: {
-              strokeColor: "#4285F4",
-              lineWidth: 4,
-              lineTailCap: "round",
-              lineHeadCap: "round"
-            }
-          })
-          routeGroup.addObject(routeLine)
-
-          map.addObject(routeGroup)
-
-          // Fit map to route
-          const boundingBox = routeGroup.getBoundingBox()
-          if (boundingBox) {
-            map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
+            console.error(`Error decoding ${mapType.toUpperCase()} polyline:`, error)
           }
         }
-      } else if (mapType === "gle") {
-        // GLE map: prioritize memoizedRouteData.polyline, then store data
-        if (memoizedRouteData?.polyline) {
-          // Use polyline from routeData prop
-          console.log("Drawing GLE polyline from routeData")
-          const map = mapInstance.current
-          const routeGroup = new H.map.Group()
-
-          // Decode polyline and draw route
-          try {
-            const decodedPolyline = H.geo.LineString.fromFlexiblePolyline(memoizedRouteData.polyline)
-            const routeLine = new H.map.Polyline(decodedPolyline, {
-              style: {
-                strokeColor: "#4285F4",
-                lineWidth: 4,
-                lineTailCap: "round",
-                lineHeadCap: "round"
-              }
-            })
-            routeGroup.addObject(routeLine)
-
-            // Add nearby points if available
-            if (memoizedRouteData.nearbyPoints && memoizedRouteData.nearbyPoints.length > 0) {
-              memoizedRouteData.nearbyPoints.forEach((point) => {
-                const getMarkerColor = (type: string) => {
-                  switch (type) {
-                    case "START":
-                      return "#4285F4"
-                    case "PICKUP":
-                      return "#469946"
-                    case "DELIVERY":
-                      return "#FF4646"
-                    case "HOME":
-                      return "#FF9800"
-                    case "SHOP":
-                      return "#9C27B0"
-                    default:
-                      return "#757575"
-                  }
-                }
-
-                const color = getMarkerColor(point.type)
-
-                const marker = new H.map.DomMarker(
-                  { lat: point.lat, lng: point.lng },
-                  {
-                    icon: new H.map.DomIcon(
-                      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" viewBox="0 0 384 512" style="margin-left: -12px; margin-top: -32px">
-                          <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
-                          <text x="192" y="280" font-family="Arial" font-size="180" text-anchor="middle" fill="#FFF">${point.type.charAt(0)}</text>
-                        </svg>`
-                    )
-                  }
-                )
-                routeGroup.addObject(marker)
-              })
-            }
-
-            map.addObject(routeGroup)
-
-            // Fit map to route
-            const boundingBox = routeGroup.getBoundingBox()
-            if (boundingBox) {
-              map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
-            }
-          } catch (error) {
-            console.error("Error decoding GLE polyline:", error)
-          }
-        } else if (currentTripData && currentTripData.gleLocation?.polyline) {
-          // GLE map: use polyline data from existing trip
-          console.log("Drawing GLE polyline from existing trip")
-          drawTripRoutes(currentTripData, "gle")
-        } else if (currentRoute && currentRoute.tripStops.length >= 2) {
-          // GLE map: draw route from new route stops
-          console.log("Drawing GLE route from new route stops")
-          const map = mapInstance.current
-          const routeGroup = new H.map.Group()
-
-          // Add markers
-          currentRoute.tripStops.forEach((stop, index) => {
-            const color = stop.stopType === "PICKUP" ? "#469946" : "#FF4646"
-            const label = String.fromCharCode(65 + index) // A, B, C, etc.
-
-            const marker = new H.map.DomMarker(
-              { lat: stop.latitude, lng: stop.longitude },
-              {
-                icon: new H.map.DomIcon(
-                  `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
-                      <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
-                      <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
-                    </svg>`
-                )
-              }
-            )
-            routeGroup.addObject(marker)
-          })
-
-          // Add route line connecting all stops
-          const lineString = new H.geo.LineString()
-          currentRoute.tripStops.forEach((stop) => lineString.pushPoint(Number(stop.latitude), Number(stop.longitude)))
-
-          const routeLine = new H.map.Polyline(lineString, {
-            style: {
-              strokeColor: "#4285F4",
-              lineWidth: 4,
-              lineTailCap: "round",
-              lineHeadCap: "round"
-            }
-          })
-          routeGroup.addObject(routeLine)
-
-          map.addObject(routeGroup)
-
-          // Fit map to route
-          const boundingBox = routeGroup.getBoundingBox()
-          if (boundingBox) {
-            map.getViewModel().setLookAtData({ bounds: boundingBox, padding: 50 }, true)
-          }
-        }
+        // REMOVED: No fallback to drawTripRoutes or currentRoute/currentTripData for samsara/gle
+        // These maps should ONLY show polyline data, nothing else
       }
     } catch (error) {
       console.error(`Error visualizing ${mapType} route:`, error)
@@ -531,10 +385,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     currentRoute,
     isRouteVisible,
     removeRouteObjects,
-    clearPolylines,
     calculateRoute,
     drawRoutes,
-    drawTripRoutes,
     createStopsFromLocations,
     setCalculatingRoute
   ])
@@ -548,7 +400,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
   useEffect(() => {
     return () => {
       removeRouteObjects()
-      clearPolylines()
     }
-  }, [removeRouteObjects, clearPolylines])
+  }, [removeRouteObjects])
 }
