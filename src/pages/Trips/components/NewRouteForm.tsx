@@ -17,7 +17,6 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
   const { form, stops, setStops, resetForm, tripFormSchema, isSubmitting } = useTripForm(editMode)
   const { data: tripData } = useTripByIdQuery(selectedTripId!, !!selectedTripId)
 
-  console.log("tripData", tripData)
   const {
     newStopForm,
     setNewStopForm,
