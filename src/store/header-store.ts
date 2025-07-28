@@ -3,10 +3,7 @@ import { create } from "zustand"
 
 interface HeaderFilter {
   id: string
-  placeholder: string
-  value: string | undefined
-  options: { value: string; label: string }[]
-  onValueChange: (value: string) => void
+  node: ReactNode
 }
 
 interface HeaderAction {

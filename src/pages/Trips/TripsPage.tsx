@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { DataTable } from "@/components/shared"
@@ -9,14 +9,12 @@ import type { ITripsFiltersRequest } from "@/types"
 import { TripsMapView } from "./components"
 
 const TripsPage = () => {
-  const [filters] = useState<ITripsFiltersRequest>({
-    size: 20,
-    active: true
-  })
+  const { view, filters } = useTripsStore()
+
+  const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters, size: 20 }), [filters])
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useTripsInfiniteQuery(filters)
-  const { view } = useTripsStore()
+    useTripsInfiniteQuery(queryFilters)
 
   const flatData = useMemo(() => {
     return data?.pages?.flatMap((page) => page.content) ?? []

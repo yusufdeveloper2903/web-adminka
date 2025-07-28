@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useHeaderStore } from "@/store/header-store"
 
 const Header = () => {
@@ -13,18 +12,7 @@ const Header = () => {
           {title && <h2 className="text-lg font-medium">{title}</h2>}
           <div className="flex items-center gap-2">
             {filters.map((filter) => (
-              <Select key={filter.id} onValueChange={filter.onValueChange} value={filter.value}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder={filter.placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                  {filter.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div key={filter.id}>{filter.node}</div>
             ))}
           </div>
         </section>

@@ -1,6 +1,6 @@
 import type { HereAutosuggestResult } from "./here-maps"
 import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
-import type { IDispatcherResponse, ITruckResponse } from "."
+import type { IDriverResponse, ITruckResponse } from "."
 
 // Enums
 export enum LoadStatus {
@@ -48,10 +48,10 @@ export interface NewStopFormData {
 
 // GET /trips filters
 export interface ITripsFiltersRequest extends IBaseFiltersRequest {
-  truckId?: number
-  driverId?: number
+  active?: boolean
+  truckId?: string
+  driverId?: string
   loadNumber?: string
-  tripStatus?: string
 }
 
 // Trip List Item Response (for infinite query)
@@ -113,7 +113,7 @@ export interface ITripDetailResponse {
     updated: string
   }
   truck: ITruckResponse
-  dispatcher: IDispatcherResponse
+  dispatcher: IDriverResponse
   driver: {
     id: number
     firstName: string
@@ -210,7 +210,9 @@ export interface ITripSummaryResponse {
 }
 
 // Load Numbers Request (GET /trips/load-numbers)
-export type ILoadNumbersFiltersRequest = IBaseFiltersRequest
+export interface ILoadNumbersFiltersRequest extends IBaseFiltersRequest {
+  q?: string
+}
 
 export interface ILoadNumberResponse {
   id: number

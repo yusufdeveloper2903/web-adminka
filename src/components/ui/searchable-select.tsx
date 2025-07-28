@@ -1,5 +1,11 @@
 import * as React from "react"
-import Select, { components, type Props as ReactSelectProps } from "react-select"
+import Select, {
+  components,
+  type ActionMeta,
+  type MultiValue,
+  type Props as ReactSelectProps,
+  type SingleValue
+} from "react-select"
 import { ChevronDownIcon, XIcon } from "lucide-react"
 import { useDebounceValue } from "usehooks-ts"
 import { cn } from "@/lib/utils"
@@ -14,11 +20,11 @@ interface SearchableSelectProps
   extends Omit<ReactSelectProps<SearchableSelectOption>, "styles" | "components" | "onChange"> {
   className?: string
   error?: boolean
-  onMenuScrollToBottom?: () => void
   onDebouncedInputChange?: (value: string) => void
   debounceMs?: number
-  // onChange?: (value: SearchableSelectOption | null) => void
-  onChange?: any
+  onFetchNextPage?: () => void
+  onChange?: (value: SingleValue<SearchableSelectOption>) => void
+  hasNextPage?: boolean
 }
 
 // Custom components to match shadcn/ui design
@@ -41,10 +47,11 @@ const ClearIndicator = (props: any) => {
 const SearchableSelect = ({
   className,
   error,
-  onMenuScrollToBottom,
   onDebouncedInputChange,
   onInputChange,
   debounceMs,
+  onFetchNextPage,
+  onChange,
   ...props
 }: SearchableSelectProps) => {
   const [inputValue, setInputValue] = React.useState("")
@@ -65,6 +72,15 @@ const SearchableSelect = ({
     // Also call the original onInputChange if provided
     if (onInputChange) {
       onInputChange(newValue, actionMeta)
+    }
+  }
+
+  const handleChange = (
+    newValue: SingleValue<SearchableSelectOption> | MultiValue<SearchableSelectOption>,
+    actionMeta: ActionMeta<SearchableSelectOption>
+  ) => {
+    if (onChange) {
+      onChange(newValue as SingleValue<SearchableSelectOption>)
     }
   }
 
@@ -103,8 +119,8 @@ const SearchableSelect = ({
         dropdownIndicator: () => "text-muted-foreground hover:text-foreground cursor-pointer p-1",
         menu: () =>
           cn(
-            "relative z-50 min-w-[8rem] mt-0.5 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
-            "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+            "relative min-w-[8rem] mt-0.5 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 !z-[999]"
           ),
         menuList: () => "p-1 max-h-[200px] overflow-auto",
         option: ({ isFocused, isSelected }) =>
@@ -118,8 +134,9 @@ const SearchableSelect = ({
         loadingMessage: () => "text-muted-foreground text-sm p-2 text-center"
       }}
       className={cn("react-select-container", className)}
-      onMenuScrollToBottom={onMenuScrollToBottom}
+      onMenuScrollToBottom={onFetchNextPage}
       onInputChange={handleInputChange}
+      onChange={handleChange}
       {...props}
     />
   )
