@@ -171,7 +171,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           node: (
             <SearchableSelect
               options={loadOptions}
-              placeholder="Filter by Load #..."
+              placeholder="Filter by Load number..."
               isLoading={isLoadsLoading}
               onDebouncedInputChange={setLoadSearch}
               onFetchNextPage={fetchNextLoad}
