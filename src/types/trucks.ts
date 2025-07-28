@@ -2,7 +2,6 @@ import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
 
 // GET /api/v1/trucks filters
 export interface ITrucksFiltersRequest extends IBaseFiltersRequest {
-  q?: string
   active?: boolean
   unitNumber?: string
   driverId?: string

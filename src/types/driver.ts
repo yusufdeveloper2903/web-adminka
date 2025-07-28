@@ -1,13 +1,5 @@
-import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
+import type { IPaginatedResponse } from "./api"
 
-// Dispatcher API Request/Response interfaces with I prefix
-
-// GET /api/v1/drivers filters
-export interface IDriversFiltersRequest extends IBaseFiltersRequest {
-  q?: string
-}
-
-// Driver Response
 export interface IDriverResponse {
   id: number
   firstName: string

@@ -209,11 +209,6 @@ export interface ITripSummaryResponse {
   }>
 }
 
-// Load Numbers Request (GET /trips/load-numbers)
-export interface ILoadNumbersFiltersRequest extends IBaseFiltersRequest {
-  q?: string
-}
-
 export interface ILoadNumberResponse {
   id: number
   loadNumber: string

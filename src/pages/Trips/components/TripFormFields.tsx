@@ -140,7 +140,7 @@ const TripFormFields = ({
                   <SearchableSelect
                     options={truckOptions}
                     value={truckOptions.find((option) => option.value === field.state.value) || null}
-                    onChange={(selectedOption: TruckOption | null) => {
+                    onChange={(selectedOption: any) => {
                       field.handleChange(selectedOption?.value || "")
                     }}
                     onDebouncedInputChange={(debouncedValue: string) => {
@@ -204,7 +204,7 @@ const TripFormFields = ({
                   <SearchableSelect
                     options={dispatcherOptions}
                     value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
-                    onChange={(selectedOption: DispatcherOption | null) => {
+                    onChange={(selectedOption: any) => {
                       field.handleChange(selectedOption?.value || "")
                     }}
                     onDebouncedInputChange={(debouncedValue: string) => {

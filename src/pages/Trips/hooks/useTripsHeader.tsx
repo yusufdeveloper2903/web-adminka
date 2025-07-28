@@ -34,19 +34,19 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     fetchNextPage: fetchNextTruck,
     hasNextPage: hasNextTruckPage,
     isLoading: isTrucksLoading
-  } = useTrucksInfiniteQuery({ q: truckSearch })
+  } = useTrucksInfiniteQuery({ keyword: truckSearch })
   const {
     data: driversData,
     fetchNextPage: fetchNextDriver,
     hasNextPage: hasNextDriverPage,
     isLoading: isDriversLoading
-  } = useDriversInfiniteQuery({ q: driverSearch })
+  } = useDriversInfiniteQuery({ keyword: driverSearch })
   const {
     data: loadsData,
     fetchNextPage: fetchNextLoad,
     hasNextPage: hasNextLoadPage,
     isLoading: isLoadsLoading
-  } = useLoadNumbersQuery({ q: loadSearch })
+  } = useLoadNumbersQuery({ keyword: loadSearch })
 
   const truckOptions = useMemo(
     () =>

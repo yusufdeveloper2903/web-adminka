@@ -28,13 +28,13 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
     fetchNextPage: fetchNextTruck,
     hasNextPage: hasNextTruckPage,
     isLoading: isTrucksLoading
-  } = useTrucksInfiniteQuery({ q: truckSearch, active: true })
+  } = useTrucksInfiniteQuery({ keyword: truckSearch })
   const {
     data: driversData,
     fetchNextPage: fetchNextDriver,
     hasNextPage: hasNextDriverPage,
     isLoading: isDriversLoading
-  } = useDriversInfiniteQuery({ q: driverSearch, active: true })
+  } = useDriversInfiniteQuery({ keyword: driverSearch })
 
   const truckOptions = useMemo(
     () =>
@@ -56,7 +56,6 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
   )
 
   useEffect(() => {
-
     setConfig({
       title: "Trucks",
       metadata: `Total: ${totalDBRowCount} trucks`,

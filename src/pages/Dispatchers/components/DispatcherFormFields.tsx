@@ -113,7 +113,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
               <SearchableSelect
                 options={teamOptions}
                 value={teamOptions.find((option) => option.value === field.state.value) || null}
-                onChange={(selectedOption: TeamOption | null) => {
+                onChange={(selectedOption: any) => {
                   field.handleChange(selectedOption?.value || "")
                 }}
                 onDebouncedInputChange={(debouncedValue: string) => {
