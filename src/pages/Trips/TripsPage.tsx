@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
+import { useLazyView } from "./hooks/useLazyView"
 import { DataTable } from "@/components/shared"
 import { useTripsStore } from "@/store"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,14 @@ const TripsPage = () => {
 
   const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
 
+  // Lazy loading for map view with smart preloading
+  const mapView = useLazyView(view, "map", {
+    loadingDelay: 200, // Show loading for 200ms for better UX
+    preload: false, // Don't preload by default to avoid initial performance hit
+    onLoadStart: () => console.log("🗺️ Map loading started..."),
+    onLoadComplete: () => console.log("✅ Map loaded successfully!")
+  })
+
   // Header Configuration Hook
   useTripsHeader({
     isLoading: isFetching,
@@ -34,10 +43,10 @@ const TripsPage = () => {
 
   return (
     <div className="relative h-full w-full">
-      {/* Table View */}
+      {/* Table View - Always mounted for fast switching */}
       <div
         className={cn(
-          "absolute inset-0 h-full w-full transition-opacity duration-300",
+          "absolute inset-0 h-full w-full transition-opacity duration-300 ease-out",
           view !== "table" && "pointer-events-none opacity-0"
         )}
       >
@@ -52,14 +61,31 @@ const TripsPage = () => {
         />
       </div>
 
-      {/* Map View */}
+      {/* Map View - Lazy Loaded with Professional Loading States */}
       <div
         className={cn(
-          "absolute inset-0 h-full w-full transition-opacity duration-300",
+          "absolute inset-0 h-full w-full transition-opacity duration-300 ease-out",
           view !== "map" && "pointer-events-none opacity-0"
         )}
       >
-        {/* <TripsMapView isVisible={view === "map"} /> */}
+        {/* Loading Placeholder - First Time */}
+        {mapView.showPlaceholder && (
+          <div className="bg-background absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <div className="border-primary/20 border-t-primary h-12 w-12 animate-spin rounded-full border-4" />
+                <div className="border-primary/10 absolute inset-0 h-12 w-12 animate-pulse rounded-full border-4" />
+              </div>
+              <div className="space-y-2 text-center">
+                <p className="text-sm font-medium">Initializing Map</p>
+                <p className="text-muted-foreground text-xs">Loading HERE Maps components...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Actual Map Component - Only render after first view */}
+        {mapView.shouldRender && <TripsMapView isVisible={mapView.isActive} />}
       </div>
     </div>
   )
