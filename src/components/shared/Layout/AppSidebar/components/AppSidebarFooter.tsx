@@ -47,7 +47,7 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
             isOpen={isOpen}
             tooltipText={`${currentUserData?.firstName} ${currentUserData?.lastName}`}
             onClick={() => setShowProfileDialog(true)}
-            className={cn("h-10 !bg-white !text-black hover:!bg-gray-100", !isOpen && "justify-center")}
+            className={cn("h-10 cursor-pointer !bg-white !text-black hover:!bg-gray-100", !isOpen && "justify-center")}
           >
             <User className="h-5 w-5" />
             <span className={cn("font-medium transition-opacity", !isOpen && "hidden")}>

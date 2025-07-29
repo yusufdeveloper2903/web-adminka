@@ -32,7 +32,7 @@ const ProfileForm = ({
   const { form, isPending } = useProfileForm({ user, onClose })
 
   return (
-    <DialogContent className="sm:max-w-[425px]">
+    <DialogContent>
       <DialogHeader>
         <DialogTitle>Edit Profile</DialogTitle>
       </DialogHeader>

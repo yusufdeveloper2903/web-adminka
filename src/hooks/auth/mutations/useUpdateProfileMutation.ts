@@ -4,7 +4,7 @@ import { createMutationConfig } from "@/lib/mutation-utils"
 import type { IApiResponse, IUpdateProfileRequest, IUser } from "@/types"
 
 const updateProfile = async (data: IUpdateProfileRequest): Promise<IUser> => {
-  const response = await api.post<IApiResponse<IUser>>("/profile", data)
+  const response = await api.put<IApiResponse<IUser>>("/profile", data)
   return response.data.data
 }
 
