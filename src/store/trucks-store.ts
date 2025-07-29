@@ -2,6 +2,7 @@ import { create } from "zustand"
 
 // Define the shape of the filters
 interface TruckFilters {
+  keyword?: string
   unitNumber?: string
   driverId?: string
 }

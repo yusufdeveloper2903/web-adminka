@@ -1,13 +1,11 @@
-import { Button, SearchableSelect } from "@/components/ui"
+import { Button, Input, SearchableSelect } from "@/components/ui"
 import { useDriversInfiniteQuery } from "@/hooks/drivers"
-import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDrawerStore, useHeaderStore, useTrucksStore } from "@/store"
-import type { IDriverResponse, ITruckResponse, IPaginatedResponse } from "@/types"
-import { Plus, RefreshCw, RotateCcw } from "lucide-react"
+import type { IDriverResponse, IPaginatedResponse } from "@/types"
+import { RotateCcw } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import type { SingleValue } from "react-select"
-import { NewTruckForm } from "../components"
-import { cn } from "@/lib"
+import { useDebounceValue } from "usehooks-ts"
 
 interface UseTrucksHeaderParams {
   isLoading: boolean
@@ -20,29 +18,24 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
   const { filters, setFilters, resetFilters } = useTrucksStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
-  const [truckSearch, setTruckSearch] = useState("")
+  // Local state for UI controls
+  const [keyword, setKeyword] = useState(filters.keyword || "")
   const [driverSearch, setDriverSearch] = useState("")
 
-  const {
-    data: trucksData,
-    fetchNextPage: fetchNextTruck,
-    hasNextPage: hasNextTruckPage,
-    isLoading: isTrucksLoading
-  } = useTrucksInfiniteQuery({ keyword: truckSearch })
+  // Debounced value
+  const [debouncedKeyword] = useDebounceValue(keyword, 500)
+
+  // Sync debounced keyword with global store
+  useEffect(() => {
+    setFilters({ keyword: debouncedKeyword })
+  }, [debouncedKeyword, setFilters])
+
   const {
     data: driversData,
     fetchNextPage: fetchNextDriver,
     hasNextPage: hasNextDriverPage,
     isLoading: isDriversLoading
   } = useDriversInfiniteQuery({ keyword: driverSearch })
-
-  const truckOptions = useMemo(
-    () =>
-      trucksData?.pages
-        .flatMap((page: IPaginatedResponse<ITruckResponse>) => page.content)
-        .map((truck: ITruckResponse) => ({ value: truck.unitNumber, label: truck.unitNumber })) ?? [],
-    [trucksData]
-  )
 
   const driverOptions = useMemo(
     () =>
@@ -83,20 +76,13 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
       // ],
       filters: [
         {
-          id: "unit-filter",
+          id: "keyword-filter",
           node: (
-            <SearchableSelect
-              options={truckOptions}
-              placeholder="Filter by Unit..."
-              isLoading={isTrucksLoading}
-              onDebouncedInputChange={setTruckSearch}
-              onFetchNextPage={fetchNextTruck}
-              hasNextPage={hasNextTruckPage}
-              isClearable
-              value={filters.unitNumber ? { value: filters.unitNumber, label: filters.unitNumber } : null}
-              onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ unitNumber: option ? option.value : undefined })
-              }
+            <Input
+              placeholder="Search by name..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="w-48"
             />
           )
         },
@@ -148,15 +134,12 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
     filters,
     setFilters,
     resetFilters,
-    truckOptions,
     driverOptions,
-    isTrucksLoading,
     isDriversLoading,
-    fetchNextTruck,
     fetchNextDriver,
-    hasNextTruckPage,
     hasNextDriverPage,
-    setDrawerConfig
+    setDrawerConfig,
+    keyword
   ])
 
   return { filters }
