@@ -5,7 +5,7 @@ import { useDrawerStore } from "@/store"
 import { NewTeamForm } from "../components"
 import type { ITeamResponse } from "@/types"
 import dayjs from "dayjs"
-import { UI_DATE_FORMAT } from "@/constants"
+import { TABLE_UI_FORMAT, UI_DATE_FORMAT } from "@/constants"
 
 const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -50,7 +50,7 @@ const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[15%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(UI_DATE_FORMAT)
+      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
     {
       accessorKey: "updatedAt",
@@ -58,7 +58,7 @@ const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[15%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(UI_DATE_FORMAT)
+      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
     {
       id: "actions",

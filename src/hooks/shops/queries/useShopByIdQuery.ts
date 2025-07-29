@@ -7,7 +7,7 @@ const fetchShop = async (id: number): Promise<IShopResponse> => {
   return response.data.data
 }
 
-export const useShopQuery = (id: number, enabled: boolean = true) => {
+export const useShopByIdQuery = (id: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["shop", id],
     queryFn: () => fetchShop(id),

@@ -5,7 +5,7 @@ import { useDrawerStore } from "@/store"
 import { NewDispatcherForm } from "../components"
 import type { IDispatcherResponse } from "@/types"
 import dayjs from "dayjs"
-import { UI_DATE_FORMAT } from "@/constants"
+import { TABLE_UI_FORMAT } from "@/constants"
 
 const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -83,7 +83,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[12%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(UI_DATE_FORMAT)
+      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
     {
       id: "actions",

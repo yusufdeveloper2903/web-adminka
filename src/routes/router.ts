@@ -8,7 +8,8 @@ import {
   SystemPage,
   TripsPage,
   TrucksPage,
-  UsersPage
+  UsersPage,
+  ShopsPage
 } from "@/pages"
 import { ResetPasswordPage } from "@/pages/ResetPassword"
 import { createRoute, createRouter, redirect } from "@tanstack/react-router"
@@ -111,6 +112,12 @@ const dispatchersRoute = createRoute({
   }
 })
 
+const shopsRoute = createRoute({
+  path: "/shops",
+  getParentRoute: () => AppLayoutRoute,
+  component: ShopsPage
+})
+
 const routeTree = RootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -125,7 +132,8 @@ const routeTree = RootRoute.addChildren([
       usersRoute,
       systemRoute,
       routesRoute,
-      reportsRoute
+      reportsRoute,
+      shopsRoute
     ])
   ])
 ])

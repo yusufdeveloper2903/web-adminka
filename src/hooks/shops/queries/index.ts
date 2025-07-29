@@ -1,2 +1,2 @@
 export { useShopsInfiniteQuery } from "./useShopsInfiniteQuery"
-export { useShopQuery } from "./useShopQuery"
+export { useShopByIdQuery } from "./useShopByIdQuery"

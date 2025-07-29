@@ -1,4 +1,4 @@
-import type { IBaseFiltersRequest, IPaginatedResponse, IChangeStatusRequest, IChangeStatusResponse } from "./api"
+import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
 
 // Shop API Request/Response interfaces with I prefix
 

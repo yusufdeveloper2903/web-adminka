@@ -31,6 +31,11 @@ const menuItems = {
       title: "Dispatchers",
       url: "/dispatchers",
       icon: UserCheck
+    },
+    {
+      title: "Shops",
+      url: "/shops",
+      icon: Building
     }
   ],
   settings: [
