@@ -4,13 +4,14 @@ import useCompaniesColumns from "./hooks/useCompaniesColumns"
 import { DataTable } from "@/components/shared"
 import { useCompaniesInfiniteQuery } from "@/hooks/companies"
 import { useCompaniesStore } from "@/store"
+import { cleanObject } from "@/lib"
 
 const CompaniesPage = () => {
   const { filters } = useCompaniesStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useCompaniesInfiniteQuery({
-      ...filters,
+      ...cleanObject(filters),
       size: 20
     })
 

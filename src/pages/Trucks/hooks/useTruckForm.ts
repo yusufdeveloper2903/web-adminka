@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore } from "@/store"
-import { useCreateTruckMutation, useUpdateTruckMutation } from "@/hooks/trucks"
+import { useUpdateTruckMutation } from "@/hooks/trucks"
 import type { ICreateTruckRequest, ITruckResponse } from "@/types"
 
 // Zod validation schema
@@ -10,7 +10,9 @@ const truckFormSchema = z.object({
   unitNumber: z.string().min(1, "Unit Number is required"),
   samsaraVin: z.string().min(1, "Samsara VIN is required"),
   homeLocation: z.string().min(1, "Home Location is required"),
-  licencePlate: z.string().min(1, "License Plate is required")
+  licencePlate: z.string().min(1, "License Plate is required"),
+  homeLatitude: z.number().nullable(),
+  homeLongitude: z.number().nullable()
 })
 
 interface UseTruckFormProps {
@@ -19,7 +21,6 @@ interface UseTruckFormProps {
 
 export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
   const { closeDrawer } = useDrawerStore()
-  const createTruckMutation = useCreateTruckMutation()
   const updateTruckMutation = useUpdateTruckMutation()
 
   const isEditing = !!truck
@@ -30,7 +31,9 @@ export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
       unitNumber: truck?.unitNumber || "",
       samsaraVin: truck?.samsaraVin || "",
       homeLocation: truck?.homeLocation || "",
-      licencePlate: truck?.licencePlate || ""
+      licencePlate: truck?.licencePlate || "",
+      homeLatitude: truck?.homeLatitude ?? null,
+      homeLongitude: truck?.homeLongitude ?? null
     },
     validators: {
       onChange: truckFormSchema
@@ -44,7 +47,9 @@ export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
           unitNumber: validatedData.unitNumber,
           samsaraVin: validatedData.samsaraVin,
           homeLocation: validatedData.homeLocation,
-          licencePlate: validatedData.licencePlate
+          licencePlate: validatedData.licencePlate,
+          homeLatitude: validatedData.homeLatitude || undefined,
+          homeLongitude: validatedData.homeLongitude || undefined
         }
 
         console.log("Truck data for backend:", truckData)
@@ -55,9 +60,6 @@ export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
             id: truck.id,
             data: truckData
           })
-        } else {
-          // Create truck
-          await createTruckMutation.mutateAsync(truckData)
         }
 
         // Close drawer on success
@@ -85,7 +87,7 @@ export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
     form,
     resetForm,
     truckFormSchema,
-    isSubmitting: isEditing ? updateTruckMutation.isPending : createTruckMutation.isPending,
+    isSubmitting: updateTruckMutation.isPending,
     isEditing
   }
 }

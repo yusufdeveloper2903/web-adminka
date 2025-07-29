@@ -29,7 +29,7 @@ const AutosuggestInput = ({
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { results, isLoading, error, search, clearResults } = useHereAutosuggest({
-    debounceMs: 500,
+    debounceMs: 700,
     minQueryLength: 2,
     limit: 5
   })

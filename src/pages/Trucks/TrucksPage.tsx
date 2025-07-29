@@ -4,13 +4,14 @@ import useTrucksColumns from "./hooks/useTrucksColumns"
 import { DataTable } from "@/components/shared"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useTrucksStore } from "@/store"
+import { cleanObject } from "@/lib"
 
 const TrucksPage = () => {
   const { filters } = useTrucksStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useTrucksInfiniteQuery({
-      ...filters,
+      ...cleanObject(filters),
       size: 20
     })
 

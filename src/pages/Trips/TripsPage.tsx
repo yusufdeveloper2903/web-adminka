@@ -4,7 +4,7 @@ import useTripsColumns from "./hooks/useTripsColumns"
 import { useLazyView } from "./hooks/useLazyView"
 import { DataTable } from "@/components/shared"
 import { useTripsStore } from "@/store"
-import { cn } from "@/lib/utils"
+import { cleanObject, cn } from "@/lib/utils"
 import { useTripsInfiniteQuery } from "@/hooks/trips"
 import type { ITripsFiltersRequest } from "@/types"
 import { TripsMapView } from "./components"
@@ -15,7 +15,7 @@ const TripsPage = () => {
   const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters, size: 20 }), [filters])
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useTripsInfiniteQuery(queryFilters)
+    useTripsInfiniteQuery(cleanObject(queryFilters))
 
   const flatData = useMemo(() => {
     return data?.pages?.flatMap((page) => page.content) ?? []

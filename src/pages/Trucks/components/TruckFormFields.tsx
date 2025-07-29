@@ -1,11 +1,19 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import { AutosuggestInput } from "@/components/shared/AutosuggestInput"
+import type { HereAutosuggestResult } from "@/types"
 
 interface TruckFormFieldsProps {
   form: any // TanStack form instance
 }
 
 const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
+  const handleLocationSelect = (location: HereAutosuggestResult) => {
+    form.setFieldValue("homeLocation", location.address.label)
+    form.setFieldValue("homeLatitude", location.position.lat)
+    form.setFieldValue("homeLongitude", location.position.lng)
+  }
+
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
@@ -97,12 +105,12 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
           name="homeLocation"
           children={(field: any) => (
             <div>
-              <Input
-                placeholder="Enter Home Location"
+              <AutosuggestInput
                 value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                onBlur={field.handleBlur}
-                className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                onChange={field.handleChange}
+                onLocationSelect={handleLocationSelect}
+                placeholder="Enter home location"
+                className={field.state.meta.errors.length > 0 ? "border-red-500" : ""}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -110,6 +118,59 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
             </div>
           )}
         />
+      </div>
+
+      {/* Coordinates Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Home Latitude */}
+        <div className="space-y-2">
+          <Label htmlFor="homeLatitude">Home Latitude</Label>
+          <form.Field
+            name="homeLatitude"
+            children={(field: any) => (
+              <div>
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="0.000000"
+                  value={field.state.value || ""}
+                  onChange={(e) => field.handleChange(parseFloat(e.target.value) || null)}
+                  onBlur={field.handleBlur}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                  disabled
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                )}
+              </div>
+            )}
+          />
+        </div>
+
+        {/* Home Longitude */}
+        <div className="space-y-2">
+          <Label htmlFor="homeLongitude">Home Longitude</Label>
+          <form.Field
+            name="homeLongitude"
+            children={(field: any) => (
+              <div>
+                <Input
+                  type="number"
+                  step="any"
+                  placeholder="0.000000"
+                  value={field.state.value || ""}
+                  onChange={(e) => field.handleChange(parseFloat(e.target.value) || null)}
+                  onBlur={field.handleBlur}
+                  className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                  disabled
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                )}
+              </div>
+            )}
+          />
+        </div>
       </div>
 
       {/* License Plate */}

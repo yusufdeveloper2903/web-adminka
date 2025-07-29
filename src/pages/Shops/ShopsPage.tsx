@@ -4,13 +4,14 @@ import useShopsColumns from "./hooks/useShopsColumns"
 import { DataTable } from "@/components/shared"
 import { useShopsInfiniteQuery } from "@/hooks/shops"
 import { useShopsStore } from "@/store"
+import { cleanObject } from "@/lib"
 
 const ShopsPage = () => {
   const { filters } = useShopsStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useShopsInfiniteQuery({
-      ...filters,
+      ...cleanObject(filters),
       size: 20
     })
 
