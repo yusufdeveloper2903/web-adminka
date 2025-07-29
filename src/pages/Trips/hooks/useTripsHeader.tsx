@@ -2,6 +2,7 @@ import { Button } from "@/components/ui"
 import { useDrawerStore, useHeaderStore, useTripsStore } from "@/store"
 import { Plus, RefreshCw, RouteIcon } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import * as React from "react"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib"
@@ -39,8 +40,11 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     data: driversData,
     fetchNextPage: fetchNextDriver,
     hasNextPage: hasNextDriverPage,
-    isLoading: isDriversLoading
+    isLoading: isDriversLoading,
+    isFetchingNextPage: isFetchingNextDriverPage
   } = useDriversInfiniteQuery({ keyword: driverSearch })
+
+
   const {
     data: loadsData,
     fetchNextPage: fetchNextLoad,
@@ -124,7 +128,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               placeholder="Filter by Unit..."
               isLoading={isTrucksLoading}
               onDebouncedInputChange={setTruckSearch}
-              onFetchNextPage={fetchNextTruck}
+              onFetchNextPage={() => {
+                fetchNextTruck()
+              }}
               hasNextPage={hasNextTruckPage}
               isClearable
               value={
@@ -147,9 +153,13 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
             <SearchableSelect
               options={driverOptions}
               placeholder="Filter by Driver..."
-              isLoading={isDriversLoading}
+              isLoading={isDriversLoading || isFetchingNextDriverPage}
               onDebouncedInputChange={setDriverSearch}
-              onFetchNextPage={fetchNextDriver}
+              onFetchNextPage={() => {
+                if (hasNextDriverPage && !isFetchingNextDriverPage) {
+                  fetchNextDriver()
+                }
+              }}
               hasNextPage={hasNextDriverPage}
               isClearable
               value={
@@ -174,7 +184,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               placeholder="Filter by Load number..."
               isLoading={isLoadsLoading}
               onDebouncedInputChange={setLoadSearch}
-              onFetchNextPage={fetchNextLoad}
+              onFetchNextPage={() => {
+                fetchNextLoad()
+              }}
               hasNextPage={hasNextLoadPage}
               isClearable
               value={filters.loadNumber ? { value: filters.loadNumber, label: filters.loadNumber } : null}
@@ -206,31 +218,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     return () => {
       resetHeaderConfig()
     }
-  }, [
-    isLoading,
-    totalDBRowCount,
-    refetch,
-    setHeaderConfig,
-    resetHeaderConfig,
-    setDrawerConfig,
-    view,
-    setView,
-    filters,
-    setFilters,
-    truckOptions,
-    driverOptions,
-    loadOptions,
-    isTrucksLoading,
-    isDriversLoading,
-    isLoadsLoading,
-    fetchNextTruck,
-    fetchNextDriver,
-    fetchNextLoad,
-    hasNextTruckPage,
-    hasNextDriverPage,
-    hasNextLoadPage,
-    resetFilters
-  ])
+  }, [isLoading, totalDBRowCount, refetch, setHeaderConfig, resetHeaderConfig, setDrawerConfig, view, setView, filters, setFilters, truckOptions, driverOptions, loadOptions, isTrucksLoading, isDriversLoading, isLoadsLoading, fetchNextTruck, fetchNextDriver, fetchNextLoad, hasNextTruckPage, hasNextDriverPage, hasNextLoadPage, resetFilters, isFetchingNextDriverPage])
 
   return { filters, view, setView }
 }
