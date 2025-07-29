@@ -1,12 +1,14 @@
 import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
 
+export type UserRoleType = "OWNER" | "DISPATCHER" | "DRIVER"
+
 export type IUsersFiltersRequest = IBaseFiltersRequest
 
 export interface IUserResponse {
   id: number
   email: string
   active: boolean
-  role: string
+  role: UserRoleType
   firstName: string
   lastName: string
   phone: string
@@ -17,11 +19,11 @@ export interface IUserResponse {
 export type IUsersResponse = IPaginatedResponse<IUserResponse>
 
 export interface IUserData {
-  name: string
   email: string
-  mc?: number | null
-  usDot: string
   phone: string
+  firstName: string
+  lastName: string
+  role: UserRoleType
 }
 
 export type ICreateUserRequest = IUserData
