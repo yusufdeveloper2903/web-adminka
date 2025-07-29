@@ -3,10 +3,6 @@ export interface InputMaskProps {
   customMask?: string
   onChange?: (value: string) => void
   error?: string
-  label?: string
-  rightTopSlot?: React.ReactNode
-  loading?: boolean
-  size?: "sm" | "md"
   required?: boolean
   value?: string
 }

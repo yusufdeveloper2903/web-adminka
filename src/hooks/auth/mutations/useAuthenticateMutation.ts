@@ -32,7 +32,7 @@ const useAuthenticateMutation = () => {
         createdAt: "",
         updatedAt: ""
       }
-      login(user)
+      login(user as any)
 
       // Show success toast
       toast.success("Login successful! Welcome back.")

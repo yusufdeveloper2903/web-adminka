@@ -9,10 +9,6 @@ const InputMask = ({
   customMask,
   onChange,
   error,
-  label,
-  rightTopSlot,
-  loading,
-
   required,
   value: propValue = "",
   ...props
@@ -68,10 +64,7 @@ const InputMask = ({
       type="text"
       value={value}
       onChange={handleChange}
-      error={error}
-      label={label}
-      rightTopSlot={rightTopSlot}
-      loading={loading}
+      onError={error as any}
       required={required}
     />
   )

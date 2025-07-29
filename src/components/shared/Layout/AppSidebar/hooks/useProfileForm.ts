@@ -16,12 +16,13 @@ interface UseProfileFormProps {
 
 export const useProfileForm = ({ user, onClose }: UseProfileFormProps) => {
   const updateProfileMutation = useUpdateProfileMutation()
+  console.log('user', user)
 
   const form = useForm({
     defaultValues: {
       firstName: user.firstName || "",
       lastName: user.lastName || "",
-      phone: "" // IUser doesn't have a phone field, initialize as empty
+      phone: user.phone || ""
     },
     validators: {
       onChange: profileFormSchema as any
