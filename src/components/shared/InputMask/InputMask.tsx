@@ -59,6 +59,7 @@ const InputMask = ({
     <ReactInputMask
       {...props}
       component={Input}
+      placeholder="Enter phone number"
       mask={mask}
       replacement={{ x: /[0-9]/ }}
       type="text"

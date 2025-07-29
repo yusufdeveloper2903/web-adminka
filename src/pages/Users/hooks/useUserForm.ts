@@ -9,7 +9,7 @@ const userFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email format"),
-  phone: z.string().min(1, "Phone number is required"),
+  phone: z.string().optional(),
   role: z.enum(["OWNER", "DISPATCHER", "DRIVER"])
 })
 
@@ -43,7 +43,7 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
           firstName: validatedData.firstName,
           lastName: validatedData.lastName,
           email: validatedData.email,
-          phone: validatedData.phone,
+          phone: validatedData.phone || "",
           role: validatedData.role
         }
 

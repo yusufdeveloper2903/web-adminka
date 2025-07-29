@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { User, Mail, Phone, Shield } from "lucide-react"
 import type { UserRoleType } from "@/types"
+import { InputMask } from "@/components/shared"
 
 interface UserFormFieldsProps {
   form: any // TanStack form instance
@@ -121,19 +122,11 @@ const UserFormFields = ({ form }: UserFormFieldsProps) => {
           children={(field: any) => (
             <div>
               <div className="relative">
-                <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                <Input
-                  type="tel"
-                  placeholder="Enter phone number"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
+                <InputMask maskType="phone" value={field.state.value} onChange={(value) => field.handleChange(value)} />
+                {field.state.meta.errors.length > 0 && (
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                )}
               </div>
-              {field.state.meta.errors.length > 0 && (
-                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-              )}
             </div>
           )}
         />

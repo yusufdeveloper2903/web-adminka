@@ -61,11 +61,6 @@ const menuItems = {
       icon: Monitor
     },
     {
-      title: "Profile",
-      url: "/profile",
-      icon: User
-    },
-    {
       title: "Users",
       url: "/users",
       icon: Users

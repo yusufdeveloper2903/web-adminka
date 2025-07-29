@@ -2,7 +2,6 @@ import {
   CompaniesPage,
   DispatchersPage,
   LoginPage,
-  ProfilePage,
   ReportsPage,
   RoutesPage,
   SystemPage,
@@ -65,12 +64,6 @@ const companiesRoute = createRoute({
   component: CompaniesPage
 })
 
-const profileRoute = createRoute({
-  path: "/profile",
-  getParentRoute: () => AppLayoutRoute,
-  component: ProfilePage
-})
-
 const trucksRoute = createRoute({
   path: "/trucks",
   getParentRoute: () => AppLayoutRoute,
@@ -126,7 +119,6 @@ const routeTree = RootRoute.addChildren([
     AppLayoutRoute.addChildren([
       tripsRoute,
       companiesRoute,
-      profileRoute,
       trucksRoute,
       dispatchersRoute,
       usersRoute,

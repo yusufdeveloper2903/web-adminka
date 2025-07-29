@@ -4,13 +4,14 @@ import useUsersColumns from "./hooks/useUsersColumns"
 import { DataTable } from "@/components/shared"
 import { useUsersInfiniteQuery } from "@/hooks/users"
 import { useUsersStore } from "@/store"
+import { cleanObject } from "@/lib"
 
 const UsersPage = () => {
   const { filters } = useUsersStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useUsersInfiniteQuery({
-      ...filters,
+      ...cleanObject(filters),
       size: 20
     })
 

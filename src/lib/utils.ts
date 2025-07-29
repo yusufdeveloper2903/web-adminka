@@ -7,6 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function cleanObject<T extends object>(obj: T): Partial<T> {
   return Object.fromEntries(
-    Object.entries(obj).filter(([, value]) => value !== null && value !== undefined)
+    Object.entries(obj).filter(([, value]) => value !== null && value !== undefined && value !== "")
   ) as Partial<T>
 }
