@@ -5,7 +5,7 @@ import { useDrawerStore } from "@/store"
 import { NewTeamForm } from "../components"
 import type { ITeamResponse } from "@/types"
 import dayjs from "dayjs"
-import { TABLE_UI_FORMAT, UI_DATE_FORMAT } from "@/constants"
+import { TABLE_UI_FORMAT } from "@/constants"
 
 const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()

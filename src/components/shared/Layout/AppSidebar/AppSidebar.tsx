@@ -1,6 +1,17 @@
 import { useLocation } from "@tanstack/react-router"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
-import { Car, Route as RouteIcon, BarChart3, Monitor, Building, Truck, User, Users, UserCheck } from "lucide-react"
+import {
+  Car,
+  Route as RouteIcon,
+  BarChart3,
+  Monitor,
+  Store,
+  Truck,
+  User,
+  Users,
+  UserCheck,
+  Building2
+} from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
 import { AppSidebarFooter, AppSidebarNav } from "./components"
@@ -35,7 +46,12 @@ const menuItems = {
     {
       title: "Shops",
       url: "/shops",
-      icon: Building
+      icon: Store
+    },
+    {
+      title: "Companies",
+      url: "/companies",
+      icon: Building2
     }
   ],
   settings: [
@@ -44,12 +60,6 @@ const menuItems = {
       url: "/system",
       icon: Monitor
     },
-    {
-      title: "Companies",
-      url: "/companies",
-      icon: Building
-    },
-
     {
       title: "Profile",
       url: "/profile",
