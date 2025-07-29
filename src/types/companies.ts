@@ -6,7 +6,7 @@ export interface ICompanyResponse {
   id: number
   name: string
   email: string
-  mc: string | null
+  mc: number | null
   usDot: string
   phone: string
   active: boolean
@@ -19,7 +19,7 @@ export type ICompaniesResponse = IPaginatedResponse<ICompanyResponse>
 export interface ICompanyData {
   name: string
   email: string
-  mc?: string | null
+  mc?: number | null
   usDot: string
   phone: string
 }

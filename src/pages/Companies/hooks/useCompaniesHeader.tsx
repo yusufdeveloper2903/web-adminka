@@ -1,8 +1,9 @@
 import { Button, Input } from "@/components/ui"
-import { useHeaderStore, useCompaniesStore } from "@/store"
-import { RefreshCw, RotateCcw } from "lucide-react"
+import { useDrawerStore, useHeaderStore, useCompaniesStore } from "@/store"
+import { Plus, RefreshCw, RotateCcw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useDebounceValue } from "usehooks-ts"
+import { NewCompanyForm } from "../components"
 import { cn } from "@/lib"
 
 interface UseCompaniesHeaderParams {
@@ -13,6 +14,7 @@ interface UseCompaniesHeaderParams {
 
 const useCompaniesHeader = ({ isLoading, totalDBRowCount, refetch }: UseCompaniesHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
   const { filters, setFilters, resetFilters } = useCompaniesStore()
 
   // Local state for UI controls
@@ -27,10 +29,23 @@ const useCompaniesHeader = ({ isLoading, totalDBRowCount, refetch }: UseCompanie
   }, [debouncedKeyword, setFilters])
 
   useEffect(() => {
+    const addIcon = <Plus className="mr-2 h-4 w-4" />
+
     setHeaderConfig({
       title: "Companies",
       metadata: `Total: ${totalDBRowCount} companies`,
       actions: [
+        {
+          id: "add_company",
+          label: "Add Company",
+          disabled: isLoading,
+          icon: addIcon,
+          onClick: () =>
+            setDrawerConfig({
+              title: "Add New Company",
+              content: <NewCompanyForm />
+            })
+        },
         {
           id: "refresh_companies",
           icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,

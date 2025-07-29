@@ -1,11 +1,15 @@
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Mail, Phone, Truck } from "lucide-react"
+import { Mail, Phone, Truck, Edit } from "lucide-react"
+import { useDrawerStore } from "@/store"
 import type { ICompanyResponse } from "@/types"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
+import { NewCompanyForm } from "../components"
 
 const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
+  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
   return [
     {
       accessorKey: "id",
@@ -65,7 +69,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "mc",
       header: "MC Number",
       meta: {
-        className: "min-w-[100px] w-[10%]"
+        className: "min-w-[100px] w-[8%]"
       },
       cell: ({ getValue }) => {
         const mcValue = getValue() as string | null
@@ -90,6 +94,34 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
         className: "min-w-[120px] w-[12%]"
       },
       cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      meta: {
+        className: "min-w-[80px] w-[7%] text-center"
+      },
+      cell: ({ row }) => {
+        const company = row.original
+
+        return (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setDrawerConfig({
+                  title: `Edit Company: ${company.name}`,
+                  content: <NewCompanyForm company={company} onClose={closeDrawer} />
+                })
+              }}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+        )
+      },
+      enableSorting: false
     }
   ]
 }
