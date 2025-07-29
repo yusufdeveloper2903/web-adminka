@@ -22,7 +22,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "name",
       header: "Company Name",
       meta: {
-        className: "min-w-[200px] w-[25%]"
+        className: "min-w-[200px] w-[24%]"
       },
       cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>
     },
@@ -56,7 +56,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "usDot",
       header: "US DOT",
       meta: {
-        className: "min-w-[100px] w-[10%]"
+        className: "min-w-[100px] w-[12%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">
@@ -64,17 +64,6 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
           <span className="font-mono">{getValue() as string}</span>
         </div>
       )
-    },
-    {
-      accessorKey: "mc",
-      header: "MC Number",
-      meta: {
-        className: "min-w-[100px] w-[8%]"
-      },
-      cell: ({ getValue }) => {
-        const mcValue = getValue() as string | null
-        return <span className="text-muted-foreground font-mono">{mcValue || "N/A"}</span>
-      }
     },
     {
       accessorKey: "active",
@@ -91,7 +80,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "created",
       header: "Created",
       meta: {
-        className: "min-w-[120px] w-[12%]"
+        className: "min-w-[120px] w-[8%]"
       },
       cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
