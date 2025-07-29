@@ -44,7 +44,6 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     isFetchingNextPage: isFetchingNextDriverPage
   } = useDriversInfiniteQuery({ keyword: driverSearch })
 
-
   const {
     data: loadsData,
     fetchNextPage: fetchNextLoad,
@@ -218,7 +217,32 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     return () => {
       resetHeaderConfig()
     }
-  }, [isLoading, totalDBRowCount, refetch, setHeaderConfig, resetHeaderConfig, setDrawerConfig, view, setView, filters, setFilters, truckOptions, driverOptions, loadOptions, isTrucksLoading, isDriversLoading, isLoadsLoading, fetchNextTruck, fetchNextDriver, fetchNextLoad, hasNextTruckPage, hasNextDriverPage, hasNextLoadPage, resetFilters, isFetchingNextDriverPage])
+  }, [
+    isLoading,
+    totalDBRowCount,
+    refetch,
+    setHeaderConfig,
+    resetHeaderConfig,
+    setDrawerConfig,
+    view,
+    setView,
+    filters,
+    setFilters,
+    truckOptions,
+    driverOptions,
+    loadOptions,
+    isTrucksLoading,
+    isDriversLoading,
+    isLoadsLoading,
+    fetchNextTruck,
+    fetchNextDriver,
+    fetchNextLoad,
+    hasNextTruckPage,
+    hasNextDriverPage,
+    hasNextLoadPage,
+    resetFilters,
+    isFetchingNextDriverPage
+  ])
 
   return { filters, view, setView }
 }

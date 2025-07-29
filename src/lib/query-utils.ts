@@ -4,9 +4,12 @@ import type { IBaseFiltersRequest, IPaginatedResponse } from "@/types"
 export const DEFAULT_PAGE_SIZE = 20
 
 // Generic function to get next page parameter for infinite queries
-export const getNextPageParam = <T>(lastPage: IPaginatedResponse<T>, allPages: IPaginatedResponse<T>[]): number | undefined => {
-  const currentPage = allPages.length - 1  // Vue kodidagi kabi allPages.length ishlatamiz
-  
+export const getNextPageParam = <T>(
+  lastPage: IPaginatedResponse<T>,
+  allPages: IPaginatedResponse<T>[]
+): number | undefined => {
+  const currentPage = allPages.length - 1 // Vue kodidagi kabi allPages.length ishlatamiz
+
   if (currentPage < lastPage.totalPages - 1) {
     return currentPage + 1
   }

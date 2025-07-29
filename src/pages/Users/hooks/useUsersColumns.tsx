@@ -21,8 +21,8 @@ const useUsersColumns = () => {
           return (
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="h-4 w-4 text-primary" />
+                <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+                  <User className="text-primary h-4 w-4" />
                 </div>
               </div>
               <div>
@@ -38,16 +38,12 @@ const useUsersColumns = () => {
       }),
       columnHelper.accessor("email", {
         header: "Email",
-        cell: ({ getValue }) => (
-          <div className="text-sm text-gray-900">{getValue()}</div>
-        ),
+        cell: ({ getValue }) => <div className="text-sm text-gray-900">{getValue()}</div>,
         size: 200
       }),
       columnHelper.accessor("phone", {
         header: "Phone",
-        cell: ({ getValue }) => (
-          <div className="text-sm text-gray-900">{getValue()}</div>
-        ),
+        cell: ({ getValue }) => <div className="text-sm text-gray-900">{getValue()}</div>,
         size: 150
       }),
       columnHelper.accessor("active", {
@@ -56,10 +52,8 @@ const useUsersColumns = () => {
           const isActive = getValue()
           return (
             <span
-              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                isActive
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
+              className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
               }`}
             >
               {isActive ? "Active" : "Inactive"}
@@ -72,11 +66,7 @@ const useUsersColumns = () => {
         header: "Created",
         cell: ({ getValue }) => {
           const date = new Date(getValue())
-          return (
-            <div className="text-sm text-gray-500">
-              {date.toLocaleDateString()}
-            </div>
-          )
+          return <div className="text-sm text-gray-500">{date.toLocaleDateString()}</div>
         },
         size: 120
       }),

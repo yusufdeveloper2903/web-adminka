@@ -1,3 +1,5 @@
+import type { UserRoleType } from "./users"
+
 export interface IAuthenticateRequest {
   email: string
   password: string
@@ -22,7 +24,12 @@ export interface IUser {
   email: string
   firstName: string
   lastName: string
-  role: string
-  createdAt: string
-  updatedAt: string
+  role: UserRoleType
+  permissions?: string[]
+}
+
+export interface IUpdateProfileRequest {
+  firstName: string
+  lastName: string
+  phone: string
 }

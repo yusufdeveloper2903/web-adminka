@@ -11,15 +11,15 @@ const initialState: Omit<RouteFiltersStoreState, "setFilters" | "resetFilters"> 
   filters: {
     driverId: undefined,
     loadNumber: undefined,
-    truckId: undefined,
-  },
+    truckId: undefined
+  }
 }
 
 export const useRouteFiltersStore = create<RouteFiltersStoreState>((set) => ({
   ...initialState,
   setFilters: (newFilters) =>
     set((state) => ({
-      filters: { ...state.filters, ...newFilters },
+      filters: { ...state.filters, ...newFilters }
     })),
-  resetFilters: () => set({ ...initialState }),
+  resetFilters: () => set({ ...initialState })
 }))

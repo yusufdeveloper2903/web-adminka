@@ -58,7 +58,13 @@ const NewCompanyForm = ({ company, onClose }: NewCompanyFormProps) => {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditing ? "Updating..." : "Creating...") : isEditing ? "Update Company" : "Create Company"}
+              {isSubmitting
+                ? isEditing
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditing
+                  ? "Update Company"
+                  : "Create Company"}
             </Button>
           </div>
         </div>

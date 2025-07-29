@@ -1,1 +1,1 @@
-// Auth queries will be added here when needed
+export { useMeQuery } from "./useMeQuery"
