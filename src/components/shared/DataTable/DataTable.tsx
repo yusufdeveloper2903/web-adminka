@@ -117,7 +117,7 @@ export const TableVirtualized = <TData,>({
             {headerGroup.headers.map((header) => (
               <TableHead
                 key={header.id}
-                className={cn("flex items-center px-1 py-1.5 font-medium", header.column.columnDef.meta?.className)}
+                className={cn("flex items-center px-4 py-1.5 font-medium", header.column.columnDef.meta?.className)}
               >
                 {!header.isPlaceholder && (
                   <div className="w-full p-1">{flexRender(header.column.columnDef.header, header.getContext())}</div>
@@ -187,7 +187,7 @@ export const TableVirtualized = <TData,>({
               key={rows[virtualRow.index].id}
               data-index={virtualRow.index}
               className={cn(
-                "hover:bg-muted/50 absolute top-0 left-0 flex w-full",
+                "hover:bg-muted/50 absolute top-0 left-0 px-4 flex w-full",
                 typeof rowClassName === "function"
                   ? rowClassName(rows[virtualRow.index].original, virtualRow.index)
                   : rowClassName

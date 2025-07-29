@@ -33,36 +33,17 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       }
     },
     {
-      id: "fullName",
-      header: "Full Name",
-      meta: {
-        className: "min-w-[180px] w-[25%]"
-      },
-      cell: ({ row }) => {
-        const firstName = row.getValue("firstName") as string
-        const lastName = row.getValue("lastName") as string
-        return `${firstName} ${lastName}`
-      }
-    },
-    {
       accessorKey: "team",
       header: "Team",
       meta: {
-        className: "min-w-[80px] w-[8%]"
-      }
-    },
-    {
-      accessorKey: "teamId",
-      header: "Team ID",
-      meta: {
-        className: "min-w-[80px] w-[8%]"
+        className: "min-w-[120px] w-[15%]"
       }
     },
     {
       accessorKey: "active",
       header: "Status",
       meta: {
-        className: "min-w-[80px] w-[8%]"
+        className: "min-w-[100px] w-[15%]"
       },
       cell: ({ getValue }) => {
         const isActive = getValue() as boolean
@@ -81,7 +62,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       accessorKey: "createdAt",
       header: "Created",
       meta: {
-        className: "min-w-[120px] w-[12%]"
+        className: "min-w-[120px] w-[15%]"
       },
       cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
@@ -89,7 +70,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       id: "actions",
       header: "Actions",
       meta: {
-        className: "min-w-[80px] w-[8%] text-center"
+        className: "min-w-[80px] w-[10%] text-center"
       },
       cell: ({ row }) => {
         const dispatcher = row.original
