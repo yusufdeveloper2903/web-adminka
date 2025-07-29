@@ -5,6 +5,8 @@ import { useCallback, useMemo } from "react"
 import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
+import dayjs from "dayjs"
+import { TABLE_UI_FORMAT } from "@/constants"
 
 export type Trip = ITripListResponse & {
   // Route data for map visualization (optional extensions)
@@ -211,14 +213,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         meta: {
           className: "min-w-[120px] w-[8%]"
         },
-        cell: ({ row }) => {
-          const date = new Date(row.original.updated)
-          return (
-            <span className="text-muted-foreground text-sm">
-              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          )
-        }
+        cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
 
       // Actions column

@@ -5,7 +5,7 @@ import { useDrawerStore } from "@/store"
 import { NewTruckForm } from "../components"
 import type { ITruckResponse } from "@/types"
 import dayjs from "dayjs"
-import { BACKEND_DATETIME_FORMAT } from "@/constants"
+import { TABLE_UI_FORMAT } from "@/constants"
 
 const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -73,7 +73,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       meta: {
         className: "min-w-[160px] w-[12%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(BACKEND_DATETIME_FORMAT)
+      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },
     {
       id: "actions",
