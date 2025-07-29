@@ -1,12 +1,19 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { MapPin } from "lucide-react"
+import { AutosuggestInput } from "@/components/shared/AutosuggestInput"
+import type { HereAutosuggestResult } from "@/types"
 
 interface ShopFormFieldsProps {
   form: any // TanStack form instance
 }
 
 const ShopFormFields = ({ form }: ShopFormFieldsProps) => {
+  const handleLocationSelect = (location: HereAutosuggestResult) => {
+    form.setFieldValue("location", location.address.label)
+    form.setFieldValue("latitude", location.position.lat)
+    form.setFieldValue("longitude", location.position.lng)
+  }
+
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
@@ -54,16 +61,13 @@ const ShopFormFields = ({ form }: ShopFormFieldsProps) => {
           name="location"
           children={(field: any) => (
             <div>
-              <div className="relative">
-                <MapPin className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                <Input
-                  placeholder="Enter location address"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
-              </div>
+              <AutosuggestInput
+                value={field.state.value}
+                onChange={field.handleChange}
+                onLocationSelect={handleLocationSelect}
+                placeholder="Enter location address"
+                className={field.state.meta.errors.length > 0 ? "border-red-500" : ""}
+              />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
               )}
@@ -89,6 +93,7 @@ const ShopFormFields = ({ form }: ShopFormFieldsProps) => {
                   onChange={(e) => field.handleChange(parseFloat(e.target.value) || 0)}
                   onBlur={field.handleBlur}
                   className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                  disabled
                 />
                 {field.state.meta.errors.length > 0 && (
                   <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -113,6 +118,7 @@ const ShopFormFields = ({ form }: ShopFormFieldsProps) => {
                   onChange={(e) => field.handleChange(parseFloat(e.target.value) || 0)}
                   onBlur={field.handleBlur}
                   className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                  disabled
                 />
                 {field.state.meta.errors.length > 0 && (
                   <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
