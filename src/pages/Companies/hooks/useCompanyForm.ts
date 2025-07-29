@@ -9,8 +9,7 @@ const companyFormSchema = z.object({
   name: z.string().min(1, "Company name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().min(1, "Phone number is required"),
-  usDot: z.string().min(1, "US DOT number is required"),
-  mc: z.number().nullable().optional()
+  usDot: z.string().min(1, "US DOT number is required")
 })
 
 interface UseCompanyFormProps {
@@ -29,8 +28,7 @@ export const useCompanyForm = ({ company }: UseCompanyFormProps = {}) => {
       name: company?.name || "",
       email: company?.email || "",
       phone: company?.phone || "",
-      usDot: company?.usDot || "",
-      mc: company?.mc || null
+      usDot: company?.usDot || ""
     },
     validators: {
       onChange: companyFormSchema as any
@@ -43,8 +41,7 @@ export const useCompanyForm = ({ company }: UseCompanyFormProps = {}) => {
           name: validatedData.name,
           email: validatedData.email,
           phone: validatedData.phone,
-          usDot: validatedData.usDot,
-          mc: validatedData.mc || null
+          usDot: validatedData.usDot
         }
 
         console.log("Company data for backend:", companyData)

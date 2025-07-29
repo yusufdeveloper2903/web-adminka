@@ -123,29 +123,6 @@ const CompanyFormFields = ({ form }: CompanyFormFieldsProps) => {
           )}
         />
       </div>
-
-      {/* MC Number (Optional) */}
-      <div className="space-y-2">
-        <Label htmlFor="mc">MC Number (Optional)</Label>
-        <form.Field
-          name="mc"
-          children={(field: any) => (
-            <div>
-              <Input
-                type="number"
-                placeholder="Enter MC number (optional)"
-                value={field.state.value || ""}
-                onChange={(e) => field.handleChange(parseFloat(e.target.value) || 0)}
-                onBlur={field.handleBlur}
-                className={`w-full font-mono ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-              )}
-            </div>
-          )}
-        />
-      </div>
     </div>
   )
 }

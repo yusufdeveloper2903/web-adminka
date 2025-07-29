@@ -34,26 +34,26 @@ const useCompaniesHeader = ({ isLoading, totalDBRowCount, refetch }: UseCompanie
     setHeaderConfig({
       title: "Companies",
       metadata: `Total: ${totalDBRowCount} companies`,
-      actions: [
-        {
-          id: "add_company",
-          label: "Add Company",
-          disabled: isLoading,
-          icon: addIcon,
-          onClick: () =>
-            setDrawerConfig({
-              title: "Add New Company",
-              content: <NewCompanyForm />
-            })
-        },
-        {
-          id: "refresh_companies",
-          icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
-          onClick: () => refetch(),
-          variant: "outline",
-          disabled: isLoading
-        }
-      ],
+      // actions: [
+      //   {
+      //     id: "add_company",
+      //     label: "Add Company",
+      //     disabled: isLoading,
+      //     icon: addIcon,
+      //     onClick: () =>
+      //       setDrawerConfig({
+      //         title: "Add New Company",
+      //         content: <NewCompanyForm />
+      //       })
+      //   },
+      //   {
+      //     id: "refresh_companies",
+      //     icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
+      //     onClick: () => refetch(),
+      //     variant: "outline",
+      //     disabled: isLoading
+      //   }
+      // ],
       filters: [
         {
           id: "keyword-filter",
