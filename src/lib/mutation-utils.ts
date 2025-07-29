@@ -55,10 +55,18 @@ export const ENTITY_ERROR_MESSAGES = {
   company: {
     INVALID_DATA: "Invalid company data. Please check your input and try again.",
     NOT_FOUND: "Company not found.",
-    ALREADY_EXISTS: "Dispatcher with this name already exists.",
+    ALREADY_EXISTS: "Company with this name already exists.",
     CREATE_SUCCESS: "Company created successfully!",
     UPDATE_SUCCESS: "Company updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `Company ${active ? "activated" : "deactivated"} successfully!`
+  },
+  user: {
+    INVALID_DATA: "Invalid user data. Please check your input and try again.",
+    NOT_FOUND: "User not found.",
+    ALREADY_EXISTS: "User with this name already exists.",
+    CREATE_SUCCESS: "User created successfully!",
+    UPDATE_SUCCESS: "User updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `User ${active ? "activated" : "deactivated"} successfully!`
   }
 } as const
 

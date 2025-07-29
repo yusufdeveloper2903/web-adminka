@@ -1,5 +1,3 @@
-// Export all types from a central location
-
 export * from "./trips"
 export * from "./trucks"
 export * from "./dispatchers"
@@ -10,3 +8,4 @@ export * from "./api"
 export * from "./authenticate"
 export * from "./driver"
 export * from "./companies"
+export * from "./users"
