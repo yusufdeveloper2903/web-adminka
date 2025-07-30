@@ -63,20 +63,13 @@ export const useStopManagement = (
   const handleAddStop = useCallback(() => {
     if (!newStopForm.selectedLocation) return
 
-    // Determine correct stopType based on position
-    const getCorrectStopType = (): StopType => {
-      if (stops.length === 0) return "START" as StopType
-      // For now, all middle stops are PICKUP, but this could be changed later
-      return newStopForm.stopType
-    }
-
     const newStop: ITripStopResponse = {
       address: newStopForm.selectedLocation.address.label,
       loadStatus: newStopForm.loadStatus,
       orderIndex: stops.length,
       latitude: newStopForm.selectedLocation.position.lat,
       longitude: newStopForm.selectedLocation.position.lng,
-      stopType: getCorrectStopType(),
+      stopType: newStopForm.stopType, // Use the selected stop type directly
       // Temporary values - will be recalculated by route API
       distance: 0,
       totalDistance: 0,
@@ -86,15 +79,9 @@ export const useStopManagement = (
     setStops((prev) => {
       const newStops = [...prev, newStop]
 
-      // Update stopTypes for all stops based on their position
+      // Simply update orderIndex for all stops, keep their original stopType
       return newStops.map((stop, index) => ({
         ...stop,
-        stopType:
-          index === 0
-            ? ("START" as StopType)
-            : index === newStops.length - 1
-              ? ("DELIVERY" as StopType)
-              : stop.stopType,
         orderIndex: index
       }))
     })

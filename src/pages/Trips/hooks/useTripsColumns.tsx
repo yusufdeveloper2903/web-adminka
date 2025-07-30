@@ -98,7 +98,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "companyName",
         header: "Company",
         meta: {
-          className: "min-w-[120px] w-[9%]"
+          className: "min-w-[120px] w-[9%] text-left"
         }
       },
 
@@ -107,7 +107,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "loadNumber",
         header: "Load Number",
         meta: {
-          className: "min-w-[120px] w-[9%]"
+          className: "min-w-[120px] w-[9%] text-left"
         }
       },
 
@@ -116,7 +116,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "dispatcherName",
         header: "Dispatcher",
         meta: {
-          className: "min-w-[120px] w-[9%]"
+          className: "min-w-[120px] w-[9%] text-left"
         }
       },
 
@@ -125,7 +125,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "tripStatus",
         header: "Status",
         meta: {
-          className: "min-w-[100px] w-[7%]"
+          className: "min-w-[100px] w-[7%] text-left"
         },
         cell: ({ row }) => {
           const status = row.original.tripStatus
@@ -163,7 +163,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "miles",
         header: "Miles",
         meta: {
-          className: "min-w-[80px] w-[6%] bg-gray-50 dark:bg-gray-800"
+          className: "min-w-[85px] w-[6%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
       },
@@ -173,7 +173,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "totalEmpty",
         header: "Total Empty",
         meta: {
-          className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+          className: "min-w-[110px] w-[7%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },
@@ -183,7 +183,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "pu",
         header: "PU",
         meta: {
-          className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+          className: "min-w-[75px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
       },
@@ -193,7 +193,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "trl",
         header: "TRL",
         meta: {
-          className: "min-w-[70px] w-[5%] bg-gray-50 dark:bg-gray-800"
+          className: "min-w-[75px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
       },
@@ -203,7 +203,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "totalMiles",
         header: "Total Miles",
         meta: {
-          className: "min-w-[100px] w-[7%] bg-gray-50 dark:bg-gray-800"
+          className: "min-w-[115px] w-[7%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => (
           <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>
@@ -215,7 +215,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "pickupLocation",
         header: "Pickup Location",
         meta: {
-          className: "min-w-[140px] w-[11%]"
+          className: "min-w-[140px] w-[11%] text-left"
         },
         cell: ({ row }) => (
           <span className="truncate" title={row.original.pickupLocation!}>
@@ -229,7 +229,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
         meta: {
-          className: "min-w-[140px] w-[11%]"
+          className: "min-w-[140px] w-[11%] text-left"
         },
         cell: ({ row }) => (
           <span className="truncate" title={row.original.deliveryLocation!}>
@@ -238,12 +238,12 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         )
       },
 
-      // Updated column
+      // Created column
       {
-        accessorKey: "updated",
-        header: "Updated",
+        accessorKey: "created",
+        header: "Created",
         meta: {
-          className: "min-w-[120px] w-[8%]"
+          className: "min-w-[140px] w-[9%] text-left"
         },
         cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
