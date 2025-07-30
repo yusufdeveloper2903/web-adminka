@@ -109,7 +109,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[85vh] w-[95vw] max-w-7xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] w-[95vw] sm:max-w-7xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mapType.toUpperCase()} Trip Report - {tripData.loadNumber}
