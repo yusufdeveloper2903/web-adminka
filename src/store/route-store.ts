@@ -85,7 +85,8 @@ export const useRouteStore = create<RouteState>((set) => ({
       routeStops: [],
       isRouteVisible: false,
       mapLoadingStates: { here: false, samsara: false, gle: false },
-      currentTripData: null
+      currentTripData: null,
+      hereRouteData: null // Also clear HERE route data
     }),
 
   toggleRouteVisibility: () =>

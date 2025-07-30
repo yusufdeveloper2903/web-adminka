@@ -1,16 +1,26 @@
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { useLazyView } from "./hooks/useLazyView"
 import { DataTable } from "@/components/shared"
-import { useTripsStore } from "@/store"
+import { useTripsStore, useRouteStore } from "@/store"
 import { cleanObject, cn } from "@/lib/utils"
 import { useTripsInfiniteQuery } from "@/hooks/trips"
 import type { ITripsFiltersRequest } from "@/types"
 import { TripsMapView } from "./components"
 
 const TripsPage = () => {
-  const { view, filters } = useTripsStore()
+  const { view, filters, setSelectedTripId } = useTripsStore()
+  const { clearRoute } = useRouteStore()
+
+  // Cleanup when component unmounts or when leaving the page
+  useEffect(() => {
+    return () => {
+      // Clear selected trip and route data when leaving trips page
+      setSelectedTripId(null)
+      clearRoute()
+    }
+  }, [])
 
   const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters, size: 20 }), [filters])
 

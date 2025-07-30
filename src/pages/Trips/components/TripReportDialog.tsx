@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
 import { useMemo } from "react"
+import { metersToMiles, formatDuration } from "@/lib/distance-utils"
 import type { ITripSummaryResponse } from "@/types"
 
 interface TripReportDialogProps {
@@ -43,9 +44,9 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
       id: stop.id,
       city: stop.address,
       stopType: stop.stopType,
-      miles: stop.distance,
-      totalMiles: stop.totalDistance,
-      hours: (stop.duration / 3600000).toFixed(2) // Convert milliseconds to hours
+      miles: metersToMiles(stop.distance), // Convert meters to miles
+      totalMiles: metersToMiles(stop.totalDistance), // Convert meters to miles
+      hours: formatDuration(stop.duration) // Duration is already in seconds from API
     }))
 
     // Calculate HERE API totals
@@ -57,8 +58,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
       const totalLength = sections.reduce((sum, section) => sum + section.summary.length, 0)
       const totalDuration = sections.reduce((sum, section) => sum + section.summary.duration, 0)
 
-      hereTotalMiles = totalLength / 1609.34 // Convert meters to miles
-      hereTotalHours = totalDuration / 3600 // Convert seconds to hours
+      hereTotalMiles = metersToMiles(totalLength) // Convert meters to miles
+      hereTotalHours = parseFloat(formatDuration(totalDuration)) // Convert seconds to hours
     }
 
     return {
@@ -82,8 +83,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
             hours: "0.00"
           }))
         ],
-        totalMiles: (tripData.mileStats.totalMiles * 1.1).toFixed(1),
-        totalHours: ((tripData.mileStats.totalMiles * 1.1) / 60).toFixed(2)
+        totalMiles: metersToMiles(tripData.mileStats.totalMiles * 1.1).toFixed(1),
+        totalHours: formatDuration((tripData.mileStats.totalMiles * 1.1) / 60)
       },
       gle: {
         title: "GLE Trip",
@@ -99,8 +100,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
             hours: "0.00"
           }))
         ],
-        totalMiles: tripData.mileStats.totalMiles.toFixed(1),
-        totalHours: (tripData.mileStats.totalMiles / 65).toFixed(2)
+        totalMiles: metersToMiles(tripData.mileStats.totalMiles).toFixed(1),
+        totalHours: formatDuration(tripData.mileStats.totalMiles / 65)
       }
     }
   }
@@ -142,14 +143,14 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
                     <TableHead className="pl-4">Stop Type</TableHead>
                     <TableHead>City</TableHead>
                     <TableHead className="text-left">Miles</TableHead>
-                    <TableHead className="text-left">Total</TableHead>
+                    <TableHead className="text-left">Total Miles</TableHead>
                     <TableHead className="text-left">Hours</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {reportData[mapType].stops.map((stop, index) => (
                     <TableRow key={`${stop.id}-${index}`}>
-                      <TableCell className="font-medium pl-4">
+                      <TableCell className="pl-4 font-medium">
                         {stop.stopType === "START"
                           ? "Start"
                           : stop.stopType === "PICKUP"

@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
+import { useEffect } from "react"
 import { AppSidebarFooter, AppSidebarNav } from "./components"
 
 const menuItems = {
@@ -71,6 +72,12 @@ const menuItems = {
 const AppSidebar = () => {
   const location = useLocation()
   const { isOpen } = useSidebarStore()
+
+  // Dispatch custom event when sidebar state changes
+  useEffect(() => {
+    const event = new CustomEvent("sidebar-toggle", { detail: { isOpen } })
+    window.dispatchEvent(event)
+  }, [isOpen])
 
   return (
     <Sidebar

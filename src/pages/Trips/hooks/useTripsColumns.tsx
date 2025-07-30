@@ -64,13 +64,14 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
 
   return useMemo(
     () => [
-      // No column
+      // No column (index-based)
       {
         accessorKey: "id",
         header: "No",
         meta: {
           className: "min-w-[60px] w-[4%]"
-        }
+        },
+        cell: ({ row }) => <span>{row.index + 1}</span>
       },
 
       // Unit column (bold)

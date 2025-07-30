@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { TripsMapView } from "../Trips/components"
+import { useRouteStore } from "@/store"
 import useRoutesHeader from "./hooks/useRoutesHeader"
 
 interface RouteFilters {
@@ -11,6 +12,15 @@ interface RouteFilters {
 const RoutesPage = () => {
   const [filters, setFilters] = useState<RouteFilters>({})
   const [shouldFetchTrip, setShouldFetchTrip] = useState(false)
+  const { clearRoute } = useRouteStore()
+
+  // Cleanup when component unmounts or when leaving the page
+  useEffect(() => {
+    return () => {
+      // Clear route data when leaving routes page
+      clearRoute()
+    }
+  }, [])
 
   const handleSetFilters = (newFilters: Partial<RouteFilters>) => {
     const updatedFilters = { ...filters, ...newFilters }

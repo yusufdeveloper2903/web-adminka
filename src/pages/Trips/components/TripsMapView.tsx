@@ -9,6 +9,7 @@ import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOv
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 import { useTripSummaryQuery } from "@/hooks/trips"
 import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
+import { metersToMiles, formatDuration } from "@/lib/distance-utils"
 import TripReportDialog from "./TripReportDialog"
 
 interface TripMapData {
@@ -129,8 +130,8 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
         const totalLength = sections.reduce((sum, section) => sum + section.summary.length, 0)
         const totalDuration = sections.reduce((sum, section) => sum + section.summary.duration, 0)
 
-        baseMiles = totalLength / 1609.34 // Convert meters to miles
-        baseHours = totalDuration / 3600 // Convert seconds to hours
+        baseMiles = metersToMiles(totalLength) // Convert meters to miles
+        baseHours = parseFloat(formatDuration(totalDuration)) // Convert seconds to hours
 
         console.log("HERE Route calculation:", {
           sections: sections.length,
@@ -228,29 +229,66 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
     mapRefs.current[mapId]?.zoomOut()
   }
 
-  // Simple resize after transition
+  // Handle map resize for various scenarios
   useEffect(() => {
-    // Immediate resize
-    Object.values(mapRefs.current).forEach((mapRef) => {
-      mapRef?.resize()
-    })
-
-    // Also resize during transition
-    const timeoutId = setTimeout(() => {
+    const resizeMaps = () => {
       Object.values(mapRefs.current).forEach((mapRef) => {
         mapRef?.resize()
       })
-    }, 50) // Very fast
+    }
 
-    return () => clearTimeout(timeoutId)
+    // Immediate resize
+    resizeMaps()
+
+    // Resize during transition
+    const timeoutId = setTimeout(resizeMaps, 50)
+
+    // Listen for window resize events
+    const handleWindowResize = () => {
+      resizeMaps()
+    }
+
+    // Listen for sidebar state changes (custom event)
+    const handleSidebarChange = () => {
+      // Add small delay for sidebar animation
+      setTimeout(resizeMaps, 300)
+    }
+
+    window.addEventListener("resize", handleWindowResize)
+    window.addEventListener("sidebar-toggle", handleSidebarChange)
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener("resize", handleWindowResize)
+      window.removeEventListener("sidebar-toggle", handleSidebarChange)
+    }
   }, [expandedMap])
+
+  // Add resize observer for container changes
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      Object.values(mapRefs.current).forEach((mapRef) => {
+        mapRef?.resize()
+      })
+    })
+
+    // Observe the main container
+    const container = document.querySelector("[data-maps-container]")
+    if (container) {
+      resizeObserver.observe(container)
+    }
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
 
   const formatMiles = (miles: number) => miles.toFixed(1)
   const formatHours = (hours: number) => hours.toFixed(2)
   const formatChange = (change: number) => `${change > 0 ? "+" : ""}${change.toFixed(1)}`
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full" data-maps-container>
       <div
         className={cn(
           "grid h-full gap-4 transition-all duration-300 ease-in-out",

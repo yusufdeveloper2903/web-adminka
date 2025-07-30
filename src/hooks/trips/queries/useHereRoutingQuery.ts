@@ -34,23 +34,24 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     console.log(`HERE Routing: Total ${limitedWaypoints.length} waypoints added`)
   }
 
-  // Skip truck specifications - basic 'truck' transportMode is sufficient
-  // HERE API truck parameters are causing validation errors
-  // The basic truck transport mode will handle truck-specific routing
-  // if (params.truck) {
-  //   if (params.truck.weight) {
-  //     searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
-  //   }
-  //   if (params.truck.height) {
-  //     searchParams.append("truck[height]", params.truck.height.toString())
-  //   }
-  //   if (params.truck.width) {
-  //     searchParams.append("truck[width]", params.truck.width.toString())
-  //   }
-  //   if (params.truck.length) {
-  //     searchParams.append("truck[length]", params.truck.length.toString())
-  //   }
-  // }
+  // Add truck specifications if provided
+  if (params.truck) {
+    console.log("HERE Routing: Truck params:", params.truck)
+    if (params.truck.weight) {
+      searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
+    }
+    if (params.truck.height) {
+      searchParams.append("truck[height]", params.truck.height.toString())
+    }
+    if (params.truck.width) {
+      searchParams.append("truck[width]", params.truck.width.toString())
+    }
+    if (params.truck.length) {
+      searchParams.append("truck[length]", params.truck.length.toString())
+    }
+  }
+
+  console.log("HERE Routing: Final URL:", `https://router.hereapi.com/v8/routes?${searchParams}`)
 
   const response = await fetch(`https://router.hereapi.com/v8/routes?${searchParams}`, {
     headers: {
@@ -68,7 +69,14 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
 // React Query hook for HERE Maps Routing
 export const useHereRoutingQuery = (params: HereRoutingParams | null, enabled: boolean = true) => {
   return useQuery<HereRoutingResponse, Error>({
-    queryKey: ["here-routing", params?.origin, params?.destination, params?.waypoints, params?.transportMode],
+    queryKey: [
+      "here-routing",
+      params?.origin,
+      params?.destination,
+      params?.waypoints,
+      params?.transportMode,
+      params?.truck
+    ],
     queryFn: () => fetchHereRouting(params!),
     enabled: enabled && !!params && !!params.origin && !!params.destination,
     staleTime: 10 * 60 * 1000, // 10 minutes - route data can be cached longer
