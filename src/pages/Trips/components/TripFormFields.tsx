@@ -54,12 +54,11 @@ const TripFormFields = ({
   const [showDateTimeSection, setShowDateTimeSection] = useState(false)
 
   // Watch for tripStatus changes to show/hide date/time section
-  // We'll use form.Field to watch the tripStatus value
-  const [tripStatusValue, setTripStatusValue] = useState("")
+  const currentTripStatus = form?.state?.values?.tripStatus || ""
 
   useEffect(() => {
-    setShowDateTimeSection(tripStatusValue === "COMPLETED")
-  }, [tripStatusValue])
+    setShowDateTimeSection(currentTripStatus === "COMPLETED")
+  }, [currentTripStatus])
 
   // Fetch trucks with search
   const {
@@ -275,7 +274,7 @@ const TripFormFields = ({
                 value={field.state.value}
                 onValueChange={(value) => {
                   field.handleChange(value)
-                  setTripStatusValue(value) // Update local state to trigger animation
+                  // No need to set local state - useEffect will handle it
                 }}
               >
                 <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>

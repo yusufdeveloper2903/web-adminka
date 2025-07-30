@@ -98,7 +98,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "companyName",
         header: "Company",
         meta: {
-          className: "min-w-[120px] w-[10%]"
+          className: "min-w-[120px] w-[9%]"
         }
       },
 
@@ -107,7 +107,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "loadNumber",
         header: "Load Number",
         meta: {
-          className: "min-w-[120px] w-[10%]"
+          className: "min-w-[120px] w-[9%]"
         }
       },
 
@@ -116,7 +116,45 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "dispatcherName",
         header: "Dispatcher",
         meta: {
-          className: "min-w-[120px] w-[10%]"
+          className: "min-w-[120px] w-[9%]"
+        }
+      },
+
+      // Trip Status column
+      {
+        accessorKey: "tripStatus",
+        header: "Status",
+        meta: {
+          className: "min-w-[100px] w-[7%]"
+        },
+        cell: ({ row }) => {
+          const status = row.original.tripStatus
+          let statusClass = ""
+          let statusText = status
+
+          switch (status) {
+            case "UPCOMING":
+              statusClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+              statusText = "Upcoming"
+              break
+            case "IN_TRANSIT":
+            case "IN TRANSIT":
+              statusClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+              statusText = "In Transit"
+              break
+            case "COMPLETED":
+              statusClass = "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+              statusText = "Completed"
+              break
+            default:
+              statusClass = "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
+          }
+
+          return (
+            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusClass}`}>
+              {statusText}
+            </span>
+          )
         }
       },
 
@@ -177,7 +215,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "pickupLocation",
         header: "Pickup Location",
         meta: {
-          className: "min-w-[150px] w-[12%]"
+          className: "min-w-[140px] w-[11%]"
         },
         cell: ({ row }) => (
           <span className="truncate" title={row.original.pickupLocation!}>
@@ -191,7 +229,7 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
         meta: {
-          className: "min-w-[150px] w-[12%]"
+          className: "min-w-[140px] w-[11%]"
         },
         cell: ({ row }) => (
           <span className="truncate" title={row.original.deliveryLocation!}>

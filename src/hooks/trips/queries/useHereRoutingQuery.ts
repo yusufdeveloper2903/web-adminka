@@ -27,25 +27,23 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     searchParams.append("via", waypoints)
   }
 
-  // Add truck specifications if provided
-  if (params.truck) {
-    if (params.truck.weight) {
-      // Weight in kg (integer)
-      searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
-    }
-    if (params.truck.height) {
-      // Height in meters (decimal allowed)
-      searchParams.append("truck[height]", params.truck.height.toString())
-    }
-    if (params.truck.width) {
-      // Width in meters (decimal allowed)
-      searchParams.append("truck[width]", params.truck.width.toString())
-    }
-    if (params.truck.length) {
-      // Length in meters (decimal allowed)
-      searchParams.append("truck[length]", params.truck.length.toString())
-    }
-  }
+  // Skip truck specifications - basic 'truck' transportMode is sufficient
+  // HERE API truck parameters are causing validation errors
+  // The basic truck transport mode will handle truck-specific routing
+  // if (params.truck) {
+  //   if (params.truck.weight) {
+  //     searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
+  //   }
+  //   if (params.truck.height) {
+  //     searchParams.append("truck[height]", params.truck.height.toString())
+  //   }
+  //   if (params.truck.width) {
+  //     searchParams.append("truck[width]", params.truck.width.toString())
+  //   }
+  //   if (params.truck.length) {
+  //     searchParams.append("truck[length]", params.truck.length.toString())
+  //   }
+  // }
 
   const response = await fetch(`https://router.hereapi.com/v8/routes?${searchParams}`, {
     headers: {

@@ -120,19 +120,13 @@ const SortableRow = ({
       </TableCell>
       <TableCell>-</TableCell>
       <TableCell>
-        <ShimmerText isLoading={isCalculatingRoute}>
-          {formatDistance(stop.distance)}
-        </ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{formatDistance(stop.distance)}</ShimmerText>
       </TableCell>
       <TableCell className="font-medium text-blue-600">
-        <ShimmerText isLoading={isCalculatingRoute}>
-          {formatDistance(stop.totalDistance)}
-        </ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{formatDistance(stop.totalDistance)}</ShimmerText>
       </TableCell>
       <TableCell>
-        <ShimmerText isLoading={isCalculatingRoute}>
-          {formatDuration(stop.duration)}
-        </ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{formatDuration(stop.duration)}</ShimmerText>
       </TableCell>
       <TableCell>
         <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
