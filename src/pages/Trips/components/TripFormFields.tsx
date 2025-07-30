@@ -24,6 +24,7 @@ interface TripFormFieldsProps {
   setNewStopForm: any
   onLocationSelect: any
   onAddStop: any
+  isCalculatingRoute?: boolean
 }
 
 interface TruckOption extends SearchableSelectOption {
@@ -45,7 +46,8 @@ const TripFormFields = ({
   newStopForm,
   setNewStopForm,
   onLocationSelect,
-  onAddStop
+  onAddStop,
+  isCalculatingRoute = false
 }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
@@ -258,6 +260,7 @@ const TripFormFields = ({
             onReorderStops={onReorderStops}
             formatDistance={formatDistance}
             formatDuration={formatDuration}
+            isCalculatingRoute={isCalculatingRoute}
           />
         </div>
       )}

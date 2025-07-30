@@ -1,5 +1,6 @@
 import { useMemo } from "react"
 import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
+import { useRouteStore } from "@/store"
 import type { ITripStopResponse, RouteCalculationResult } from "@/types"
 
 interface UseRouteCalculationProps {
@@ -9,6 +10,8 @@ interface UseRouteCalculationProps {
 }
 
 export const useRouteCalculation = ({ stops, enabled = true, transportMode = "truck" }: UseRouteCalculationProps) => {
+  const { routeSettings } = useRouteStore()
+  
   // Prepare routing parameters
   const routingParams = useMemo(() => {
     if (!stops || stops.length < 2) return null
@@ -29,15 +32,31 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
       lng: stop.longitude
     }))
 
+    // Map route settings to HERE API parameters
+    const hereRoutingMode = routeSettings.routingMode === "practical" ? "fast" : "short"
+
     return {
       origin,
       destination,
       waypoints: waypoints.length > 0 ? waypoints : undefined,
       transportMode,
-      routingMode: "fast" as const,
-      return: "summary" // Only need summary, not polyline
+      routingMode: hereRoutingMode as "fast" | "short",
+      return: "summary", // Only need summary, not polyline
+      truck: routeSettings.hasTrailer ? {
+        // Add trailer specifications when enabled
+        weight: 40000, // 40 tons with trailer
+        height: 4.2,   // Higher with trailer
+        width: 2.6,    // Wider with trailer  
+        length: 16.5   // 53' trailer length
+      } : {
+        // Standard truck without trailer
+        weight: 26000, // 26 tons without trailer
+        height: 3.8,   // Standard truck height
+        width: 2.4,    // Standard truck width
+        length: 12.0   // Standard truck length
+      }
     }
-  }, [stops, transportMode])
+  }, [stops, transportMode, routeSettings])
 
   // Use HERE Routing API
   const { data, isLoading, error, refetch } = useHereRoutingQuery(

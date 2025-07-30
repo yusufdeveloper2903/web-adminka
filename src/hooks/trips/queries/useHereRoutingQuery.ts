@@ -18,8 +18,8 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     routingMode: params.routingMode || "fast",
     return: params.return || "summary", // Remove polyline since we don't need it
     apikey: apiKey,
-    lang: "en-US",
-    alternatives: "2" // Get 2 alternative routes like in your example
+    lang: "en-US"
+    // Remove alternatives since we only need one route
   })
 
   // Add waypoints if they exist
@@ -27,22 +27,25 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     searchParams.append("via", waypoints)
   }
 
-  // Skip truck specifications for now to avoid API parameter errors
-  // The basic 'truck' transportMode should be sufficient for routing
-  // if (params.truck) {
-  //   if (params.truck.weight) {
-  //     searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
-  //   }
-  //   if (params.truck.height) {
-  //     searchParams.append("truck[height]", Math.round(params.truck.height * 100).toString())
-  //   }
-  //   if (params.truck.width) {
-  //     searchParams.append("truck[width]", Math.round(params.truck.width * 100).toString())
-  //   }
-  //   if (params.truck.length) {
-  //     searchParams.append("truck[length]", Math.round(params.truck.length * 100).toString())
-  //   }
-  // }
+  // Add truck specifications if provided
+  if (params.truck) {
+    if (params.truck.weight) {
+      // Weight in kg (integer)
+      searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
+    }
+    if (params.truck.height) {
+      // Height in meters (decimal allowed)
+      searchParams.append("truck[height]", params.truck.height.toString())
+    }
+    if (params.truck.width) {
+      // Width in meters (decimal allowed)
+      searchParams.append("truck[width]", params.truck.width.toString())
+    }
+    if (params.truck.length) {
+      // Length in meters (decimal allowed)
+      searchParams.append("truck[length]", params.truck.length.toString())
+    }
+  }
 
   const response = await fetch(`https://router.hereapi.com/v8/routes?${searchParams}`, {
     headers: {

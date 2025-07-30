@@ -27,7 +27,8 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
     handleReorderStops,
     resetStopForm,
     formatDistance,
-    formatDuration
+    formatDuration,
+    isCalculatingRoute
   } = useStopManagement(stops, setStops)
 
   // Populate form with tripData when in edit mode
@@ -78,6 +79,7 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
           setNewStopForm={setNewStopForm}
           onLocationSelect={handleLocationSelect}
           onAddStop={handleAddStop}
+          isCalculatingRoute={isCalculatingRoute}
         />
 
         {/* Show validation errors */}

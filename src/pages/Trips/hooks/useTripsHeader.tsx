@@ -95,14 +95,14 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               title: "New route: Practical, 53' Trailer, Miles",
               content: <NewRouteForm />,
               headerActions: [
-                {
-                  id: "route-icon",
-                  node: (
-                    <Button variant="ghost" onClick={() => setView("map")}>
-                      <RouteIcon className="size-6" />
-                    </Button>
-                  )
-                },
+                // {
+                //   id: "route-icon",
+                //   node: (
+                //     <Button variant="ghost" onClick={() => setView("map")}>
+                //       <RouteIcon className="size-6" />
+                //     </Button>
+                //   )
+                // },
                 {
                   id: "route-settings",
                   node: <RouteSettingsPopover />

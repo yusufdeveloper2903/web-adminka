@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { X, GripVertical } from "lucide-react"
 import { useRouteStore } from "@/store"
 import { STOP_TYPE_OPTIONS, LOAD_STATUS_OPTIONS } from "@/constants"
+import { ShimmerText } from "@/components/shared"
 import type { ITripStopResponse, LoadStatus, StopType } from "@/types"
 import { useState } from "react"
 import {
@@ -27,6 +28,7 @@ interface StopsTableProps {
   onReorderStops: (stops: ITripStopResponse[]) => void
   formatDistance: (distance: number) => string
   formatDuration: (duration: number) => string
+  isCalculatingRoute?: boolean // Add loading state prop
 }
 
 interface SortableRowProps {
@@ -40,6 +42,7 @@ interface SortableRowProps {
   onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
   formatDistance: (distance: number) => string
   formatDuration: (duration: number) => string
+  isCalculatingRoute?: boolean
 }
 
 const SortableRow = ({
@@ -52,6 +55,7 @@ const SortableRow = ({
   onStopUpdate,
   formatDistance,
   formatDuration,
+  isCalculatingRoute,
   isRecentlyMoved,
   isDragActive
 }: SortableRowProps & { isRecentlyMoved?: boolean; isDragActive?: boolean }) => {
@@ -115,9 +119,21 @@ const SortableRow = ({
         {stop.address}
       </TableCell>
       <TableCell>-</TableCell>
-      <TableCell>{formatDistance(stop.distance)}</TableCell>
-      <TableCell className="font-medium text-blue-600">{formatDistance(stop.totalDistance)}</TableCell>
-      <TableCell>{formatDuration(stop.duration)}</TableCell>
+      <TableCell>
+        <ShimmerText isLoading={isCalculatingRoute}>
+          {formatDistance(stop.distance)}
+        </ShimmerText>
+      </TableCell>
+      <TableCell className="font-medium text-blue-600">
+        <ShimmerText isLoading={isCalculatingRoute}>
+          {formatDistance(stop.totalDistance)}
+        </ShimmerText>
+      </TableCell>
+      <TableCell>
+        <ShimmerText isLoading={isCalculatingRoute}>
+          {formatDuration(stop.duration)}
+        </ShimmerText>
+      </TableCell>
       <TableCell>
         <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
           <SelectTrigger className="w-24">
@@ -161,7 +177,8 @@ const StopsTable = ({
   onStopUpdate,
   onReorderStops,
   formatDistance,
-  formatDuration
+  formatDuration,
+  isCalculatingRoute = false
 }: StopsTableProps) => {
   const { routeSettings } = useRouteStore()
   const distanceUnit = routeSettings.distanceUnit === "km" ? "KM" : "Miles"
@@ -274,6 +291,7 @@ const StopsTable = ({
                       onStopUpdate={onStopUpdate}
                       formatDistance={formatDistance}
                       formatDuration={formatDuration}
+                      isCalculatingRoute={isCalculatingRoute}
                       isRecentlyMoved={recentlyMoved.includes(index)}
                       isDragActive={isDragging}
                     />
