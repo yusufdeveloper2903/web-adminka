@@ -138,6 +138,7 @@ const TripFormFields = ({
               children={(field: any) => (
                 <div>
                   <SearchableSelect
+                    fullWidth
                     options={truckOptions}
                     value={truckOptions.find((option) => option.value === field.state.value) || null}
                     onChange={(selectedOption: any) => {
@@ -195,13 +196,14 @@ const TripFormFields = ({
 
         {/* Second row - Dispatcher and Trip Status (50% each) */}
         <section className="flex justify-between gap-4">
-          <div className="w-1/2 space-y-2">
+          <div className="w-1/2 space-y-2 pr-2">
             <Label htmlFor="dispatcherId">Dispatcher</Label>
             <form.Field
               name="dispatcherId"
               children={(field: any) => (
                 <div>
                   <SearchableSelect
+                    fullWidth
                     options={dispatcherOptions}
                     value={dispatcherOptions.find((option) => option.value === field.state.value) || null}
                     onChange={(selectedOption: any) => {

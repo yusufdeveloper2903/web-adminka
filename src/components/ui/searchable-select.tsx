@@ -25,6 +25,7 @@ interface SearchableSelectProps
   onFetchNextPage?: () => void
   onChange?: (value: SingleValue<SearchableSelectOption>) => void
   hasNextPage?: boolean
+  fullWidth?: boolean
 }
 
 // Custom components to match shadcn/ui design
@@ -164,6 +165,7 @@ const SearchableSelect = ({
   onFetchNextPage,
   onChange,
   hasNextPage,
+  fullWidth,
   ...props
 }: SearchableSelectProps) => {
   const [inputValue, setInputValue] = useState("")
@@ -229,7 +231,7 @@ const SearchableSelect = ({
                 : "border-input",
             className
           ),
-        container: () => "min-w-[160px] max-w-[200px]", // Fixed min/max width
+        container: () => `min-w-[160px] ${fullWidth ? "auto" : "max-w-[200px]"}`, // Fixed min/max width
         placeholder: () => "text-muted-foreground text-sm truncate",
         input: () => "text-foreground text-sm flex-1 min-w-0",
         valueContainer: () => "flex items-center py-1 flex-1 min-w-0 overflow-hidden",
