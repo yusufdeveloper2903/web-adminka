@@ -47,8 +47,6 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
           role: validatedData.role
         }
 
-        console.log("User data for backend:", userData)
-
         if (isEditing && user) {
           // Update user
           await updateUserMutation.mutateAsync({

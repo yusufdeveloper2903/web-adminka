@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useRouteStore } from "@/store"
+import { useRouteCalculation } from "@/hooks/useRouteCalculation"
 import type { ITripStopResponse, LoadStatus, StopType, HereAutosuggestResult } from "@/types"
 
 interface NewStopFormData {
@@ -21,24 +22,36 @@ export const useStopManagement = (
     selectedLocation: undefined
   })
 
-  // Calculate distance and duration (simplified)
-  const calculateStopMetrics = (
-    existingStops: ITripStopResponse[],
-    newStop: Omit<ITripStopResponse, "distance" | "totalDistance" | "duration">
-  ): ITripStopResponse => {
-    const lastStop = existingStops[existingStops.length - 1]
+  // Use route calculation hook
+  const {
+    stops: calculatedStops,
+    routeData,
+    isLoading: isCalculatingRoute,
+    refetch: recalculateRoute
+  } = useRouteCalculation({
+    stops,
+    enabled: stops.length >= 2
+  })
 
-    const distance = lastStop ? Math.floor(Math.random() * 300) + 50 : 0
-    const totalDistance = lastStop ? lastStop.totalDistance + distance : distance
-    const duration = distance * 60000 // 1 minute per mile (simplified)
+  // Update stops when route calculation completes
+  useEffect(() => {
+    if (calculatedStops.length > 0 && calculatedStops.length === stops.length) {
+      // Only update if the calculated stops are different from current stops
+      const hasChanges = calculatedStops.some((calcStop, index) => {
+        const currentStop = stops[index]
+        return (
+          !currentStop ||
+          Math.abs(calcStop.distance - currentStop.distance) > 1 ||
+          Math.abs(calcStop.totalDistance - currentStop.totalDistance) > 1 ||
+          Math.abs(calcStop.duration - currentStop.duration) > 1
+        )
+      })
 
-    return {
-      ...newStop,
-      distance,
-      totalDistance,
-      duration
+      if (hasChanges) {
+        setStops(calculatedStops)
+      }
     }
-  }
+  }, [calculatedStops, stops, setStops])
 
   const handleLocationSelect = useCallback((location: HereAutosuggestResult) => {
     setNewStopForm((prev) => ({
@@ -57,19 +70,21 @@ export const useStopManagement = (
       return newStopForm.stopType
     }
 
-    const newStop: Omit<ITripStopResponse, "distance" | "totalDistance" | "duration"> = {
+    const newStop: ITripStopResponse = {
       address: newStopForm.selectedLocation.address.label,
       loadStatus: newStopForm.loadStatus,
       orderIndex: stops.length,
       latitude: newStopForm.selectedLocation.position.lat,
       longitude: newStopForm.selectedLocation.position.lng,
-      stopType: getCorrectStopType()
+      stopType: getCorrectStopType(),
+      // Temporary values - will be recalculated by route API
+      distance: 0,
+      totalDistance: 0,
+      duration: 0
     }
 
-    const calculatedStop = calculateStopMetrics(stops, newStop)
-
     setStops((prev) => {
-      const newStops = [...prev, calculatedStop]
+      const newStops = [...prev, newStop]
 
       // Update stopTypes for all stops based on their position
       return newStops.map((stop, index) => ({
@@ -97,23 +112,13 @@ export const useStopManagement = (
     (index: number) => {
       const updatedStops = stops.filter((_, i) => i !== index)
 
-      // Recalculate distances, totals, and update stopTypes
-      const recalculatedStops = updatedStops.map((stop, i) => {
-        const baseStop = {
-          ...stop,
-          orderIndex: i,
-          stopType:
-            i === 0 ? ("START" as StopType) : i === updatedStops.length - 1 ? ("DELIVERY" as StopType) : stop.stopType
-        }
-
-        if (i === 0) return { ...baseStop, distance: 0, totalDistance: baseStop.distance }
-
-        const prevStop = updatedStops[i - 1]
-        return {
-          ...baseStop,
-          totalDistance: prevStop.totalDistance + baseStop.distance
-        }
-      })
+      // Update stopTypes and orderIndex - route calculation will handle distances
+      const recalculatedStops = updatedStops.map((stop, i) => ({
+        ...stop,
+        orderIndex: i,
+        stopType:
+          i === 0 ? ("START" as StopType) : i === updatedStops.length - 1 ? ("DELIVERY" as StopType) : stop.stopType
+      }))
 
       setStops(recalculatedStops)
     },
@@ -139,17 +144,23 @@ export const useStopManagement = (
   // Format functions with unit conversion
   const formatDistance = useCallback(
     (distance: number) => {
+      // Distance comes from HERE API in meters, convert to miles/km
+      const distanceInMiles = distance / 1609.34 // Convert meters to miles
+
       if (routeSettings.distanceUnit === "km") {
-        // Convert miles to kilometers (1 mile = 1.60934 km)
-        const distanceInKm = distance * 1.60934
+        const distanceInKm = distanceInMiles * 1.60934
         return distanceInKm.toFixed(1)
       }
-      return distance.toFixed(1)
+      return distanceInMiles.toFixed(1)
     },
     [routeSettings.distanceUnit]
   )
 
-  const formatDuration = useCallback((duration: number) => (duration / 3600000).toFixed(2), [])
+  const formatDuration = useCallback((duration: number) => {
+    // Duration comes from HERE API in seconds, convert to hours
+    const hours = duration / 3600
+    return hours.toFixed(2)
+  }, [])
 
   const handleReorderStops = useCallback(
     (reorderedStops: ITripStopResponse[]) => {
@@ -168,6 +179,9 @@ export const useStopManagement = (
     handleReorderStops,
     resetStopForm,
     formatDistance,
-    formatDuration
+    formatDuration,
+    routeData,
+    isCalculatingRoute,
+    recalculateRoute
   }
 }

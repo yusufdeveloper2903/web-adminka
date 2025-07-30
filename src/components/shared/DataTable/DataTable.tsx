@@ -187,7 +187,7 @@ export const TableVirtualized = <TData,>({
               key={rows[virtualRow.index].id}
               data-index={virtualRow.index}
               className={cn(
-                "hover:bg-muted/50 absolute top-0 left-0 px-4 flex w-full",
+                "hover:bg-muted/50 absolute top-0 left-0 flex w-full px-4",
                 typeof rowClassName === "function"
                   ? rowClassName(rows[virtualRow.index].original, virtualRow.index)
                   : rowClassName

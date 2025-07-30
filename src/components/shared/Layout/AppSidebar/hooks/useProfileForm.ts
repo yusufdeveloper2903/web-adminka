@@ -16,7 +16,6 @@ interface UseProfileFormProps {
 
 export const useProfileForm = ({ user, onClose }: UseProfileFormProps) => {
   const updateProfileMutation = useUpdateProfileMutation()
-  console.log('user', user)
 
   const form = useForm({
     defaultValues: {

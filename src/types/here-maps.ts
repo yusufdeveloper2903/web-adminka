@@ -64,3 +64,91 @@ export interface UseAutosuggestOptions {
     lng: number
   }
 }
+// HERE Routing API types
+export interface HereRoutingParams {
+  origin: {
+    lat: number
+    lng: number
+  }
+  destination: {
+    lat: number
+    lng: number
+  }
+  waypoints?: {
+    lat: number
+    lng: number
+  }[]
+  transportMode?: "car" | "truck" | "pedestrian" | "bicycle"
+  routingMode?: "fast" | "short" | "balanced"
+  return?: string // e.g., 'summary,polyline,instructions'
+  truck?: {
+    weight?: number // in kg
+    height?: number // in meters
+    width?: number // in meters
+    length?: number // in meters
+  }
+}
+
+export interface HereRoutingResponse {
+  notices?: {
+    title: string
+    code: string
+    severity: string
+  }[]
+  routes: {
+    id: string
+    sections: {
+      id: string
+      type: string
+      departure: {
+        time: string
+        place: {
+          type: string
+          location: {
+            lat: number
+            lng: number
+          }
+          originalLocation?: {
+            lat: number
+            lng: number
+          }
+        }
+      }
+      arrival: {
+        time: string
+        place: {
+          type: string
+          location: {
+            lat: number
+            lng: number
+          }
+          originalLocation?: {
+            lat: number
+            lng: number
+          }
+        }
+      }
+      summary: {
+        duration: number // in seconds
+        length: number // in meters
+        baseDuration: number
+      }
+      polyline?: string
+      transport: {
+        mode: string
+      }
+    }[]
+  }[]
+}
+
+export interface RouteCalculationResult {
+  totalDistance: number // in meters
+  totalDuration: number // in seconds
+  sections: {
+    distance: number
+    duration: number
+    startLocation: { lat: number; lng: number }
+    endLocation: { lat: number; lng: number }
+  }[]
+  polyline?: string
+}
