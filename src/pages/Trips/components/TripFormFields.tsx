@@ -56,8 +56,31 @@ const TripFormFields = ({
   // Watch for tripStatus changes to show/hide date/time section
   const currentTripStatus = form?.state?.values?.tripStatus || ""
 
+  // Also listen to form state changes directly
   useEffect(() => {
-    setShowDateTimeSection(currentTripStatus === "COMPLETED")
+    const unsubscribe = form?.store?.subscribe(() => {
+      const newStatus = form?.state?.values?.tripStatus || ""
+      const shouldShow = newStatus === "COMPLETED"
+      setShowDateTimeSection(shouldShow)
+      console.log("Form state changed:", {
+        newStatus,
+        shouldShow,
+        formValues: form?.state?.values
+      })
+    })
+
+    return unsubscribe
+  }, [form])
+
+  useEffect(() => {
+    const shouldShow = currentTripStatus === "COMPLETED"
+    setShowDateTimeSection(shouldShow)
+    console.log("Trip status debug:", {
+      currentTripStatus,
+      type: typeof currentTripStatus,
+      shouldShow,
+      comparison: currentTripStatus === "COMPLETED"
+    })
   }, [currentTripStatus])
 
   // Fetch trucks with search
@@ -273,8 +296,14 @@ const TripFormFields = ({
               <Select
                 value={field.state.value}
                 onValueChange={(value) => {
+                  console.log("Select value changed:", value)
                   field.handleChange(value)
-                  // No need to set local state - useEffect will handle it
+                  // Force update the state immediately for debugging
+                  if (value === "COMPLETED") {
+                    setShowDateTimeSection(true)
+                  } else {
+                    setShowDateTimeSection(false)
+                  }
                 }}
               >
                 <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>

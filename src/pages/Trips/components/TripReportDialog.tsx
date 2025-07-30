@@ -1,5 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
+import { useMemo } from "react"
 import type { ITripSummaryResponse } from "@/types"
 
 interface TripReportDialogProps {
@@ -10,6 +12,29 @@ interface TripReportDialogProps {
 }
 
 const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripReportDialogProps) => {
+  // Prepare HERE routing parameters from trip stops - ALWAYS call hooks
+  const hereRoutingParams = useMemo(() => {
+    if (!tripData?.tripStops || tripData.tripStops.length < 2) return null
+
+    const stops = tripData.tripStops
+    const origin = { lat: stops[0].latitude, lng: stops[0].longitude }
+    const destination = { lat: stops[stops.length - 1].latitude, lng: stops[stops.length - 1].longitude }
+    const waypoints = stops.slice(1, -1).map((stop) => ({ lat: stop.latitude, lng: stop.longitude }))
+
+    return {
+      origin,
+      destination,
+      waypoints: waypoints.length > 0 ? waypoints : undefined,
+      transportMode: "truck" as const,
+      routingMode: "fast" as const,
+      return: "summary" as const
+    }
+  }, [tripData?.tripStops])
+
+  // Get real route calculation from HERE API - ALWAYS call hooks
+  const { data: hereRouteData } = useHereRoutingQuery(hereRoutingParams, !!hereRoutingParams)
+
+  // Early return AFTER hooks
   if (!tripData) return null
 
   // Generate report data for each map type
@@ -23,19 +48,32 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
       hours: (stop.duration / 3600000).toFixed(2) // Convert milliseconds to hours
     }))
 
+    // Calculate HERE API totals
+    let hereTotalMiles = 0
+    let hereTotalHours = 0
+
+    if (hereRouteData?.routes?.[0]?.sections) {
+      const sections = hereRouteData.routes[0].sections
+      const totalLength = sections.reduce((sum, section) => sum + section.summary.length, 0)
+      const totalDuration = sections.reduce((sum, section) => sum + section.summary.duration, 0)
+
+      hereTotalMiles = totalLength / 1609.34 // Convert meters to miles
+      hereTotalHours = totalDuration / 3600 // Convert seconds to hours
+    }
+
     return {
       here: {
         title: "HERE Trip",
         stops: baseStops,
-        totalMiles: (tripData.mileStats.totalMiles * 0.95).toFixed(1),
-        totalHours: ((tripData.mileStats.totalMiles * 0.95) / 65).toFixed(2)
+        totalMiles: hereTotalMiles.toFixed(1),
+        totalHours: hereTotalHours.toFixed(2)
       },
       samsara: {
         title: "Samsara Trip",
         stops: [
           ...baseStops,
           // Add nearby points from samsara data
-          ...tripData.samsaraLocation.nearbyPoints.map((point, index) => ({
+          ...(tripData.samsaraLocation?.nearbyPoints || []).map((point, index) => ({
             id: `nearby-${index}`,
             city: `${point.type} Location`,
             stopType: point.type,
@@ -52,7 +90,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
         stops: [
           ...baseStops,
           // Add nearby points from GLE data
-          ...tripData.gleLocation.nearbyPoints.map((point, index) => ({
+          ...(tripData.gleLocation?.nearbyPoints || []).map((point, index) => ({
             id: `nearby-${index}`,
             city: `${point.type} Location`,
             stopType: point.type,
@@ -81,7 +119,21 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
         <div className="space-y-4">
           {/* Show only the selected map type data */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">{reportData[mapType].title}</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">{reportData[mapType].title}</h3>
+              {mapType === "here" && (
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Total Miles:</span>
+                    <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Total Hours:</span>
+                    <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="rounded-lg border">
               <Table>

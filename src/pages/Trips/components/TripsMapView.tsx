@@ -8,6 +8,7 @@ import { useRouteStore, useTripsStore } from "@/store"
 import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 import { useTripSummaryQuery } from "@/hooks/trips"
+import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
 import TripReportDialog from "./TripReportDialog"
 
 interface TripMapData {
@@ -82,6 +83,28 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})
 
+  // Prepare HERE routing parameters from trip stops
+  const hereRoutingParams = useMemo(() => {
+    if (!tripSummaryData?.tripStops || tripSummaryData.tripStops.length < 2) return null
+
+    const stops = tripSummaryData.tripStops
+    const origin = { lat: stops[0].latitude, lng: stops[0].longitude }
+    const destination = { lat: stops[stops.length - 1].latitude, lng: stops[stops.length - 1].longitude }
+    const waypoints = stops.slice(1, -1).map((stop) => ({ lat: stop.latitude, lng: stop.longitude }))
+
+    return {
+      origin,
+      destination,
+      waypoints: waypoints.length > 0 ? waypoints : undefined,
+      transportMode: "truck" as const,
+      routingMode: "fast" as const,
+      return: "summary" as const
+    }
+  }, [tripSummaryData?.tripStops])
+
+  // Get real route calculation from HERE API
+  const { data: hereRouteData } = useHereRoutingQuery(hereRoutingParams, !!hereRoutingParams)
+
   // Generate trip data based on real trip summary data
   const tripsData: TripMapData[] = useMemo(() => {
     if (tripSummaryData) {
@@ -95,70 +118,85 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
       }
 
       const centerCoords = getCenterCoordinates(tripSummaryData.tripStops)
-      const baseMiles = tripSummaryData.mileStats.totalMiles || 0
-      const baseHours = baseMiles > 0 ? Math.round((baseMiles / 65) * 100) / 100 : 0
+
+      // Use HERE API data if available, otherwise fallback to mileStats
+      let baseMiles = 0
+      let baseHours = 0
+
+      if (hereRouteData?.routes?.[0]?.sections) {
+        // Sum all sections for total distance and duration
+        const sections = hereRouteData.routes[0].sections
+        const totalLength = sections.reduce((sum, section) => sum + section.summary.length, 0)
+        const totalDuration = sections.reduce((sum, section) => sum + section.summary.duration, 0)
+
+        baseMiles = totalLength / 1609.34 // Convert meters to miles
+        baseHours = totalDuration / 3600 // Convert seconds to hours
+
+        console.log("HERE Route calculation:", {
+          sections: sections.length,
+          totalLength,
+          totalDuration,
+          baseMiles: baseMiles.toFixed(1),
+          baseHours: baseHours.toFixed(2)
+        })
+      } else {
+        baseMiles = tripSummaryData.mileStats.totalMiles || 0
+        baseHours = baseMiles > 0 ? baseMiles / 65 : 0 // Estimate based on 65 mph average
+      }
 
       return [
-        // HERE Trip - uses real route calculation from our API
+        // HERE Trip - uses real route calculation from HERE API
         {
           id: "here",
           title: `HERE Trip - ${tripSummaryData.loadNumber}`,
-          totalMiles: baseMiles, // Use actual calculated miles
-          hours: baseHours, // Use actual calculated hours
+          totalMiles: baseMiles, // Real calculated miles from HERE API
+          hours: baseHours, // Real calculated hours from HERE API
           coordinates: centerCoords
         },
-        // Samsara Trip - uses samsaraLocation polyline data
+        // Samsara Trip - uses samsaraLocation polyline data (if available)
         {
           id: "samsara",
           title: `Samsara Trip - ${tripSummaryData.loadNumber}`,
-          totalMiles: baseMiles * 1.05, // Samsara typically 5% longer
-          hours: Math.round(baseHours * 1.08 * 100) / 100, // 8% more time due to traffic
-          coordinates: centerCoords,
-          milesChange: Math.round(baseMiles * 0.05 * 10) / 10,
-          hoursChange: Math.round(baseHours * 0.08 * 100) / 100
+          totalMiles: 0, // No real data available yet
+          hours: 0, // No real data available yet
+          coordinates: centerCoords
         },
-        // GLE Trip - uses gleLocation polyline data
+        // GLE Trip - uses gleLocation polyline data (if available)
         {
           id: "gle",
           title: `GLE Trip - ${tripSummaryData.loadNumber}`,
-          totalMiles: baseMiles * 0.98, // GLE typically 2% shorter
-          hours: Math.round(baseHours * 1.03 * 100) / 100, // 3% more time
-          coordinates: centerCoords,
-          milesChange: -Math.round(baseMiles * 0.02 * 10) / 10,
-          hoursChange: Math.round(baseHours * 0.03 * 100) / 100
+          totalMiles: 0, // No real data available yet
+          hours: 0, // No real data available yet
+          coordinates: centerCoords
         }
       ]
     }
 
-    // Default mock data when no trip summary is available
+    // No trip data available - show zeros instead of mock data
     return [
       {
         id: "here",
         title: "HERE Trip",
-        totalMiles: 601.1,
-        hours: 10.12,
-        coordinates: { lat: 32.7767, lng: -96.797 } // Dallas area
+        totalMiles: 0,
+        hours: 0,
+        coordinates: { lat: 40.7128, lng: -74.006 } // Default center
       },
       {
         id: "samsara",
         title: "Samsara Trip",
-        totalMiles: 699.5,
-        hours: 19.52,
-        coordinates: { lat: 29.7604, lng: -95.3698 }, // Houston area
-        milesChange: 98.4,
-        hoursChange: 9.4
+        totalMiles: 0,
+        hours: 0,
+        coordinates: { lat: 40.7128, lng: -74.006 }
       },
       {
         id: "gle",
         title: "GLE Trip",
-        totalMiles: 665.5,
-        hours: 19.59,
-        coordinates: { lat: 30.2672, lng: -97.7431 }, // Austin area
-        milesChange: -64.4,
-        hoursChange: 9.4
+        totalMiles: 0,
+        hours: 0,
+        coordinates: { lat: 40.7128, lng: -74.006 }
       }
     ]
-  }, [tripSummaryData])
+  }, [tripSummaryData, hereRouteData])
 
   const displayedTrips = useMemo(() => {
     if (mapOnly) {
@@ -296,15 +334,15 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
                           tripStops: trip.id === "here" ? tripSummaryData.tripStops : undefined,
                           polyline:
                             trip.id === "samsara"
-                              ? tripSummaryData.samsaraLocation.polyline
+                              ? tripSummaryData.samsaraLocation?.polyline
                               : trip.id === "gle"
-                                ? tripSummaryData.gleLocation.polyline
+                                ? tripSummaryData.gleLocation?.polyline
                                 : undefined,
                           nearbyPoints:
                             trip.id === "samsara"
-                              ? tripSummaryData.samsaraLocation.nearbyPoints
+                              ? tripSummaryData.samsaraLocation?.nearbyPoints
                               : trip.id === "gle"
-                                ? tripSummaryData.gleLocation.nearbyPoints
+                                ? tripSummaryData.gleLocation?.nearbyPoints
                                 : undefined
                         }
                       : undefined

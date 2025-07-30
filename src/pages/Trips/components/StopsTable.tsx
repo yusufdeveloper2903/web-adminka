@@ -118,7 +118,6 @@ const SortableRow = ({
       <TableCell className="max-w-xs truncate" title={stop.address}>
         {stop.address}
       </TableCell>
-      <TableCell>-</TableCell>
       <TableCell>
         <ShimmerText isLoading={isCalculatingRoute}>{formatDistance(stop.distance)}</ShimmerText>
       </TableCell>
@@ -251,7 +250,6 @@ const StopsTable = ({
                 <TableRow>
                   <TableHead className="w-[120px]">Stop</TableHead>
                   <TableHead>Address</TableHead>
-                  <TableHead>Post Code</TableHead>
                   <TableHead>{distanceUnit}</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Hours</TableHead>
