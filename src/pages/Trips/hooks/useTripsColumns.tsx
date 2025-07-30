@@ -16,7 +16,7 @@ export type Trip = ITripListResponse & {
 
 const useTripsColumns = (): ColumnDef<Trip>[] => {
   const { setView, setSelectedTripId } = useTripsStore()
-  const { setCalculatingRoute, setTripData } = useRouteStore()
+  const { setTripData } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
   // Fetch selected trip data for edit mode
@@ -24,20 +24,14 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
   const handleRouteClick = useCallback(
     (trip: any) => {
       setSelectedTripId(trip.id)
-      setCalculatingRoute(true)
 
       // Set trip data to route store for map visualization
       setTripData(trip)
 
       // Switch to map view
       setView("map")
-
-      // Simulate route calculation delay (remove this in production if real API is used)
-      setTimeout(() => {
-        setCalculatingRoute(false)
-      }, 1500)
     },
-    [setCalculatingRoute, setSelectedTripId, setView, setTripData]
+    [setSelectedTripId, setView, setTripData]
   )
 
   const handleEditClick = useCallback(

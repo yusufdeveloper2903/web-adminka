@@ -34,7 +34,7 @@ interface UseMapSpecificVisualizationProps {
 }
 
 export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }: UseMapSpecificVisualizationProps) => {
-  const { currentTripData, currentRoute, isRouteVisible, setCalculatingRoute, setMapLoading } = useRouteStore()
+  const { currentTripData, currentRoute, isRouteVisible, setMapLoading } = useRouteStore()
 
   // Memoize routeData to prevent unnecessary re-renders
   const memoizedRouteData = useMemo(
@@ -676,8 +676,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     removeRouteObjects,
     calculateRoute,
     drawRoutes,
-    createStopsFromLocations,
-    setCalculatingRoute
+    createStopsFromLocations
   ])
 
   // Main visualization effect

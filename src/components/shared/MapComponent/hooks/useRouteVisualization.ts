@@ -5,10 +5,9 @@ import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
 import { usePolylineVisualization } from "./usePolylineVisualization"
-import type { ITripStopResponse } from "@/types"
 
 export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>, mapType?: string) => {
-  const { currentRoute, routeStops, isRouteVisible, setCalculatingRoute, currentTripData } = useRouteStore()
+  const { currentRoute, routeStops, isRouteVisible, currentTripData } = useRouteStore()
   const routeGroupRef = useRef<H.map.Group | null>(null)
 
   // Use HERE routing API - inspired by Vue project
@@ -37,19 +36,6 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     )
   }, [])
 
-  // Create info bubble content
-  const createInfoBubbleContent = useCallback((stop: ITripStopResponse, index: number) => {
-    return `
-      <div style="padding: 8px; min-width: 200px;">
-        <h4 style="margin: 0 0 8px 0; font-weight: bold;">Stop ${index + 1}</h4>
-        <p style="margin: 4px 0;"><strong>Address:</strong> ${stop.address}</p>
-        <p style="margin: 4px 0;"><strong>Type:</strong> ${stop.stopType}</p>
-        <p style="margin: 4px 0;"><strong>Status:</strong> ${stop.loadStatus}</p>
-        <p style="margin: 4px 0;"><strong>Distance:</strong> ${stop.distance.toFixed(1)} miles</p>
-      </div>
-    `
-  }, [])
-
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
     return (
@@ -71,111 +57,6 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     return routeStops.filter((stop) => isValidCoordinate(stop.latitude, stop.longitude))
   }, [routeStops, isValidCoordinate])
 
-  // Add markers to route group - inspired by Vue project
-  const addMarkersToRoute = useCallback(
-    (routeGroup: H.map.Group, map: H.Map) => {
-      const validStops = getValidStops()
-
-      validStops.forEach((stop, index) => {
-        try {
-          const marker = new H.map.Marker(
-            { lat: stop.latitude, lng: stop.longitude },
-            { icon: createMarkerIcon(stop.stopType, index) }
-          )
-
-          // Add info bubble event
-          marker.addEventListener("tap", () => {
-            try {
-              const bubble = new H.ui.InfoBubble(createInfoBubbleContent(stop, index), {
-                lat: stop.latitude,
-                lng: stop.longitude
-              })
-
-              // Remove existing bubbles
-              map.getBubbles().forEach((b: any) => map.removeBubble(b))
-              map.addBubble(bubble)
-            } catch (error) {
-              console.warn("Error creating info bubble:", error)
-            }
-          })
-
-          routeGroup.addObject(marker)
-        } catch (error) {
-          console.warn(`Error adding marker for stop ${index}:`, error)
-        }
-      })
-    },
-    [getValidStops, createMarkerIcon, createInfoBubbleContent]
-  )
-
-  // Add route line to route group - inspired by Vue project
-  const addRouteLineToRoute = useCallback(
-    (routeGroup: H.map.Group) => {
-      try {
-        const validStops = getValidStops()
-
-        if (validStops.length > 1) {
-          const lineString = new H.geo.LineString()
-
-          validStops.forEach((stop) => {
-            try {
-              // Vue project used pushPoint(lat, lng) format
-              lineString.pushPoint(stop.latitude, stop.longitude)
-            } catch (error) {
-              console.warn(`Error adding point to lineString: ${stop.latitude},${stop.longitude}`, error)
-            }
-          })
-
-          if (lineString.getPointCount() > 1) {
-            const routeLine = new H.map.Polyline(lineString, {
-              style: {
-                strokeColor: "#4285F4", // Color taken from Vue project
-                lineWidth: 5,
-                lineTailCap: "round",
-                lineHeadCap: "round"
-              }
-            })
-
-            routeGroup.addObject(routeLine)
-          }
-        }
-      } catch (error) {
-        console.error("Error creating route line:", error)
-      }
-    },
-    [getValidStops]
-  )
-
-  // Fit map to show all stops - inspired by Vue project
-  const fitMapToRoute = useCallback((routeGroup: H.map.Group, map: H.Map) => {
-    try {
-      const boundingBox = routeGroup.getBoundingBox()
-      if (boundingBox) {
-        map.getViewModel().setLookAtData(
-          {
-            bounds: boundingBox,
-            padding: 50
-          },
-          true
-        ) // Vue project used true parameter
-      }
-    } catch (error) {
-      console.warn("Error fitting map to route:", error)
-    }
-  }, [])
-
-  // Safely remove route group - inspired by Vue project
-  const safelyRemoveRouteGroup = useCallback(() => {
-    if (routeGroupRef.current && mapInstance.current) {
-      try {
-        mapInstance.current.removeObject(routeGroupRef.current)
-      } catch (error) {
-        console.warn("Error removing route group:", error)
-      }
-      routeGroupRef.current = null
-    }
-  }, [mapInstance])
-
   // Main route visualization effect - inspired by Vue project's handleGo function
   useEffect(() => {
     const handleRouteVisualization = async () => {
@@ -189,7 +70,6 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
       clearPolylines()
 
       if (!mapInstance.current || !isRouteVisible) {
-        setCalculatingRoute(false)
         return
       }
 
@@ -203,13 +83,11 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
       // Handle frontend route calculation
       const validStops = getValidStops()
       if (validStops.length < 2) {
-        setCalculatingRoute(false)
         return
       }
 
       try {
         // Start loading state
-        setCalculatingRoute(true)
         console.log("Calculating route for stops:", validStops)
 
         // Calculate route using HERE API - inspired by Vue project
@@ -255,9 +133,6 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
         }
       } catch (error) {
         console.error("Route visualization error:", error)
-      } finally {
-        // Always stop loading state
-        setCalculatingRoute(false)
       }
     }
 
@@ -275,8 +150,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     clearPolylines,
     drawTripRoutes,
     getValidStops,
-    createMarkerIcon,
-    setCalculatingRoute
+    createMarkerIcon
   ])
 
   // Cleanup effect - ensure routes are cleared when component unmounts
@@ -285,9 +159,8 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
       // Cleanup on unmount
       removeRouteObjects()
       clearPolylines()
-      setCalculatingRoute(false)
     }
-  }, [removeRouteObjects, clearPolylines, setCalculatingRoute])
+  }, [removeRouteObjects, clearPolylines])
 
   return {
     routeGroupRef

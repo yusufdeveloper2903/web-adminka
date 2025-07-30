@@ -20,7 +20,7 @@ interface CalculatedRoute {
 export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
   const routePolylinesRef = useRef<H.map.Polyline[]>([])
   const routeGroupRef = useRef<H.map.Group | null>(null)
-  const { routeSettings, setHereRouteData, setCalculatingRoute } = useRouteStore()
+  const { routeSettings, setHereRouteData } = useRouteStore()
 
   // Check if coordinates are valid - inspired by Vue project
   const isValidCoordinate = useCallback((lat?: number, lng?: number): boolean => {
@@ -612,22 +612,12 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         }
 
         // Stop loading state after route is drawn
-        setCalculatingRoute(false)
       } catch (error) {
         console.error("Error drawing routes:", error instanceof Error ? error.message : String(error))
         // Stop loading state on error as well
-        setCalculatingRoute(false)
       }
     },
-    [
-      mapInstance,
-      getValidStops,
-      calculateRouteMetrics,
-      setHereRouteData,
-      setCalculatingRoute,
-      createMarkerIcon,
-      createStopInfoBubble
-    ]
+    [mapInstance, getValidStops, calculateRouteMetrics, setHereRouteData, createMarkerIcon, createStopInfoBubble]
   )
 
   // Remove all route objects - inspired by Vue project's removeMapObjectsExceptTruckMarker
