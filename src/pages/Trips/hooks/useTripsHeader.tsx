@@ -89,11 +89,12 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           id: "add_trip",
           label: "Add Trip",
           icon: addTripIcon,
-          disabled: isLoading, // Disable when loading
+          disabled: isLoading,
           onClick: () =>
             setDrawerConfig({
               title: "New route: Practical, 53' Trailer, Miles",
               content: <NewRouteForm />,
+              width: "sm:max-w-5xl",
               headerActions: [
                 // {
                 //   id: "route-icon",

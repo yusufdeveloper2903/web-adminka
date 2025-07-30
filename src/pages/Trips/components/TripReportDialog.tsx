@@ -109,7 +109,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[85vh] w-[95vw] sm:max-w-7xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>
             {mapType.toUpperCase()} Trip Report - {tripData.loadNumber}
@@ -139,17 +139,17 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Stop Type</TableHead>
+                    <TableHead className="pl-4">Stop Type</TableHead>
                     <TableHead>City</TableHead>
-                    <TableHead className="text-right">Miles</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="text-right">Hours</TableHead>
+                    <TableHead className="text-left">Miles</TableHead>
+                    <TableHead className="text-left">Total</TableHead>
+                    <TableHead className="text-left">Hours</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {reportData[mapType].stops.map((stop, index) => (
                     <TableRow key={`${stop.id}-${index}`}>
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium pl-4">
                         {stop.stopType === "START"
                           ? "Start"
                           : stop.stopType === "PICKUP"
@@ -163,20 +163,20 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
                                   : stop.stopType}
                       </TableCell>
                       <TableCell>{stop.city}</TableCell>
-                      <TableCell className="text-right">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</TableCell>
-                      <TableCell className="text-right font-medium text-blue-600">
+                      <TableCell className="text-left">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</TableCell>
+                      <TableCell className="text-left font-medium text-blue-600">
                         {stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}
                       </TableCell>
-                      <TableCell className="text-right">{stop.hours !== "0.00" ? stop.hours : "-"}</TableCell>
+                      <TableCell className="text-left">{stop.hours !== "0.00" ? stop.hours : "-"}</TableCell>
                     </TableRow>
                   ))}
                   {/* Total row */}
                   <TableRow className="bg-muted/50 font-medium">
                     <TableCell colSpan={3}>Total</TableCell>
-                    <TableCell className="text-right font-bold text-blue-600">
+                    <TableCell className="text-left font-bold text-blue-600">
                       {reportData[mapType].totalMiles}
                     </TableCell>
-                    <TableCell className="text-right font-bold">{reportData[mapType].totalHours}</TableCell>
+                    <TableCell className="text-left font-bold">{reportData[mapType].totalHours}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

@@ -129,7 +129,7 @@ const SortableRow = ({
       </TableCell>
       <TableCell>
         <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
-          <SelectTrigger className="w-24">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -143,7 +143,7 @@ const SortableRow = ({
       </TableCell>
       <TableCell>
         <Select value={stop.loadStatus} onValueChange={(value: LoadStatus) => onStopUpdate(index, "loadStatus", value)}>
-          <SelectTrigger className="w-24">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
