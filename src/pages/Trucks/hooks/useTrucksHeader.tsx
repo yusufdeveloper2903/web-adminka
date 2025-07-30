@@ -79,7 +79,7 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
           id: "keyword-filter",
           node: (
             <Input
-              placeholder="Search by name..."
+              placeholder="Search..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               className="w-48"
@@ -114,7 +114,14 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
         {
           id: "reset-filter",
           node: (
-            <Button variant="ghost" size="icon" onClick={resetFilters}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                resetFilters()
+                setKeyword("")
+              }}
+            >
               <RotateCcw className="h-4 w-4" />
             </Button>
           )

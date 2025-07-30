@@ -6,9 +6,10 @@ interface TripReportDialogProps {
   isOpen: boolean
   onClose: () => void
   tripData?: ITripSummaryResponse
+  mapType?: "here" | "samsara" | "gle" // Which map was clicked
 }
 
-const TripReportDialog = ({ isOpen, onClose, tripData }: TripReportDialogProps) => {
+const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripReportDialogProps) => {
   if (!tripData) return null
 
   // Generate report data for each map type
@@ -70,62 +71,65 @@ const TripReportDialog = ({ isOpen, onClose, tripData }: TripReportDialogProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[85vh] w-[95vw] max-w-7xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Trip Report - {tripData.loadNumber}</DialogTitle>
+          <DialogTitle>
+            {mapType.toUpperCase()} Trip Report - {tripData.loadNumber}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-8">
-          {Object.entries(reportData).map(([mapType, data]) => (
-            <div key={mapType} className="space-y-4">
-              <h3 className="text-lg font-semibold">{data.title}</h3>
+        <div className="space-y-4">
+          {/* Show only the selected map type data */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">{reportData[mapType].title}</h3>
 
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Stop Type</TableHead>
-                      <TableHead>City</TableHead>
-                      <TableHead className="text-right">Miles</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-right">Hours</TableHead>
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Stop Type</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead className="text-right">Miles</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Hours</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reportData[mapType].stops.map((stop, index) => (
+                    <TableRow key={`${stop.id}-${index}`}>
+                      <TableCell className="font-medium">
+                        {stop.stopType === "START"
+                          ? "Start"
+                          : stop.stopType === "PICKUP"
+                            ? "Stop 1"
+                            : stop.stopType === "DELIVERY"
+                              ? "Delivery"
+                              : stop.stopType === "HOME"
+                                ? "Home"
+                                : stop.stopType === "SHOP"
+                                  ? "Shop"
+                                  : stop.stopType}
+                      </TableCell>
+                      <TableCell>{stop.city}</TableCell>
+                      <TableCell className="text-right">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</TableCell>
+                      <TableCell className="text-right font-medium text-blue-600">
+                        {stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}
+                      </TableCell>
+                      <TableCell className="text-right">{stop.hours !== "0.00" ? stop.hours : "-"}</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.stops.map((stop, index) => (
-                      <TableRow key={`${stop.id}-${index}`}>
-                        <TableCell className="font-medium">
-                          {stop.stopType === "START"
-                            ? "Start"
-                            : stop.stopType === "PICKUP"
-                              ? "Stop 1"
-                              : stop.stopType === "DELIVERY"
-                                ? "Delivery"
-                                : stop.stopType === "HOME"
-                                  ? "Home"
-                                  : stop.stopType === "SHOP"
-                                    ? "Shop"
-                                    : stop.stopType}
-                        </TableCell>
-                        <TableCell>{stop.city}</TableCell>
-                        <TableCell className="text-right">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</TableCell>
-                        <TableCell className="text-right font-medium text-blue-600">
-                          {stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}
-                        </TableCell>
-                        <TableCell className="text-right">{stop.hours !== "0.00" ? stop.hours : "-"}</TableCell>
-                      </TableRow>
-                    ))}
-                    {/* Total row */}
-                    <TableRow className="bg-muted/50 font-medium">
-                      <TableCell colSpan={3}>Total</TableCell>
-                      <TableCell className="text-right font-bold text-blue-600">{data.totalMiles}</TableCell>
-                      <TableCell className="text-right font-bold">{data.totalHours}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                  {/* Total row */}
+                  <TableRow className="bg-muted/50 font-medium">
+                    <TableCell colSpan={3}>Total</TableCell>
+                    <TableCell className="text-right font-bold text-blue-600">
+                      {reportData[mapType].totalMiles}
+                    </TableCell>
+                    <TableCell className="text-right font-bold">{reportData[mapType].totalHours}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
-          ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

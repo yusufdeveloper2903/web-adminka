@@ -7,6 +7,7 @@ import { useLoadNumbersQuery } from "@/hooks/trips"
 import { SearchableSelect } from "@/components/ui"
 import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/types"
 import type { SingleValue } from "react-select"
+import { RotateCcw } from "lucide-react"
 
 interface RouteFilters {
   truckId?: string
@@ -150,18 +151,25 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
           )
         },
         {
-          id: "submit-filter",
+          id: "reset-filter",
           node: (
-            <Button type="button" onClick={onSubmit} disabled={!canSubmit}>
-              Submit
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                resetFilters()
+              }}
+              disabled={!filters.driverId && !filters.loadNumber && !filters.truckId}
+            >
+              <RotateCcw className="h-4 w-4" />
             </Button>
           )
         },
         {
-          id: "reset-filter",
+          id: "submit-filter",
           node: (
-            <Button variant="ghost" onClick={resetFilters}>
-              Reset
+            <Button type="button" onClick={onSubmit} disabled={!canSubmit}>
+              Submit
             </Button>
           )
         }

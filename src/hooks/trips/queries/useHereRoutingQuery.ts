@@ -8,9 +8,6 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     throw new Error("HERE Maps API key not found")
   }
 
-  // Build waypoints string for multiple stops (if they exist)
-  const waypoints = params.waypoints?.map((wp) => `${wp.lat},${wp.lng}`).join("|")
-
   const searchParams = new URLSearchParams({
     transportMode: params.transportMode || "truck",
     origin: `${params.origin.lat},${params.origin.lng}`,
@@ -22,9 +19,19 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     // Remove alternatives since we only need one route
   })
 
-  // Add waypoints if they exist
-  if (params.waypoints && params.waypoints.length > 0 && waypoints) {
-    searchParams.append("via", waypoints)
+  // Add waypoints if they exist - HERE API format
+  if (params.waypoints && params.waypoints.length > 0) {
+    // HERE API supports up to 50 waypoints, but let's limit to 20 for performance
+    const limitedWaypoints = params.waypoints.slice(0, 20)
+
+    // HERE API expects each waypoint as separate 'via' parameter
+    // Format: via=lat1,lng1&via=lat2,lng2&via=lat3,lng3
+    limitedWaypoints.forEach((wp, index) => {
+      searchParams.append("via", `${wp.lat},${wp.lng}`)
+      console.log(`HERE Routing: Added waypoint ${index + 1}: ${wp.lat},${wp.lng}`)
+    })
+
+    console.log(`HERE Routing: Total ${limitedWaypoints.length} waypoints added`)
   }
 
   // Skip truck specifications - basic 'truck' transportMode is sufficient

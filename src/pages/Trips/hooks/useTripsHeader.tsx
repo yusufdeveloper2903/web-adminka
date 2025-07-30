@@ -198,7 +198,12 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
         {
           id: "reset-filter",
           node: (
-            <Button variant="ghost" size="icon" onClick={resetFilters}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={resetFilters}
+              disabled={!filters.driverId && !filters.loadNumber && !filters.truckId}
+            >
               <RotateCcw className="h-4 w-4" />
             </Button>
           )

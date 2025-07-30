@@ -11,7 +11,7 @@ interface UseRouteCalculationProps {
 
 export const useRouteCalculation = ({ stops, enabled = true, transportMode = "truck" }: UseRouteCalculationProps) => {
   const { routeSettings } = useRouteStore()
-  
+
   // Prepare routing parameters
   const routingParams = useMemo(() => {
     if (!stops || stops.length < 2) return null
@@ -42,19 +42,21 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
       transportMode,
       routingMode: hereRoutingMode as "fast" | "short",
       return: "summary", // Only need summary, not polyline
-      truck: routeSettings.hasTrailer ? {
-        // Add trailer specifications when enabled
-        weight: 40000, // 40 tons with trailer
-        height: 4.2,   // Higher with trailer
-        width: 2.6,    // Wider with trailer  
-        length: 16.5   // 53' trailer length
-      } : {
-        // Standard truck without trailer
-        weight: 26000, // 26 tons without trailer
-        height: 3.8,   // Standard truck height
-        width: 2.4,    // Standard truck width
-        length: 12.0   // Standard truck length
-      }
+      truck: routeSettings.hasTrailer
+        ? {
+            // Add trailer specifications when enabled
+            weight: 40000, // 40 tons with trailer
+            height: 4.2, // Higher with trailer
+            width: 2.6, // Wider with trailer
+            length: 16.5 // 53' trailer length
+          }
+        : {
+            // Standard truck without trailer
+            weight: 26000, // 26 tons without trailer
+            height: 3.8, // Standard truck height
+            width: 2.4, // Standard truck width
+            length: 12.0 // Standard truck length
+          }
     }
   }, [stops, transportMode, routeSettings])
 

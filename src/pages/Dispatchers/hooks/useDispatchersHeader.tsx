@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTeamsInfiniteQuery } from "@/hooks/teams"
 import { useDrawerStore, useHeaderStore, useDispatchersStore } from "@/store"
 import type { IPaginatedResponse, ITeamResponse } from "@/types"
-import { Loader2, Plus, RefreshCw, RotateCcw } from "lucide-react"
+import { Plus, RefreshCw, RotateCcw } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import type { SingleValue } from "react-select"
 import { useDebounceValue } from "usehooks-ts"
@@ -66,7 +66,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
         id: "dispatcher-keyword-filter",
         node: (
           <Input
-            placeholder="Search by name..."
+            placeholder="Search..."
             value={dispatcherKeyword}
             onChange={(e) => setDispatcherKeyword(e.target.value)}
             className="w-48"
@@ -121,11 +121,27 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
         id: "team-keyword-filter",
         node: (
           <Input
-            placeholder="Search by team name..."
+            placeholder="Search..."
             value={teamKeyword}
             onChange={(e) => setTeamKeyword(e.target.value)}
             className="w-48"
           />
+        )
+      },
+      {
+        id: "reset-filters",
+        node: (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              resetFilters()
+              setTeamKeyword("")
+            }}
+            disabled={!teamKeyword}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
         )
       }
     ]
