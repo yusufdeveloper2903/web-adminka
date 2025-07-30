@@ -51,7 +51,7 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
     }
   }
 
-  console.log("HERE Routing: Final URL:", `https://router.hereapi.com/v8/routes?${searchParams}`)
+  console.log("🌐 [QUERY HOOK] HERE Routing: Final URL:", `https://router.hereapi.com/v8/routes?${searchParams}`)
 
   const response = await fetch(`https://router.hereapi.com/v8/routes?${searchParams}`, {
     headers: {

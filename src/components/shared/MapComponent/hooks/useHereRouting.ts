@@ -80,21 +80,11 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           lang: "en-US"
         }
 
-        // Add truck specifications if trailer is enabled
-        if (routeSettings.hasTrailer) {
-          routingParameters.truck = {
-            shippedHazardousGoods: [],
-            grossWeight: 40000, // 40 tons max weight
-            weightPerAxle: 10000, // 10 tons per axle
-            height: 400, // 4 meters height
-            width: 250, // 2.5 meters width
-            length: 1600, // 16 meters length (truck + 53' trailer)
-            limitedWeight: 40000,
-            disallowedCountries: []
-          }
-        }
+        // Skip truck specifications to avoid API errors
+        // HERE API truck mode is sufficient for routing
+        console.log("🚛 [MAP COMPONENT] Using basic truck transport mode")
 
-        console.log(`🚛 Route calculation with settings:`, {
+        console.log(`🚛 [MAP COMPONENT] Route calculation with settings:`, {
           routingMode: `${routingMode} (${routeSettings.routingMode})`,
           transportMode: `${transportMode} (trailer: ${routeSettings.hasTrailer})`,
           distanceUnit: routeSettings.distanceUnit,

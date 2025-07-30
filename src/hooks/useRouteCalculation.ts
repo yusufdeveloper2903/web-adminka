@@ -41,22 +41,8 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
       waypoints: waypoints.length > 0 ? waypoints : undefined,
       transportMode,
       routingMode: hereRoutingMode as "fast" | "short",
-      return: "summary", // Only need summary, not polyline
-      truck: routeSettings.hasTrailer
-        ? {
-            // Add trailer specifications when enabled
-            weight: 40000, // 40 tons with trailer
-            height: 4.2, // Higher with trailer
-            width: 2.6, // Wider with trailer
-            length: 16.5 // 53' trailer length
-          }
-        : {
-            // Standard truck without trailer
-            weight: 26000, // 26 tons without trailer
-            height: 3.8, // Standard truck height
-            width: 2.4, // Standard truck width
-            length: 12.0 // Standard truck length
-          }
+      return: "summary" // Only need summary, not polyline
+      // Skip truck specifications to avoid API errors - basic truck mode is sufficient
     }
   }, [stops, transportMode, routeSettings])
 
@@ -65,6 +51,11 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
     routingParams,
     enabled && !!routingParams && stops.length >= 2
   )
+
+  // Debug log for route calculation
+  if (routingParams) {
+    console.log("📊 [ROUTE CALCULATION] Using HERE API for stops table")
+  }
 
   // Process routing data
   const routeData: RouteCalculationResult | null = useMemo(() => {

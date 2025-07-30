@@ -106,6 +106,11 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
   // Get real route calculation from HERE API
   const { data: hereRouteData } = useHereRoutingQuery(hereRoutingParams, !!hereRoutingParams)
 
+  // Debug log for map view
+  if (hereRoutingParams) {
+    console.log("🗺️ [TRIPS MAP VIEW] Using HERE API for map stats")
+  }
+
   // Generate trip data based on real trip summary data
   const tripsData: TripMapData[] = useMemo(() => {
     if (tripSummaryData) {
