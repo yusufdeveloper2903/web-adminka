@@ -40,7 +40,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "email",
       header: "Email",
       meta: {
-        className: "min-w-[180px] w-[20%]"
+        className: "min-w-[180px] w-[22%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">
@@ -80,7 +80,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "active",
       header: "Status",
       meta: {
-        className: "min-w-[80px] w-[8%]"
+        className: "min-w-[80px] w-[9%]"
       },
       cell: ({ getValue }) => {
         const isActive = getValue() as boolean
@@ -91,7 +91,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "created",
       header: "Created",
       meta: {
-        className: "min-w-[120px] w-[8%]"
+        className: "min-w-[120px] w-[15%]"
       },
       cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },

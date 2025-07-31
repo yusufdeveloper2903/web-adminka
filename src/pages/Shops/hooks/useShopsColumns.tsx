@@ -33,7 +33,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       accessorKey: "name",
       header: "Shop Name",
       meta: {
-        className: "min-w-[150px] w-[25%]"
+        className: "min-w-[150px] w-[20%]"
       },
       cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>
     },
@@ -41,7 +41,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       accessorKey: "location",
       header: "Location",
       meta: {
-        className: "min-w-[200px] w-[30%]"
+        className: "min-w-[200px] w-[34%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">
@@ -55,7 +55,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       id: "coordinates",
       header: "Coordinates",
       meta: {
-        className: "min-w-[150px] w-[20%]"
+        className: "min-w-[150px] w-[23%]"
       },
       cell: ({ row }) => (
         <div className="text-muted-foreground font-mono text-sm">
@@ -67,7 +67,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       accessorKey: "active",
       header: "Status",
       meta: {
-        className: "min-w-[80px] w-[8%]"
+        className: "min-w-[80px] w-[10%]"
       },
       cell: ({ getValue }) => {
         const isActive = getValue() as boolean
@@ -78,7 +78,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       accessorKey: "createdAt",
       header: "Created",
       meta: {
-        className: "min-w-[120px] w-[12%]"
+        className: "min-w-[120px] w-[16%]"
       },
       cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
     },

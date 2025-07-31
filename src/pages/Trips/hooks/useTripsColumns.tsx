@@ -235,7 +235,7 @@ const useTripsColumns = () => {
         accessorKey: "created",
         header: "Created",
         meta: {
-          className: "min-w-[140px] w-[9%] text-left"
+          className: "min-w-[140px] w-[12%] text-left"
         },
         cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
