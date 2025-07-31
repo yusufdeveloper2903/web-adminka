@@ -6,6 +6,8 @@ interface TripFilters {
   truckId?: string
   driverId?: string
   loadNumber?: string
+  sortName?: string
+  sortDir?: string
 }
 
 interface TripsViewState {
@@ -16,12 +18,15 @@ interface TripsViewState {
   filters: TripFilters
   setFilters: (newFilters: Partial<TripFilters>) => void
   resetFilters: () => void
+  setSorting: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
 }
 
 const initialFilters: TripFilters = {
   truckId: undefined,
   driverId: undefined,
-  loadNumber: undefined
+  loadNumber: undefined,
+  sortName: undefined,
+  sortDir: undefined
 }
 
 export const useTripsStore = create<TripsViewState>((set) => ({
@@ -31,5 +36,13 @@ export const useTripsStore = create<TripsViewState>((set) => ({
   setSelectedTripId: (selectedTripId) => set({ selectedTripId }),
   filters: initialFilters,
   setFilters: (newFilters) => set((state) => ({ filters: { ...state.filters, ...newFilters } })),
-  resetFilters: () => set({ filters: initialFilters })
+  resetFilters: () => set({ filters: initialFilters }),
+  setSorting: (sortName, sortDir) =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        sortName: sortName || undefined,
+        sortDir: sortDir || undefined
+      }
+    }))
 }))

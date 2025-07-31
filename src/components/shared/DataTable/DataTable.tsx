@@ -31,6 +31,8 @@ interface DataTableProps<TData, TValue> {
   fetchNextPage: () => void
   totalDBRowCount: number
   hasNextPage: boolean
+  onSortingChange?: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
+  sorting?: { sortName?: string; sortDir?: string }
 }
 
 function DataTable<TData, TValue>({
@@ -40,11 +42,23 @@ function DataTable<TData, TValue>({
   isFetching,
   fetchNextPage,
   totalDBRowCount,
-  hasNextPage
+  hasNextPage,
+  onSortingChange,
+  sorting: externalSorting
 }: DataTableProps<TData, TValue>) {
   // Reference to scrolling element
   const tableContainerRef = useRef<HTMLDivElement>(null)
-  const [sorting, setSorting] = useState<SortingState>([])
+  
+  // Convert external sorting to TanStack format
+  const sorting: SortingState = useMemo(() => {
+    if (externalSorting?.sortName && externalSorting?.sortDir) {
+      return [{
+        id: externalSorting.sortName,
+        desc: externalSorting.sortDir === "desc"
+      }]
+    }
+    return []
+  }, [externalSorting])
 
   // Flatten data like in TanStack example
   const flatData = useMemo(() => data ?? [], [data])
@@ -80,7 +94,7 @@ function DataTable<TData, TValue>({
     columns,
     state: { sorting },
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true, // Server-side sorting
     debugTable: true
   })
 
@@ -97,12 +111,17 @@ function DataTable<TData, TValue>({
   // Handle sorting change
   const handleSortingChange: OnChangeFn<SortingState> = useCallback(
     (updater) => {
-      setSorting(updater)
-      if (table.getRowModel().rows.length) {
-        rowVirtualizer.scrollToIndex?.(0)
+      if (typeof updater === 'function') {
+        const newSorting = updater(sorting)
+        if (newSorting.length > 0) {
+          const sort = newSorting[0]
+          onSortingChange?.(sort.id, sort.desc ? "desc" : "asc")
+        } else {
+          onSortingChange?.(null, null)
+        }
       }
     },
-    [rowVirtualizer, table]
+    [sorting, onSortingChange]
   )
 
   // Set table options

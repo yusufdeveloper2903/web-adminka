@@ -10,7 +10,7 @@ import type { ITripsFiltersRequest } from "@/types"
 import { TripsMapView } from "./components"
 
 const TripsPage = () => {
-  const { view, filters, setSelectedTripId } = useTripsStore()
+  const { view, filters, setSelectedTripId, setSorting } = useTripsStore()
   const { clearRoute } = useRouteStore()
 
   // Cleanup when component unmounts or when leaving the page
@@ -20,7 +20,7 @@ const TripsPage = () => {
       setSelectedTripId(null)
       clearRoute()
     }
-  }, [])
+  }, [clearRoute, setSelectedTripId])
 
   const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters }), [filters])
 
@@ -68,6 +68,8 @@ const TripsPage = () => {
           fetchNextPage={fetchNextPage}
           totalDBRowCount={totalDBRowCount}
           hasNextPage={!!hasNextPage}
+          onSortingChange={setSorting}
+          sorting={{ sortName: filters.sortName, sortDir: filters.sortDir }}
         />
       </div>
 
