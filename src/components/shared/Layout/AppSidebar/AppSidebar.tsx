@@ -1,17 +1,6 @@
 import { useLocation } from "@tanstack/react-router"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
-import {
-  Car,
-  Route as RouteIcon,
-  BarChart3,
-  Monitor,
-  Store,
-  Truck,
-  User,
-  Users,
-  UserCheck,
-  Building2
-} from "lucide-react"
+import { Car, Route as RouteIcon, BarChart3, Monitor, Store, Truck, Users, UserCheck, Building2 } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
 import { useEffect } from "react"
@@ -91,17 +80,17 @@ const AppSidebar = () => {
       )}
     >
       {/* Header */}
-      <SidebarHeader className="border-b border-slate-700 p-0">
+      <SidebarHeader className="h-16 border-b border-slate-700 p-0">
         <div
           className={cn(
             "flex items-center px-4 py-3 transition-all duration-200",
             !isOpen ? "justify-center" : "justify-between"
           )}
         >
-          <div className={cn("relative h-5 w-24", !isOpen && "hidden")}>
+          <div className={cn("relative h-[25px] w-24", !isOpen && "hidden")}>
             <span className="absolute top-0 left-0 text-lg font-bold whitespace-nowrap text-white">GL MILER</span>
           </div>
-          <SidebarTrigger className="h-6 w-6 !bg-transparent text-white hover:!bg-slate-600 hover:text-white" />
+          <SidebarTrigger className="h-[42px] w-[42px] !bg-transparent text-white hover:!bg-slate-600 hover:text-white" />
         </div>
       </SidebarHeader>
 
