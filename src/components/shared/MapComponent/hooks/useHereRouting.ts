@@ -3,6 +3,7 @@ import { useCallback, useRef, useEffect } from "react"
 // @ts-ignore
 import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
+import { metersToMiles } from "@/lib/distance-utils"
 import type { ITripStopResponse } from "@/types"
 
 interface RouteSection {
@@ -232,8 +233,8 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
       totalDuration += section.summary.duration
     })
 
-    // Convert to miles and hours
-    const totalMiles = totalLength * 0.000621371 // meters to miles
+    // Convert to miles and hours using distance-utils
+    const totalMiles = metersToMiles(totalLength)
     const hours = totalDuration / 3600 // seconds to hours
 
     return {

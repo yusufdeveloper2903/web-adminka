@@ -573,7 +573,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             setMapLoading(mapType as "samsara" | "gle", false)
           }
         } else {
-          // No polyline data - stop loading immediately
+          // No polyline data - clear existing routes and stop loading
+          removeRouteObjects()
           setMapLoading(mapType as "samsara" | "gle", false)
         }
         // REMOVED: No fallback to drawTripRoutes or currentRoute/currentTripData for samsara/gle

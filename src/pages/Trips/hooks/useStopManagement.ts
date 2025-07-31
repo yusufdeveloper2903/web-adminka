@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react"
 import { useRouteStore } from "@/store"
 import { useRouteCalculation } from "@/hooks/useRouteCalculation"
+import { formatDistance as formatDistanceUtil, formatDuration as formatDurationUtil } from "@/lib/distance-utils"
 import type { ITripStopResponse, LoadStatus, StopType, HereAutosuggestResult } from "@/types"
 
 interface NewStopFormData {
@@ -128,25 +129,19 @@ export const useStopManagement = (
     })
   }, [])
 
-  // Format functions with unit conversion
+  // Format functions with unit conversion using distance-utils
   const formatDistance = useCallback(
     (distance: number) => {
-      // Distance comes from HERE API in meters, convert to miles/km
-      const distanceInMiles = distance / 1609.34 // Convert meters to miles
-
-      if (routeSettings.distanceUnit === "km") {
-        const distanceInKm = distanceInMiles * 1.60934
-        return distanceInKm.toFixed(1)
-      }
-      return distanceInMiles.toFixed(1)
+      // Distance comes from HERE API in meters, use utility function
+      const unit = routeSettings.distanceUnit === "km" ? "km" : "miles"
+      return formatDistanceUtil(distance, unit)
     },
     [routeSettings.distanceUnit]
   )
 
   const formatDuration = useCallback((duration: number) => {
-    // Duration comes from HERE API in seconds, convert to hours
-    const hours = duration / 3600
-    return hours.toFixed(2)
+    // Duration comes from HERE API in seconds, use utility function
+    return formatDurationUtil(duration)
   }, [])
 
   const handleReorderStops = useCallback(
