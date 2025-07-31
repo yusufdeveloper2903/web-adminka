@@ -10,7 +10,7 @@ const userFormSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email format"),
   phone: z.string().optional(),
-  role: z.enum(["OWNER", "DISPATCHER", "DRIVER"])
+  role: z.enum(["OWNER", "MANAGER", "USER"])
 })
 
 interface UseUserFormProps {
