@@ -12,12 +12,21 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
 
   return [
     {
-      accessorKey: "id",
-      header: "No",
+      accessorKey: "No",
+      header: "№",
       meta: {
-        className: "min-w-[60px] w-[5%]"
+        className: "min-w-[60px] w-[4%]"
       },
-      cell: ({ row }) => <span>{row.index + 1}</span>
+      cell: ({ row }) => <span>{row.index + 1}</span>,
+      enableSorting: false
+    },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: {
+        className: "min-w-[80px] w-[5%]"
+      },
+      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
     },
     {
       accessorKey: "unitNumber",
@@ -31,35 +40,40 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       header: "Driver",
       meta: {
         className: "min-w-[180px] w-[15%]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "companyName",
       header: "Company",
       meta: {
         className: "min-w-[200px]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "licencePlate",
       header: "License Plate",
       meta: {
         className: "min-w-[120px] w-[10%]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "samsaraVin",
       header: "Samsara VIN",
       meta: {
         className: "min-w-[180px] w-[15%]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "vinNumber",
       header: "GLE VIN",
       meta: {
         className: "min-w-[180px] w-[15%]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "vehicleId",
@@ -94,7 +108,8 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       header: "Home Location",
       meta: {
         className: "min-w-[120px] w-[10%]"
-      }
+      },
+      enableSorting: false
     },
     {
       accessorKey: "updated",

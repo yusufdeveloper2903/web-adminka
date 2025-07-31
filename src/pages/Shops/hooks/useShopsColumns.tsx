@@ -13,11 +13,21 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
 
   return [
     {
+      accessorKey: "No",
+      header: "№",
+      meta: {
+        className: "min-w-[60px] w-[4%]"
+      },
+      cell: ({ row }) => <span>{row.index + 1}</span>,
+      enableSorting: false
+    },
+    {
       accessorKey: "id",
       header: "ID",
       meta: {
-        className: "min-w-[60px] w-[5%]"
-      }
+        className: "min-w-[80px] w-[5%]"
+      },
+      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
     },
     {
       accessorKey: "name",
@@ -38,7 +48,8 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
           <MapPin className="text-muted-foreground h-4 w-4 flex-shrink-0" />
           <span className="truncate">{getValue() as string}</span>
         </div>
-      )
+      ),
+      enableSorting: false
     },
     {
       id: "coordinates",

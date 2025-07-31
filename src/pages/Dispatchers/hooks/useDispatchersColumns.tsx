@@ -12,11 +12,21 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
 
   return [
     {
+      accessorKey: "No",
+      header: "№",
+      meta: {
+        className: "min-w-[60px] w-[4%]"
+      },
+      cell: ({ row }) => <span>{row.index + 1}</span>,
+      enableSorting: false
+    },
+    {
       accessorKey: "id",
       header: "ID",
       meta: {
-        className: "min-w-[60px] w-[5%]"
-      }
+        className: "min-w-[80px] w-[5%]"
+      },
+      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
     },
     {
       accessorKey: "firstName",

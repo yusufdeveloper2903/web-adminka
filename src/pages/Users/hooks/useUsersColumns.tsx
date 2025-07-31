@@ -13,6 +13,23 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
 
   return [
     {
+      accessorKey: "No",
+      header: "№",
+      meta: {
+        className: "min-w-[60px] w-[4%]"
+      },
+      cell: ({ row }) => <span>{row.index + 1}</span>,
+      enableSorting: false
+    },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: {
+        className: "min-w-[80px] w-[5%]"
+      },
+      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
+    },
+    {
       id: "name",
       header: "Name",
       meta: {
@@ -43,7 +60,8 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
           <Mail className="text-muted-foreground h-4 w-4 flex-shrink-0" />
           <span className="truncate">{getValue<string>()}</span>
         </div>
-      )
+      ),
+      enableSorting: false
     },
     {
       accessorKey: "phone",

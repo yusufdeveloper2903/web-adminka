@@ -59,14 +59,22 @@ const useTripsColumns = () => {
   const columns: ColumnDef<ITripListResponse>[] = useMemo(
     () => [
       {
-        accessorKey: "id",
-        header: "No",
+        accessorKey: "No",
+        header: "№",
         meta: {
           className: "min-w-[60px] w-[4%]"
         },
-        cell: ({ row }) => <span>{row.index + 1}</span>
+        cell: ({ row }) => <span>{row.index + 1}</span>,
+        enableSorting: false
       },
-
+      {
+        accessorKey: "id",
+        header: "ID",
+        meta: {
+          className: "min-w-[80px] w-[5%]"
+        },
+        cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
+      },
       {
         accessorKey: "unitNumber",
         header: "Unit",
@@ -80,24 +88,26 @@ const useTripsColumns = () => {
         accessorKey: "driverName",
         header: "Driver",
         meta: {
-          className: "min-w-[150px] w-[12%]"
+          className: "min-w-[150px] w-[11%]"
         },
-        cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>
+        cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>,
+        enableSorting: false
       },
 
       {
         accessorKey: "companyName",
         header: "Company",
         meta: {
-          className: "min-w-[120px] w-[9%] text-left"
-        }
+          className: "min-w-[120px] w-[8%] text-left"
+        },
+        enableSorting: false
       },
 
       {
         accessorKey: "loadNumber",
         header: "Load Number",
         meta: {
-          className: "min-w-[120px] w-[9%] text-left"
+          className: "min-w-[120px] w-[8%] text-left"
         }
       },
 
@@ -105,8 +115,9 @@ const useTripsColumns = () => {
         accessorKey: "dispatcherName",
         header: "Dispatcher",
         meta: {
-          className: "min-w-[120px] w-[9%] text-left"
-        }
+          className: "min-w-[120px] w-[8%] text-left"
+        },
+        enableSorting: false
       },
 
       {
@@ -203,9 +214,9 @@ const useTripsColumns = () => {
           <span className="truncate" title={row.original.pickupLocation!}>
             {row.original.pickupLocation}
           </span>
-        )
+        ),
+        enableSorting: false
       },
-
       {
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
@@ -216,7 +227,8 @@ const useTripsColumns = () => {
           <span className="truncate" title={row.original.deliveryLocation!}>
             {row.original.deliveryLocation}
           </span>
-        )
+        ),
+        enableSorting: false
       },
 
       {
