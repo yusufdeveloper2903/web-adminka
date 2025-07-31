@@ -8,13 +8,7 @@ import { NewRouteForm, RouteSettingsPopover } from "../components"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
 
-export type Trip = ITripListResponse & {
-  // Route data for map visualization (optional extensions)
-  gleLocation?: { polyline: string | string[] }
-  samsaraLocation?: { polyline: string | string[] }
-}
-
-const useTripsColumns = (): ColumnDef<Trip>[] => {
+const useTripsColumns = () => {
   const { setView, setSelectedTripId } = useTripsStore()
   const { setTripData } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
@@ -62,19 +56,18 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
     [setSelectedTripId, setDrawerConfig, setView]
   )
 
-  return useMemo(
+  const columns: ColumnDef<ITripListResponse>[] = useMemo(
     () => [
-      // No column (index-based)
       {
         accessorKey: "id",
         header: "No",
         meta: {
           className: "min-w-[60px] w-[4%]"
         },
-        cell: ({ row }) => <span>{row.index + 1}</span>
+        cell: ({ row }) => <span>{row.index + 1}</span>,
+        enableSorting: false
       },
 
-      // Unit column (bold)
       {
         accessorKey: "unitNumber",
         header: "Unit",
@@ -84,7 +77,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>
       },
 
-      // Driver column (bold)
       {
         accessorKey: "driverName",
         header: "Driver",
@@ -94,7 +86,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>
       },
 
-      // Company column
       {
         accessorKey: "companyName",
         header: "Company",
@@ -103,7 +94,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         }
       },
 
-      // Load Number column
       {
         accessorKey: "loadNumber",
         header: "Load Number",
@@ -112,7 +102,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         }
       },
 
-      // Dispatcher column
       {
         accessorKey: "dispatcherName",
         header: "Dispatcher",
@@ -121,7 +110,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         }
       },
 
-      // Trip Status column
       {
         accessorKey: "tripStatus",
         header: "Status",
@@ -159,7 +147,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         }
       },
 
-      // Miles column (gray background, sortable)
       {
         accessorKey: "miles",
         header: "Miles",
@@ -169,7 +156,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
       },
 
-      // Total Empty column (gray background, sortable)
       {
         accessorKey: "totalEmpty",
         header: "Total Empty",
@@ -179,7 +165,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },
 
-      // PU column (gray background, sortable)
       {
         accessorKey: "pu",
         header: "PU",
@@ -189,7 +174,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
       },
 
-      // TRL column (gray background, sortable)
       {
         accessorKey: "trl",
         header: "TRL",
@@ -199,7 +183,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
       },
 
-      // Total Miles column (gray background, sortable)
       {
         accessorKey: "totalMiles",
         header: "Total Miles",
@@ -211,7 +194,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         )
       },
 
-      // Pickup Location column
       {
         accessorKey: "pickupLocation",
         header: "Pickup Location",
@@ -225,7 +207,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         )
       },
 
-      // Delivery Location column
       {
         accessorKey: "deliveryLocation",
         header: "Delivery Location",
@@ -239,7 +220,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         )
       },
 
-      // Created column
       {
         accessorKey: "created",
         header: "Created",
@@ -249,7 +229,6 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
         cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
 
-      // Actions column
       {
         id: "actions",
         header: "Actions",
@@ -268,12 +247,13 @@ const useTripsColumns = (): ColumnDef<Trip>[] => {
               </Button>
             </div>
           )
-        },
-        enableSorting: false
+        }
       }
     ],
     [handleEditClick, handleRouteClick]
   )
+
+  return columns
 }
 
 export default useTripsColumns

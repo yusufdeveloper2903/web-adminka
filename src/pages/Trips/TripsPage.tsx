@@ -22,7 +22,7 @@ const TripsPage = () => {
     }
   }, [])
 
-  const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters, size: 20 }), [filters])
+  const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters }), [filters])
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useTripsInfiniteQuery(cleanObject(queryFilters))
