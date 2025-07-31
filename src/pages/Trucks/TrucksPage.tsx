@@ -9,11 +9,10 @@ import { cleanObject } from "@/lib"
 const TrucksPage = () => {
   const { filters, setSorting } = useTrucksStore()
 
-  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useTrucksInfiniteQuery({
-      ...cleanObject(filters),
-      size: 20
-    })
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useTrucksInfiniteQuery({
+    ...cleanObject(filters),
+    size: 20
+  })
 
   // Memoized data from API
   const flatData = useMemo(() => {

@@ -21,13 +21,14 @@ const DispatchersPage = () => {
     isLoading: isDispatchersLoading,
     isFetching: isDispatchersFetching,
     refetch: refetchDispatchers,
-    hasNextPage: hasNextDispatchersPage,
-    isFetchingNextPage: isFetchingNextDispatchersPage
+    hasNextPage: hasNextDispatchersPage
   } = useDispatchersInfiniteQuery(
     {
       size: 20,
       keyword: globalDispatchersFilters.keyword,
-      teamId: globalDispatchersFilters.teamId ? Number(globalDispatchersFilters.teamId) : undefined
+      teamId: globalDispatchersFilters.teamId ? Number(globalDispatchersFilters.teamId) : undefined,
+      sortName: globalDispatchersFilters.sortName,
+      sortDir: globalDispatchersFilters.sortDir
     },
     isDispatchersTab
   )
@@ -39,12 +40,13 @@ const DispatchersPage = () => {
     isLoading: isTeamsLoading,
     isFetching: isTeamsFetching,
     refetch: refetchTeams,
-    hasNextPage: hasNextTeamsPage,
-    isFetchingNextPage: isFetchingNextTeamsPage
+    hasNextPage: hasNextTeamsPage
   } = useTeamsInfiniteQuery(
     {
       size: 20,
-      keyword: teamKeyword
+      keyword: teamKeyword,
+      sortName: globalDispatchersFilters.sortName,
+      sortDir: globalDispatchersFilters.sortDir
     },
     !isDispatchersTab
   )

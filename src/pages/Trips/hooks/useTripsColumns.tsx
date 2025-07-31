@@ -64,8 +64,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[60px] w-[4%]"
         },
-        cell: ({ row }) => <span>{row.index + 1}</span>,
-        enableSorting: false
+        cell: ({ row }) => <span>{row.index + 1}</span>
       },
 
       {
