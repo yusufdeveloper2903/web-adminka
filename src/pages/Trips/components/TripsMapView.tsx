@@ -133,9 +133,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
           id: "gle",
           title: `GLE Trip - ${tripSummaryData.loadNumber}`,
           totalMiles: tripSummaryData.gleLocation ? metersToMiles(tripSummaryData.gleLocation.distance) : 0,
-          hours: tripSummaryData.gleLocation
-            ? parseFloat(formatDuration(tripSummaryData.gleLocation.duration))
-            : 0,
+          hours: tripSummaryData.gleLocation ? parseFloat(formatDuration(tripSummaryData.gleLocation.duration)) : 0,
           coordinates: centerCoords,
           milesChange: tripSummaryData.gleLocation
             ? metersToMiles(tripSummaryData.gleLocation.distance) - baseMiles

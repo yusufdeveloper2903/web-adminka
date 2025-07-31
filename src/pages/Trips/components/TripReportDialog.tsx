@@ -40,8 +40,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
         title: "Samsara Trip",
         stops: tripData.samsaraLocation?.nearbyPoints?.length
           ? [
-              ...tripData.samsaraLocation.nearbyPoints.map((point, index) => ({
-                id: `nearby-${index}`,
+              ...tripData.samsaraLocation.nearbyPoints.map((point, pointIndex) => ({
+                id: `nearby-${pointIndex}`,
                 city: `${point.type} Location`,
                 stopType: point.type,
                 miles: 0,
@@ -57,8 +57,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
         title: "GLE Trip",
         stops: tripData.gleLocation?.nearbyPoints?.length
           ? [
-              ...tripData.gleLocation.nearbyPoints.map((point, index) => ({
-                id: `nearby-${index}`,
+              ...tripData.gleLocation.nearbyPoints.map((point, pointIndex) => ({
+                id: `nearby-${pointIndex}`,
                 city: `${point.type} Location`,
                 stopType: point.type,
                 miles: 0,
@@ -77,7 +77,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
+      <DialogContent className="max-h-[85vh] overflow-x-hidden sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>
             {mapType.toUpperCase()} Trip Report - {tripData.loadNumber}
@@ -87,20 +87,6 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
         <div className="space-y-4">
           {/* Show only the selected map type data */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{reportData[mapType].title}</h3>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Total Miles:</span>
-                  <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Total Hours:</span>
-                  <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
-                </div>
-              </div>
-            </div>
-
             {/* Show message for Samsara/GLE when no nearby points */}
             {(mapType === "samsara" || mapType === "gle") && !tripData[`${mapType}Location`]?.nearbyPoints?.length && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center dark:border-amber-800 dark:bg-amber-900/20">
@@ -121,51 +107,94 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
               </div>
             )}
 
-            <div className="rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="pl-4">Stop Type</TableHead>
-                    <TableHead>City</TableHead>
-                    <TableHead className="text-left">Miles</TableHead>
-                    <TableHead className="text-left">Total Miles</TableHead>
-                    <TableHead className="text-left">Hours</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reportData[mapType].stops.map((stop, index) => (
-                    <TableRow key={`${stop.id}-${index}`}>
-                      <TableCell className="pl-4 font-medium">
-                        {stop.stopType === "START"
-                          ? "Start"
-                          : stop.stopType === "PICKUP"
-                            ? "Stop 1"
-                            : stop.stopType === "DELIVERY"
-                              ? "Delivery"
-                              : stop.stopType === "HOME"
-                                ? "Home"
-                                : stop.stopType === "SHOP"
-                                  ? "Shop"
-                                  : stop.stopType}
-                      </TableCell>
-                      <TableCell>{stop.city}</TableCell>
-                      <TableCell className="text-left">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</TableCell>
-                      <TableCell className="text-left font-medium text-blue-600">
-                        {stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}
-                      </TableCell>
-                      <TableCell className="text-left">{stop.hours !== "0.00" ? stop.hours : "-"}</TableCell>
+            <div className="space-y-2">
+              <section className="flex justify-between">
+                <div className="text-muted-foreground text-xs">
+                  <strong>Segment Miles/Hours:</strong> Distance and time from previous stop to current stop
+                  <br />
+                  <strong>Cumulative Miles:</strong> Total distance from trip start to current stop
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Total Miles:</span>
+                      <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Total Hours:</span>
+                      <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="max-w-[120px] pl-4">
+                        <div className="truncate">Stop Type</div>
+                      </TableHead>
+                      <TableHead className="max-w-[250px]">
+                        <div className="truncate">City</div>
+                      </TableHead>
+                      <TableHead className="max-w-[100px] text-left">
+                        <div className="truncate">Segment Miles</div>
+                      </TableHead>
+                      <TableHead className="max-w-[120px] text-left">
+                        <div className="truncate">Cumulative Miles</div>
+                      </TableHead>
+                      <TableHead className="max-w-[100px] text-left">
+                        <div className="truncate">Segment Hours</div>
+                      </TableHead>
                     </TableRow>
-                  ))}
-                  {/* Total row */}
-                  <TableRow className="bg-muted/50 font-medium">
-                    <TableCell colSpan={3}>Total</TableCell>
-                    <TableCell className="text-left font-bold text-blue-600">
-                      {reportData[mapType].totalMiles}
-                    </TableCell>
-                    <TableCell className="text-left font-bold">{reportData[mapType].totalHours}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {reportData[mapType].stops.map((stop) => (
+                      <TableRow key={stop.id}>
+                        <TableCell className="max-w-[120px] pl-4 font-medium">
+                          <div className="truncate">
+                            {stop.stopType === "START"
+                              ? "Start"
+                              : stop.stopType === "PICKUP"
+                                ? "Stop 1"
+                                : stop.stopType === "DELIVERY"
+                                  ? "Delivery"
+                                  : stop.stopType === "HOME"
+                                    ? "Home"
+                                    : stop.stopType === "SHOP"
+                                      ? "Shop"
+                                      : stop.stopType}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-[250px]">
+                          <div className="truncate" title={stop.city}>
+                            {stop.city}
+                          </div>
+                        </TableCell>
+                        <TableCell className="max-w-[100px] text-left">
+                          <div className="truncate">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</div>
+                        </TableCell>
+                        <TableCell className="max-w-[120px] text-left font-medium text-blue-600">
+                          <div className="truncate">{stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}</div>
+                        </TableCell>
+                        <TableCell className="max-w-[100px] text-left">
+                          <div className="truncate">{stop.hours !== "0.00" ? stop.hours : "-"}</div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {/* Total row */}
+                    <TableRow className="bg-muted/50 font-medium">
+                      <TableCell className="pl-4" colSpan={3}>
+                        Total
+                      </TableCell>
+                      <TableCell className="text-left font-bold text-blue-600">
+                        {reportData[mapType].totalMiles}
+                      </TableCell>
+                      <TableCell className="text-left font-bold">{reportData[mapType].totalHours}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         </div>
