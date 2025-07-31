@@ -1081,3 +1081,12 @@ h1 {
     width: 83.333333%;
   }
 }
+/* Shimmer animation for table loading */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer {
+  animation: shimmer 2s infinite;
+}

@@ -1,9 +1,8 @@
-import React, { useRef, useCallback, useMemo, useState } from "react"
+import React, { useRef, useCallback, useMemo } from "react"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
   useReactTable,
   type ColumnDef,
   type SortingState,
@@ -11,7 +10,8 @@ import {
   type RowData
 } from "@tanstack/react-table"
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react"
 
@@ -131,83 +131,136 @@ function DataTable<TData, TValue>({
   }))
 
   if (isLoading) {
-    return <div className="flex h-full items-center justify-center p-8">Loading...</div>
+    return (
+      <div className="max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border">
+        <Table className="grid w-full">
+          <TableHeader className="sticky top-0 z-10 bg-background">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="flex w-full">
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
+                  >
+                    {!header.isPlaceholder && (
+                      <div className="w-full p-1">{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 20 }).map((_, index) => (
+              <TableRow key={index} className="flex w-full">
+                {table.getAllColumns().map((column) => (
+                  <TableCell
+                    key={column.id}
+                    className={cn("flex items-center px-4 py-2", column.columnDef.meta?.className)}
+                  >
+                    <Skeleton className="w-full h-6" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter className="sticky bottom-0">
+            <TableRow className="flex w-full">
+              <TableCell colSpan={table.getAllColumns().length}>Loading...</TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </div>
+    )
   }
 
   return (
-    <div
-      ref={tableContainerRef}
-      onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
-      className="max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border"
-    >
-      <Table className="grid w-full">
-        <TableHeader className="bg-background sticky top-0 z-10">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="flex w-full">
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  key={header.id}
-                  className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
-                >
-                  {header.isPlaceholder ? null : (
-                    <div
-                      className={
-                        header.column.getCanSort()
-                          ? "flex w-full cursor-pointer items-center select-none"
-                          : "flex w-full"
-                      }
-                      onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                      title={
-                        header.column.getCanSort()
-                          ? header.column.getNextSortingOrder() === "asc"
-                            ? "Sort ascending"
-                            : header.column.getNextSortingOrder() === "desc"
-                              ? "Sort descending"
-                              : "Clear sort"
-                          : undefined
-                      }
-                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getCanSort() ? (
-                        header.column.getIsSorted() === "asc" ? (
-                          <ArrowUpIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-                        ) : header.column.getIsSorted() === "desc" ? (
-                          <ArrowDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
-                        ) : (
-                          <ArrowUpDownIcon className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
-                        )
-                      ) : null}
-                    </div>
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody className="relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-          {rowVirtualizer.getVirtualItems().map((virtualRow) => (
-            <TableRow
-              key={rows[virtualRow.index].id}
-              data-index={virtualRow.index}
-              className="hover:bg-muted/50 absolute top-0 left-0 flex w-full"
-              style={{
-                height: `${virtualRow.size}px`,
-                transform: `translateY(${virtualRow.start}px)`
-              }}
-            >
-              {rows[virtualRow.index].getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  title={cell.getValue() != null ? String(cell.getValue()) : undefined}
-                  className={cn("flex items-center px-4 py-2", cell.column.columnDef.meta?.className)}
-                >
-                  <div className="w-full truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="relative max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border">
+      <div
+        ref={tableContainerRef}
+        onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
+        className="h-full overflow-auto"
+      >
+        <Table className="grid w-full">
+          <TableHeader className="bg-background sticky top-0 z-10">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="flex w-full">
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
+                  >
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={
+                          header.column.getCanSort()
+                            ? "flex w-full cursor-pointer items-center select-none"
+                            : "flex w-full"
+                        }
+                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                        title={
+                          header.column.getCanSort()
+                            ? header.column.getNextSortingOrder() === "asc"
+                              ? "Sort ascending"
+                              : header.column.getNextSortingOrder() === "desc"
+                                ? "Sort descending"
+                                : "Clear sort"
+                            : undefined
+                        }
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getCanSort() ? (
+                          header.column.getIsSorted() === "asc" ? (
+                            <ArrowUpIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                          ) : header.column.getIsSorted() === "desc" ? (
+                            <ArrowDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                          ) : (
+                            <ArrowUpDownIcon className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
+                          )
+                        ) : null}
+                      </div>
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody className="relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => (
+              <TableRow
+                key={rows[virtualRow.index].id}
+                data-index={virtualRow.index}
+                className="hover:bg-muted/50 absolute top-0 left-0 flex w-full"
+                style={{
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`
+                }}
+              >
+                {rows[virtualRow.index].getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    title={cell.getValue() != null ? String(cell.getValue()) : undefined}
+                    className={cn("flex items-center px-4 py-2", cell.column.columnDef.meta?.className)}
+                  >
+                    <div className="w-full truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Shimmer Wave Overlay for Sorting/Filtering */}
+      {isFetching && !isLoading && (
+        <div className="absolute inset-0 bg-background/20 backdrop-blur-[1px] z-30 pointer-events-none overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent shimmer" />
+          <div className="absolute top-4 right-4 bg-background/95 px-3 py-1.5 rounded-lg border shadow-lg flex items-center space-x-2">
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-xs font-medium">Updating...</span>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="text-muted-foreground bg-background/95 supports-[backdrop-filter]:bg-background/60 shrink-0 border-t py-2 text-center text-sm backdrop-blur">
