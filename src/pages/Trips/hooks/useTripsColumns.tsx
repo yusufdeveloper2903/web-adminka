@@ -124,7 +124,7 @@ const useTripsColumns = () => {
         accessorKey: "tripStatus",
         header: "Status",
         meta: {
-          className: "min-w-[100px] w-[7%] text-left"
+          className: "min-w-[100px] w-[9%] text-left"
         },
         cell: ({ row }) => {
           const status = row.original.tripStatus
