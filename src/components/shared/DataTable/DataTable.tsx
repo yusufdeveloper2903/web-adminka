@@ -179,7 +179,7 @@ function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="relative max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border">
+    <div className="relative overflow-auto rounded-lg border">
       <div
         ref={tableContainerRef}
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
@@ -258,7 +258,7 @@ function DataTable<TData, TValue>({
       {/* Shimmer Wave Overlay for Sorting/Filtering */}
       {isFetching && !isLoading && (
         <div className="bg-background/20 pointer-events-none absolute inset-0 z-30 overflow-hidden backdrop-blur-[1px]">
-          <div className="shimmer absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="shimmer absolute inset-0 bg-gradient-to-r from-transparent via-gray-700/20 to-transparent dark:via-white/30" />
           <div className="bg-background/95 absolute top-4 right-4 flex items-center space-x-2 rounded-lg border px-3 py-1.5 shadow-lg">
             <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
             <span className="text-xs font-medium">Updating...</span>
