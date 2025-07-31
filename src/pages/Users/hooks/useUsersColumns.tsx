@@ -30,23 +30,17 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
     },
     {
-      id: "name",
-      header: "Name",
+      accessorKey: "firstName",
+      header: "Firstname",
       meta: {
-        className: "min-w-[200px] w-[25%]"
-      },
-      cell: ({ row }) => {
-        const user = row.original
-        return (
-          <div className="flex items-center space-x-3 p-2">
-            <div>
-              <div className="font-medium">
-                {user.firstName} {user.lastName}
-              </div>
-              <div className="text-muted-foreground text-sm">{user.role}</div>
-            </div>
-          </div>
-        )
+        className: "min-w-[140px] w-[14%]"
+      }
+    },
+    {
+      accessorKey: "lastName",
+      header: "LastName",
+      meta: {
+        className: "min-w-[140px] w-[14%]"
       }
     },
     {
@@ -67,7 +61,7 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       accessorKey: "phone",
       header: "Phone",
       meta: {
-        className: "min-w-[120px] w-[15%]"
+        className: "min-w-[200px] w-[25%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">
@@ -77,10 +71,17 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       )
     },
     {
+      accessorKey: "role",
+      header: "Role",
+      meta: {
+        className: "min-w-[60px] w-[12%]"
+      }
+    },
+    {
       accessorKey: "active",
       header: "Status",
       meta: {
-        className: "min-w-[80px] w-[10%]"
+        className: "min-w-[80px] w-[12%]"
       },
       cell: ({ getValue }) => {
         const isActive = getValue<boolean>()
@@ -88,10 +89,10 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       }
     },
     {
-      accessorKey: "updated",
-      header: "Last Updated",
+      accessorKey: "created",
+      header: "Created",
       meta: {
-        className: "min-w-[120px] w-[15%]"
+        className: "min-w-[120px] w-[22%]"
       },
       cell: ({ getValue }) => dayjs(getValue<string>()).format(TABLE_UI_FORMAT)
     },

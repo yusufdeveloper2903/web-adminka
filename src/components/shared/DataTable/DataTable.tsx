@@ -215,11 +215,11 @@ function DataTable<TData, TValue>({
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() ? (
                           header.column.getIsSorted() === "asc" ? (
-                            <ArrowUpIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                            <ArrowUpIcon className="ml-1 h-4 w-4 flex-shrink-0" />
                           ) : header.column.getIsSorted() === "desc" ? (
-                            <ArrowDownIcon className="ml-2 h-4 w-4 flex-shrink-0" />
+                            <ArrowDownIcon className="ml-1 h-4 w-4 flex-shrink-0" />
                           ) : (
-                            <ArrowUpDownIcon className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
+                            <ArrowUpDownIcon className="ml-1 h-4 w-4 flex-shrink-0 opacity-50" />
                           )
                         ) : null}
                       </div>

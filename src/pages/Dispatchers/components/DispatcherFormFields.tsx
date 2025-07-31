@@ -59,7 +59,6 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
 
   return (
     <div className="space-y-4">
-      {/* First Name */}
       <div className="space-y-2">
         <Label htmlFor="firstName">First Name</Label>
         <form.Field
@@ -81,7 +80,6 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
         />
       </div>
 
-      {/* Last Name */}
       <div className="space-y-2">
         <Label htmlFor="lastName">Last Name</Label>
         <form.Field
@@ -111,6 +109,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
           children={(field: any) => (
             <div>
               <SearchableSelect
+                fullWidth
                 options={teamOptions}
                 value={teamOptions.find((option) => option.value === field.state.value) || null}
                 onChange={(selectedOption: any) => {

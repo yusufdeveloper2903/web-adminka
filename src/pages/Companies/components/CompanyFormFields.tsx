@@ -1,6 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Mail, Phone, Truck } from "lucide-react"
+import { InputMask } from "@/components/shared"
 
 interface CompanyFormFieldsProps {
   form: any // TanStack form instance
@@ -81,19 +82,11 @@ const CompanyFormFields = ({ form }: CompanyFormFieldsProps) => {
           children={(field: any) => (
             <div>
               <div className="relative">
-                <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                <Input
-                  type="tel"
-                  placeholder="Enter phone number"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
-                />
+                <InputMask maskType="phone" value={field.state.value} onChange={(value) => field.handleChange(value)} />
+                {field.state.meta.errors.length > 0 && (
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                )}
               </div>
-              {field.state.meta.errors.length > 0 && (
-                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-              )}
             </div>
           )}
         />

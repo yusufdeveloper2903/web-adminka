@@ -1,8 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { User, Mail, Phone, Shield } from "lucide-react"
+import { User, Mail, Shield } from "lucide-react"
 import type { UserRoleType } from "@/types"
 import { InputMask } from "@/components/shared"
 
@@ -29,8 +28,8 @@ const UserFormFields = ({ form }: UserFormFieldsProps) => {
 
   const UserRoleOptions: { value: UserRoleType; label: string }[] = [
     { value: "OWNER", label: "Owner" },
-    { value: "DISPATCHER", label: "Dispatcher" },
-    { value: "DRIVER", label: "Driver" }
+    { value: "MANAGER", label: "Manager" },
+    { value: "USER", label: "User" }
   ]
 
   return (

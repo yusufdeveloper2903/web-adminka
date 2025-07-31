@@ -24,7 +24,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "id",
       header: "ID",
       meta: {
-        className: "min-w-[80px] w-[5%]"
+        className: "min-w-[60px] w-[5%]"
       },
       cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
     },
@@ -32,7 +32,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "name",
       header: "Company Name",
       meta: {
-        className: "min-w-[200px] w-[24%]"
+        className: "min-w-[200px] w-[25%]"
       },
       cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>
     },
@@ -40,7 +40,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "email",
       header: "Email",
       meta: {
-        className: "min-w-[180px] w-[22%]"
+        className: "min-w-[180px] w-[23%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">
@@ -54,7 +54,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       accessorKey: "phone",
       header: "Phone",
       meta: {
-        className: "min-w-[120px] w-[15%]"
+        className: "min-w-[120px] w-[21%]"
       },
       cell: ({ getValue }) => (
         <div className="flex items-center space-x-2">

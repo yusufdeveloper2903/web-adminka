@@ -1,6 +1,6 @@
 import type { IBaseFiltersRequest, IPaginatedResponse } from "./api"
 
-export type UserRoleType = "OWNER" | "DISPATCHER" | "DRIVER"
+export type UserRoleType = "OWNER" | "MANAGER" | "USER"
 
 export type IUsersFiltersRequest = IBaseFiltersRequest
 
