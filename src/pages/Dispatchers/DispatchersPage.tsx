@@ -7,7 +7,7 @@ import { useDispatchersStore } from "@/store"
 
 const DispatchersPage = () => {
   const { currentTab } = useDispatchersTab()
-  const { filters: globalDispatchersFilters } = useDispatchersStore()
+  const { filters: globalDispatchersFilters, setSorting } = useDispatchersStore()
 
   const isDispatchersTab = currentTab === "dispatchers"
 
@@ -84,11 +84,13 @@ const DispatchersPage = () => {
       key={currentTab} // Force re-render when tab changes
       columns={columns as any}
       data={flatData}
-      isFetching={isDispatchersTab ? isFetchingNextDispatchersPage : isFetchingNextTeamsPage}
+      isFetching={isDispatchersTab ? isDispatchersFetching : isTeamsFetching}
       hasNextPage={isDispatchersTab ? hasNextDispatchersPage : hasNextTeamsPage}
       fetchNextPage={isDispatchersTab ? fetchNextDispatchersPage : fetchNextTeamsPage}
       isLoading={isDispatchersTab ? isDispatchersLoading : isTeamsLoading}
       totalDBRowCount={totalDBRowCount}
+      onSortingChange={setSorting}
+      sorting={{ sortName: globalDispatchersFilters.sortName, sortDir: globalDispatchersFilters.sortDir }}
     />
   )
 }

@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query"
 import api from "@/lib/axios"
 import { buildPaginationParams, getNextPageParam } from "@/lib/query-utils"
 import type { IApiResponse, ICompaniesFiltersRequest, ICompaniesResponse } from "@/types"
@@ -14,6 +14,7 @@ export const useCompaniesInfiniteQuery = (filters: ICompaniesFiltersRequest = {}
     queryKey: ["companies", filters],
     queryFn: ({ pageParam = 0 }) => fetchCompanies(filters, pageParam),
     getNextPageParam,
-    initialPageParam: 0
+    initialPageParam: 0,
+    placeholderData: keepPreviousData
   })
 }

@@ -7,7 +7,7 @@ import { useUsersStore } from "@/store"
 import { cleanObject } from "@/lib"
 
 const UsersPage = () => {
-  const { filters } = useUsersStore()
+  const { filters, setSorting } = useUsersStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useUsersInfiniteQuery({
@@ -37,10 +37,12 @@ const UsersPage = () => {
       columns={columns}
       data={flatData}
       isLoading={isLoading}
-      isFetching={isFetchingNextPage}
+      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
       hasNextPage={!!hasNextPage}
+      onSortingChange={setSorting}
+      sorting={{ sortName: filters.sortName, sortDir: filters.sortDir }}
     />
   )
 }

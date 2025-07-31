@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query"
 import api from "@/lib/axios"
 import { buildPaginationParams, getNextPageParam } from "@/lib/query-utils"
 import type { IApiResponse, ITeamsFiltersRequest, ITeamsResponse } from "@/types"
@@ -15,6 +15,7 @@ export const useTeamsInfiniteQuery = (filters: ITeamsFiltersRequest = {}, enable
     enabled,
     queryFn: ({ pageParam = 0 }) => fetchTeams(filters, pageParam),
     getNextPageParam,
-    initialPageParam: 0
+    initialPageParam: 0,
+    placeholderData: keepPreviousData
   })
 }

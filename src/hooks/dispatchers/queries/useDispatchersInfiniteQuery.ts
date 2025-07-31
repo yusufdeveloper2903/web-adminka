@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query"
 import api from "@/lib/axios"
 import { buildPaginationParams, getNextPageParam } from "@/lib/query-utils"
 import type { IApiResponse, IDispatchersFiltersRequest, IDispatchersResponse } from "@/types"
@@ -18,6 +18,7 @@ export const useDispatchersInfiniteQuery = (filters: IDispatchersFiltersRequest 
     enabled,
     queryFn: ({ pageParam = 0 }) => fetchDispatchers(filters, pageParam),
     getNextPageParam,
-    initialPageParam: 0
+    initialPageParam: 0,
+    placeholderData: keepPreviousData
   })
 }

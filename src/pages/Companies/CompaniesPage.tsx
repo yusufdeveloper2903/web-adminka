@@ -7,7 +7,7 @@ import { useCompaniesStore } from "@/store"
 import { cleanObject } from "@/lib"
 
 const CompaniesPage = () => {
-  const { filters } = useCompaniesStore()
+  const { filters, setSorting } = useCompaniesStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useCompaniesInfiniteQuery({
@@ -37,10 +37,12 @@ const CompaniesPage = () => {
       columns={columns}
       data={flatData}
       isLoading={isLoading}
-      isFetching={isFetchingNextPage}
+      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
       hasNextPage={!!hasNextPage}
+      onSortingChange={setSorting}
+      sorting={{ sortName: filters.sortName, sortDir: filters.sortDir }}
     />
   )
 }

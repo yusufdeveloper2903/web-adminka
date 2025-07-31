@@ -7,7 +7,7 @@ import { useShopsStore } from "@/store"
 import { cleanObject } from "@/lib"
 
 const ShopsPage = () => {
-  const { filters } = useShopsStore()
+  const { filters, setSorting } = useShopsStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useShopsInfiniteQuery({
@@ -37,10 +37,12 @@ const ShopsPage = () => {
       columns={columns}
       data={flatData}
       isLoading={isLoading}
-      isFetching={isFetchingNextPage}
+      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
       hasNextPage={!!hasNextPage}
+      onSortingChange={setSorting}
+      sorting={{ sortName: filters.sortName, sortDir: filters.sortDir }}
     />
   )
 }

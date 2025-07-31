@@ -48,14 +48,16 @@ function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   // Reference to scrolling element
   const tableContainerRef = useRef<HTMLDivElement>(null)
-  
+
   // Convert external sorting to TanStack format
   const sorting: SortingState = useMemo(() => {
     if (externalSorting?.sortName && externalSorting?.sortDir) {
-      return [{
-        id: externalSorting.sortName,
-        desc: externalSorting.sortDir === "desc"
-      }]
+      return [
+        {
+          id: externalSorting.sortName,
+          desc: externalSorting.sortDir === "desc"
+        }
+      ]
     }
     return []
   }, [externalSorting])
@@ -111,7 +113,7 @@ function DataTable<TData, TValue>({
   // Handle sorting change
   const handleSortingChange: OnChangeFn<SortingState> = useCallback(
     (updater) => {
-      if (typeof updater === 'function') {
+      if (typeof updater === "function") {
         const newSorting = updater(sorting)
         if (newSorting.length > 0) {
           const sort = newSorting[0]
@@ -134,7 +136,7 @@ function DataTable<TData, TValue>({
     return (
       <div className="max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border">
         <Table className="grid w-full">
-          <TableHeader className="sticky top-0 z-10 bg-background">
+          <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="flex w-full">
                 {headerGroup.headers.map((header) => (
@@ -143,7 +145,9 @@ function DataTable<TData, TValue>({
                     className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
                   >
                     {!header.isPlaceholder && (
-                      <div className="w-full p-1">{flexRender(header.column.columnDef.header, header.getContext())}</div>
+                      <div className="w-full p-1">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                      </div>
                     )}
                   </TableHead>
                 ))}
@@ -158,7 +162,7 @@ function DataTable<TData, TValue>({
                     key={column.id}
                     className={cn("flex items-center px-4 py-2", column.columnDef.meta?.className)}
                   >
-                    <Skeleton className="w-full h-6" />
+                    <Skeleton className="h-6 w-full" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -253,10 +257,10 @@ function DataTable<TData, TValue>({
 
       {/* Shimmer Wave Overlay for Sorting/Filtering */}
       {isFetching && !isLoading && (
-        <div className="absolute inset-0 bg-background/20 backdrop-blur-[1px] z-30 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent shimmer" />
-          <div className="absolute top-4 right-4 bg-background/95 px-3 py-1.5 rounded-lg border shadow-lg flex items-center space-x-2">
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="bg-background/20 pointer-events-none absolute inset-0 z-30 overflow-hidden backdrop-blur-[1px]">
+          <div className="shimmer absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          <div className="bg-background/95 absolute top-4 right-4 flex items-center space-x-2 rounded-lg border px-3 py-1.5 shadow-lg">
+            <div className="border-primary h-3 w-3 animate-spin rounded-full border-2 border-t-transparent" />
             <span className="text-xs font-medium">Updating...</span>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { useTrucksStore } from "@/store"
 import { cleanObject } from "@/lib"
 
 const TrucksPage = () => {
-  const { filters } = useTrucksStore()
+  const { filters, setSorting } = useTrucksStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
     useTrucksInfiniteQuery({
@@ -37,10 +37,12 @@ const TrucksPage = () => {
       columns={columns}
       data={flatData}
       isLoading={isLoading}
-      isFetching={isFetchingNextPage}
+      isFetching={isFetching}
       fetchNextPage={fetchNextPage}
       totalDBRowCount={totalDBRowCount}
       hasNextPage={!!hasNextPage}
+      onSortingChange={setSorting}
+      sorting={{ sortName: filters.sortName, sortDir: filters.sortDir }}
     />
   )
 }
