@@ -185,7 +185,7 @@ function DataTable<TData, TValue>({
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
         className="h-full overflow-auto"
       >
-        <Table className="grid w-full">
+        <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
           <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="flex w-full">
