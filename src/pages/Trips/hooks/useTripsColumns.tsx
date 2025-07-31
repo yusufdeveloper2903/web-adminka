@@ -37,15 +37,8 @@ const useTripsColumns = () => {
       setDrawerConfig({
         title: `Edit Trip: ${trip.loadNumber}`,
         content: <NewRouteForm editMode={true} />,
+        width: "sm:max-w-5xl",
         headerActions: [
-          {
-            id: "route-icon",
-            node: (
-              <Button variant="ghost" onClick={() => setView("map")}>
-                <RouteIcon className="size-6" />
-              </Button>
-            )
-          },
           {
             id: "route-settings",
             node: <RouteSettingsPopover />
@@ -53,7 +46,7 @@ const useTripsColumns = () => {
         ]
       })
     },
-    [setSelectedTripId, setDrawerConfig, setView]
+    [setSelectedTripId, setDrawerConfig]
   )
 
   const columns: ColumnDef<ITripListResponse>[] = useMemo(
