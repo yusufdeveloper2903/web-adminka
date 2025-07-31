@@ -170,7 +170,7 @@ const useTripsColumns = () => {
         accessorKey: "totalEmpty",
         header: "Total Empty",
         meta: {
-          className: "min-w-[110px] w-[7%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[110px] w-[8%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },

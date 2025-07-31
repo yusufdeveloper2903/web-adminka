@@ -105,7 +105,7 @@ function DataTable<TData, TValue>({
   // Create virtualizer
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => 48,
+    estimateSize: () => 36,
     getScrollElement: () => tableContainerRef.current,
     overscan: 5
   })
@@ -162,7 +162,7 @@ function DataTable<TData, TValue>({
                     key={column.id}
                     className={cn("flex items-center px-4 py-2", column.columnDef.meta?.className)}
                   >
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-5 w-full" />
                   </TableCell>
                 ))}
               </TableRow>
@@ -234,7 +234,7 @@ function DataTable<TData, TValue>({
               <TableRow
                 key={rows[virtualRow.index].id}
                 data-index={virtualRow.index}
-                className="hover:bg-muted/50 absolute top-0 left-0 flex w-full"
+                className="hover:bg-muted/50 absolute top-0 left-0 flex !h-9 w-full"
                 style={{
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`
@@ -244,7 +244,7 @@ function DataTable<TData, TValue>({
                   <TableCell
                     key={cell.id}
                     title={cell.getValue() != null ? String(cell.getValue()) : undefined}
-                    className={cn("flex items-center px-4 py-2", cell.column.columnDef.meta?.className)}
+                    className={cn("flex items-center px-4", cell.column.columnDef.meta?.className)}
                   >
                     <div className="w-full truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
                   </TableCell>
