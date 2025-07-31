@@ -1,7 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useHereRoutingQuery } from "@/hooks/trips/queries/useHereRoutingQuery"
-import { useMemo } from "react"
 import { metersToMiles, formatDuration } from "@/lib/distance-utils"
 import type { ITripSummaryResponse } from "@/types"
 
@@ -13,34 +11,7 @@ interface TripReportDialogProps {
 }
 
 const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripReportDialogProps) => {
-  // Prepare HERE routing parameters from trip stops - ALWAYS call hooks
-  const hereRoutingParams = useMemo(() => {
-    if (!tripData?.tripStops || tripData.tripStops.length < 2) return null
-
-    const stops = tripData.tripStops
-    const origin = { lat: stops[0].latitude, lng: stops[0].longitude }
-    const destination = { lat: stops[stops.length - 1].latitude, lng: stops[stops.length - 1].longitude }
-    const waypoints = stops.slice(1, -1).map((stop) => ({ lat: stop.latitude, lng: stop.longitude }))
-
-    return {
-      origin,
-      destination,
-      waypoints: waypoints.length > 0 ? waypoints : undefined,
-      transportMode: "truck" as const,
-      routingMode: "fast" as const,
-      return: "summary" as const
-    }
-  }, [tripData?.tripStops])
-
-  // Get real route calculation from HERE API - ALWAYS call hooks
-  const { data: hereRouteData } = useHereRoutingQuery(hereRoutingParams, !!hereRoutingParams)
-
-  // Debug log for dialog
-  if (hereRoutingParams) {
-    console.log("📋 [TRIP REPORT DIALOG] Using HERE API for dialog stats")
-  }
-
-  // Early return AFTER hooks
+  // Early return if no trip data
   if (!tripData) return null
 
   // Generate report data for each map type
@@ -54,25 +25,16 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
       hours: formatDuration(stop.duration) // Duration is already in seconds from API
     }))
 
-    // Calculate HERE API totals
-    let hereTotalMiles = 0
-    let hereTotalHours = 0
-
-    if (hereRouteData?.routes?.[0]?.sections) {
-      const sections = hereRouteData.routes[0].sections
-      const totalLength = sections.reduce((sum, section) => sum + section.summary.length, 0)
-      const totalDuration = sections.reduce((sum, section) => sum + section.summary.duration, 0)
-
-      hereTotalMiles = metersToMiles(totalLength) // Convert meters to miles
-      hereTotalHours = parseFloat(formatDuration(totalDuration)) // Convert seconds to hours
-    }
+    // Use backend mileStats for totals (no HERE API calculation needed)
+    const backendTotalMiles = tripData.mileStats.totalMiles.toFixed(1)
+    const backendTotalHours = formatDuration(tripData.mileStats.totalDuration)
 
     return {
       here: {
         title: "HERE Trip",
         stops: baseStops,
-        totalMiles: hereTotalMiles.toFixed(1),
-        totalHours: hereTotalHours.toFixed(2)
+        totalMiles: backendTotalMiles,
+        totalHours: backendTotalHours
       },
       samsara: {
         title: "Samsara Trip",
@@ -88,8 +50,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
               }))
             ]
           : [],
-        totalMiles: metersToMiles(tripData.mileStats.totalMiles * 1.1).toFixed(1),
-        totalHours: formatDuration((tripData.mileStats.totalMiles * 1.1) / 60)
+        totalMiles: tripData.samsaraLocation ? metersToMiles(tripData.samsaraLocation.distance).toFixed(1) : "0.0",
+        totalHours: tripData.samsaraLocation ? formatDuration(tripData.samsaraLocation.duration) : "0.00"
       },
       gle: {
         title: "GLE Trip",
@@ -105,8 +67,8 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
               }))
             ]
           : [],
-        totalMiles: metersToMiles(tripData.mileStats.totalMiles).toFixed(1),
-        totalHours: formatDuration(tripData.mileStats.totalMiles / 65)
+        totalMiles: tripData.gleLocation ? metersToMiles(tripData.gleLocation.distance).toFixed(1) : "0.0",
+        totalHours: tripData.gleLocation ? formatDuration(tripData.gleLocation.duration) : "0.00"
       }
     }
   }
@@ -127,18 +89,16 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">{reportData[mapType].title}</h3>
-              {mapType === "here" && (
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">Total Miles:</span>
-                    <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground">Total Hours:</span>
-                    <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
-                  </div>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Total Miles:</span>
+                  <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
                 </div>
-              )}
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Total Hours:</span>
+                  <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
+                </div>
+              </div>
             </div>
 
             {/* Show message for Samsara/GLE when no nearby points */}

@@ -51,7 +51,6 @@ export const formatDistance = (meters: number, unit: "miles" | "km" = "miles"): 
  * Format duration from seconds to hours
  */
 export const formatDuration = (seconds: number): string => {
-  console.log("seconds", seconds)
   const hours = seconds / 3600
   return hours.toFixed(2)
 }

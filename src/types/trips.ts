@@ -172,12 +172,15 @@ export interface ITripSummaryResponse {
     pu: number
     trl: number
     totalMiles: number
+    totalDuration: number
     totalOdometers: number | null
     created: string
     updated: string
   }
   gleLocation: {
     polyline: string
+    distance: number
+    duration: number
     nearbyPoints: Array<{
       lat: number
       lng: number
@@ -186,6 +189,8 @@ export interface ITripSummaryResponse {
   }
   samsaraLocation: {
     polyline: string
+    distance: number
+    duration: number
     nearbyPoints: Array<{
       lat: number
       lng: number

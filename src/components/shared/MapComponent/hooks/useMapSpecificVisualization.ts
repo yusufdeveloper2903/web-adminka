@@ -45,79 +45,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
   // Use HERE routing API for HERE map ONLY
   const { calculateRoute, drawRoutes, removeRouteObjects } = useHereRouting(mapInstance)
 
-  // Convert pickup/delivery locations to stops format for HERE routing
-  const createStopsFromLocations = useCallback(
-    (pickupLocation: string, deliveryLocation: string): ITripStopResponse[] => {
-      // Simple geocoding approximation - in real app you'd use HERE Geocoding API
-      const locationToCoords = (location: string) => {
-        const lowerLocation = location.toLowerCase()
-
-        // Basic location mapping - extend this as needed
-        if (lowerLocation.includes("new york") || lowerLocation.includes("ny")) {
-          return { lat: 40.7128, lng: -74.006 }
-        } else if (lowerLocation.includes("dallas") || lowerLocation.includes("tx")) {
-          return { lat: 32.7767, lng: -96.797 }
-        } else if (lowerLocation.includes("los angeles") || lowerLocation.includes("ca")) {
-          return { lat: 34.0522, lng: -118.2437 }
-        } else if (lowerLocation.includes("chicago") || lowerLocation.includes("il")) {
-          return { lat: 41.8781, lng: -87.6298 }
-        } else if (lowerLocation.includes("miami") || lowerLocation.includes("fl")) {
-          return { lat: 25.7617, lng: -80.1918 }
-        } else if (lowerLocation.includes("seattle") || lowerLocation.includes("wa")) {
-          return { lat: 47.6062, lng: -122.3321 }
-        } else if (lowerLocation.includes("denver") || lowerLocation.includes("co")) {
-          return { lat: 39.7392, lng: -104.9903 }
-        } else if (lowerLocation.includes("atlanta") || lowerLocation.includes("ga")) {
-          return { lat: 33.749, lng: -84.388 }
-        } else if (lowerLocation.includes("phoenix") || lowerLocation.includes("az")) {
-          return { lat: 33.4484, lng: -112.074 }
-        } else if (lowerLocation.includes("boston") || lowerLocation.includes("ma")) {
-          return { lat: 42.3601, lng: -71.0589 }
-        } else if (lowerLocation.includes("houston")) {
-          return { lat: 29.7604, lng: -95.3698 }
-        } else if (lowerLocation.includes("detroit")) {
-          return { lat: 42.3314, lng: -83.0458 }
-        } else if (lowerLocation.includes("washington") || lowerLocation.includes("dc")) {
-          return { lat: 38.9072, lng: -77.0369 }
-        } else if (lowerLocation.includes("las vegas") || lowerLocation.includes("nv")) {
-          return { lat: 36.1699, lng: -115.1398 }
-        }
-
-        // Default fallback
-        return { lat: 39.8283, lng: -98.5795 } // Center of US
-      }
-
-      const pickupCoords = locationToCoords(pickupLocation)
-      const deliveryCoords = locationToCoords(deliveryLocation)
-
-      return [
-        {
-          address: pickupLocation,
-          distance: 0,
-          totalDistance: 0,
-          duration: 0,
-          loadStatus: "LOADED" as any,
-          orderIndex: 0,
-          latitude: pickupCoords.lat,
-          longitude: pickupCoords.lng,
-          stopType: "PICKUP" as any
-        },
-        {
-          address: deliveryLocation,
-          distance: 0,
-          totalDistance: 0,
-          duration: 0,
-          loadStatus: "EMPTY" as any,
-          orderIndex: 1,
-          latitude: deliveryCoords.lat,
-          longitude: deliveryCoords.lng,
-          stopType: "DELIVERY" as any
-        }
-      ]
-    },
-    []
-  )
-
   // Create professional info bubble for fallback stops
   const createFallbackStopInfoBubble = useCallback((stop: any, index: number) => {
     const stopLetter = String.fromCharCode(65 + index)
@@ -533,21 +460,10 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           }
 
           setMapLoading("here", false)
-        } else if (currentTripData) {
-          // Use pickup/delivery locations from existing trip
-          stops = createStopsFromLocations(currentTripData.pickupLocation, currentTripData.deliveryLocation)
-          console.log("HERE map stops from existing trip:", stops)
-
-          // Set calculating state for existing trips
-          setMapLoading("here", true)
-
-          const routes = await calculateRoute(stops)
-          if (routes && routes.length > 0) {
-            await drawRoutes(routes, stops)
-          }
-
-          setMapLoading("here", false)
         } else {
+          // No trip stops data available - clear existing routes
+          removeRouteObjects()
+          setMapLoading("here", false)
           return
         }
       } else if (mapType === "samsara" || mapType === "gle") {
@@ -676,7 +592,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     removeRouteObjects,
     calculateRoute,
     drawRoutes,
-    createStopsFromLocations
+    createFallbackStopInfoBubble,
+    setMapLoading
   ])
 
   // Main visualization effect
