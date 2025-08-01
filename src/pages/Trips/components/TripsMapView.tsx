@@ -1,7 +1,7 @@
 import { LazyMap } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Maximize2, Minimize2, FileText } from "lucide-react"
+import { Maximize2, Minimize2, FileText, PlusIcon, MinusIcon, ClipboardListIcon } from "lucide-react"
 import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouteStore, useTripsStore } from "@/store"
@@ -263,7 +263,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
     <div className="h-full w-full" data-maps-container>
       <div
         className={cn(
-          "grid h-full gap-4 transition-all duration-300 ease-in-out",
+          "grid h-full gap-2 transition-all duration-300 ease-in-out",
           mapOnly || expandedMap ? "grid-cols-1 grid-rows-1" : "grid-cols-2 grid-rows-2"
         )}
       >
@@ -284,13 +284,13 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
           >
             {/* Header */}
             {!mapOnly && (
-              <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg border-b p-3 backdrop-blur-sm">
+              <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg p-3 backdrop-blur-sm">
                 <h3 className="text-sm font-semibold">{trip.title}</h3>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-4 text-xs">
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">Total Miles:</span>
-                      <span className="font-medium text-blue-600">{formatMiles(trip.totalMiles)}</span>
+                      <span className="font-medium text-[#30B0C7]">{formatMiles(trip.totalMiles)}</span>
                       {trip.milesChange && (
                         <span className={cn("text-xs", trip.milesChange > 0 ? "text-red-600" : "text-green-600")}>
                           ({formatChange(trip.milesChange)})
@@ -299,7 +299,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">Hours:</span>
-                      <span className="font-medium text-blue-600">{formatHours(trip.hours)}</span>
+                      <span className="font-medium text-[#30B0C7]">{formatHours(trip.hours)}</span>
                       {trip.hoursChange && (
                         <span className={cn("text-xs", trip.hoursChange > 0 ? "text-red-600" : "text-green-600")}>
                           ({formatChange(trip.hoursChange)})
@@ -318,15 +318,15 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
                     }}
                     title="View Report"
                   >
-                    <FileText className="h-4 w-4" />
+                    <ClipboardListIcon className="h-4 w-4 text-[#1188C3]" />
                   </Button>
                 </div>
               </div>
             )}
 
             {/* Map Container */}
-            <div className={cn("h-full px-2 pb-2", mapOnly ? "pt-2" : "pt-16")}>
-              <div className="bg-muted/10 relative h-full w-full overflow-hidden rounded-md">
+            <div className={cn("h-full px-2 pb-2", mapOnly ? "pt-2" : "pt-12")}>
+              <div className="bg-muted/10 relative h-full w-full overflow-hidden rounded-md border border-[#8E8E93]">
                 <LazyMap
                   key={trip.id} // Stable key - no unnecessary re-renders
                   ref={(ref) => {
@@ -360,23 +360,20 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
                 />
 
                 {/* Zoom Controls */}
-                <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="bg-background/90 hover:bg-background h-8 w-8 backdrop-blur-sm"
+                <div className="absolute top-2 left-2 z-10 flex flex-col">
+                  <button
+                    className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-t-sm border border-b-0 border-[#1188C3] bg-[#F2F7FD] backdrop-blur-sm"
                     onClick={() => handleZoomIn(trip.id)}
                   >
-                    +
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="bg-background/90 hover:bg-background h-8 w-8 backdrop-blur-sm"
+                    <PlusIcon />
+                    <span className="pointer-events-none absolute bottom-0 h-[1px] w-4/5 cursor-none bg-[#C0C0C0]" />
+                  </button>
+                  <button
+                    className="flex h-[30px] w-8 cursor-pointer items-center justify-center rounded-b-sm border border-t-0 border-[#1188C3] bg-[#F2F7FD] backdrop-blur-sm"
                     onClick={() => handleZoomOut(trip.id)}
                   >
-                    -
-                  </Button>
+                    <MinusIcon />
+                  </button>
                 </div>
 
                 {/* Expand/Collapse Button */}
