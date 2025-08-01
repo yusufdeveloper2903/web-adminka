@@ -18,13 +18,16 @@ interface TripFormFieldsProps {
   onRemoveStop: (index: number) => void
   onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
   onReorderStops: (stops: ITripStopResponse[]) => void
-  formatDistance: (distance: number) => string
-  formatDuration: (duration: number) => string
   newStopForm: any
   setNewStopForm: any
   onLocationSelect: any
   onAddStop: any
   isCalculatingRoute?: boolean
+  // Backend data for edit mode
+  mileStats?: {
+    totalMiles: number
+    totalDuration: number
+  }
 }
 
 interface TruckOption extends SearchableSelectOption {
@@ -41,13 +44,12 @@ const TripFormFields = ({
   onRemoveStop,
   onStopUpdate,
   onReorderStops,
-  formatDistance,
-  formatDuration,
   newStopForm,
   setNewStopForm,
   onLocationSelect,
   onAddStop,
-  isCalculatingRoute = false
+  isCalculatingRoute = false,
+  mileStats
 }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
@@ -62,11 +64,6 @@ const TripFormFields = ({
       const newStatus = form?.state?.values?.tripStatus || ""
       const shouldShow = newStatus === "COMPLETED"
       setShowDateTimeSection(shouldShow)
-      console.log("Form state changed:", {
-        newStatus,
-        shouldShow,
-        formValues: form?.state?.values
-      })
     })
 
     return unsubscribe
@@ -75,12 +72,6 @@ const TripFormFields = ({
   useEffect(() => {
     const shouldShow = currentTripStatus === "COMPLETED"
     setShowDateTimeSection(shouldShow)
-    console.log("Trip status debug:", {
-      currentTripStatus,
-      type: typeof currentTripStatus,
-      shouldShow,
-      comparison: currentTripStatus === "COMPLETED"
-    })
   }, [currentTripStatus])
 
   // Fetch trucks with search
@@ -280,9 +271,15 @@ const TripFormFields = ({
             onRemoveStop={onRemoveStop}
             onStopUpdate={onStopUpdate}
             onReorderStops={onReorderStops}
-            formatDistance={formatDistance}
-            formatDuration={formatDuration}
             isCalculatingRoute={isCalculatingRoute}
+            backendTotals={
+              mileStats
+                ? {
+                    miles: mileStats.totalMiles,
+                    duration: mileStats.totalDuration
+                  }
+                : undefined
+            }
           />
         </div>
       )}
@@ -296,7 +293,6 @@ const TripFormFields = ({
               <Select
                 value={field.state.value}
                 onValueChange={(value) => {
-                  console.log("Select value changed:", value)
                   field.handleChange(value)
                   // Force update the state immediately for debugging
                   if (value === "COMPLETED") {

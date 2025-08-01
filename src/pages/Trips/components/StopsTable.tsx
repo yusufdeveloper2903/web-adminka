@@ -6,6 +6,7 @@ import { X, GripVertical } from "lucide-react"
 import { useRouteStore } from "@/store"
 import { STOP_TYPE_OPTIONS, LOAD_STATUS_OPTIONS } from "@/constants"
 import { ShimmerText } from "@/components/shared"
+import { metersToMiles } from "@/lib/distance-utils"
 import type { ITripStopResponse, LoadStatus, StopType } from "@/types"
 import { useState } from "react"
 import {
@@ -26,9 +27,12 @@ interface StopsTableProps {
   onRemoveStop: (index: number) => void
   onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
   onReorderStops: (stops: ITripStopResponse[]) => void
-  formatDistance: (distance: number) => string
-  formatDuration: (duration: number) => string
   isCalculatingRoute?: boolean // Add loading state prop
+  // Backend data for edit mode (optional)
+  backendTotals?: {
+    miles: number
+    duration: number // in seconds
+  }
 }
 
 interface SortableRowProps {
@@ -40,8 +44,6 @@ interface SortableRowProps {
   distanceUnit: string
   onRemoveStop: (index: number) => void
   onStopUpdate: (index: number, field: keyof ITripStopResponse, value: any) => void
-  formatDistance: (distance: number) => string
-  formatDuration: (duration: number) => string
   isCalculatingRoute?: boolean
 }
 
@@ -53,8 +55,6 @@ const SortableRow = ({
   stopLabel,
   onRemoveStop,
   onStopUpdate,
-  formatDistance,
-  formatDuration,
   isCalculatingRoute,
   isRecentlyMoved,
   isDragActive
@@ -119,13 +119,13 @@ const SortableRow = ({
         {stop.address}
       </TableCell>
       <TableCell>
-        <ShimmerText isLoading={isCalculatingRoute}>{formatDistance(stop.distance)}</ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{metersToMiles(stop.distance).toFixed(2)}</ShimmerText>
       </TableCell>
       <TableCell className="font-medium text-blue-600">
-        <ShimmerText isLoading={isCalculatingRoute}>{formatDistance(stop.totalDistance)}</ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{metersToMiles(stop.totalDistance).toFixed(2)}</ShimmerText>
       </TableCell>
       <TableCell>
-        <ShimmerText isLoading={isCalculatingRoute}>{formatDuration(stop.duration)}</ShimmerText>
+        <ShimmerText isLoading={isCalculatingRoute}>{(stop.duration / 3600).toFixed(2)}</ShimmerText>
       </TableCell>
       <TableCell>
         <Select value={stop.stopType} onValueChange={(value: StopType) => onStopUpdate(index, "stopType", value)}>
@@ -169,9 +169,8 @@ const StopsTable = ({
   onRemoveStop,
   onStopUpdate,
   onReorderStops,
-  formatDistance,
-  formatDuration,
-  isCalculatingRoute = false
+  isCalculatingRoute = false,
+  backendTotals
 }: StopsTableProps) => {
   const { routeSettings } = useRouteStore()
   const distanceUnit = routeSettings.distanceUnit === "km" ? "KM" : "Miles"
@@ -281,14 +280,52 @@ const StopsTable = ({
                       distanceUnit={distanceUnit}
                       onRemoveStop={onRemoveStop}
                       onStopUpdate={onStopUpdate}
-                      formatDistance={formatDistance}
-                      formatDuration={formatDuration}
                       isCalculatingRoute={isCalculatingRoute}
                       isRecentlyMoved={recentlyMoved.includes(index)}
                       isDragActive={isDragging}
                     />
                   )
                 })}
+
+                {/* Total row */}
+                <TableRow className="bg-muted/50 border-t-2 font-medium">
+                  <TableCell className="font-bold">Total</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell className="font-bold text-blue-600">
+                    <ShimmerText isLoading={isCalculatingRoute}>
+                      {(() => {
+                        if (backendTotals) {
+                          // Use backend total miles if available
+                          return backendTotals.miles.toFixed(1)
+                        } else {
+                          // Sum all distances in METERS first, then convert to miles ONCE
+                          const totalMeters = stops.reduce((total, stop) => total + stop.distance, 0)
+                          const totalMiles = metersToMiles(totalMeters)
+                          return totalMiles.toFixed(1)
+                        }
+                      })()}
+                    </ShimmerText>
+                  </TableCell>
+                  <TableCell className="font-bold">
+                    <ShimmerText isLoading={isCalculatingRoute}>
+                      {(() => {
+                        if (backendTotals) {
+                          // Use backend total duration if available
+                          return (backendTotals.duration / 3600).toFixed(2)
+                        } else {
+                          // Sum all durations in SECONDS first, then convert to hours ONCE
+                          const totalSeconds = stops.reduce((total, stop) => total + stop.duration, 0)
+                          const totalHours = totalSeconds / 3600
+                          return totalHours.toFixed(2)
+                        }
+                      })()}
+                    </ShimmerText>
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </SortableContext>

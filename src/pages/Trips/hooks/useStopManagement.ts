@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react"
 import { useRouteStore } from "@/store"
 import { useRouteCalculation } from "@/hooks/useRouteCalculation"
-import { formatDistance as formatDistanceUtil, formatDuration as formatDurationUtil } from "@/lib/distance-utils"
 import type { ITripStopResponse, LoadStatus, StopType, HereAutosuggestResult } from "@/types"
 
 interface NewStopFormData {
@@ -13,7 +12,8 @@ interface NewStopFormData {
 
 export const useStopManagement = (
   stops: ITripStopResponse[],
-  setStops: React.Dispatch<React.SetStateAction<ITripStopResponse[]>>
+  setStops: React.Dispatch<React.SetStateAction<ITripStopResponse[]>>,
+  isEditMode: boolean = false
 ) => {
   const { routeSettings } = useRouteStore()
   const [newStopForm, setNewStopForm] = useState<NewStopFormData>({
@@ -31,12 +31,12 @@ export const useStopManagement = (
     refetch: recalculateRoute
   } = useRouteCalculation({
     stops,
-    enabled: stops.length >= 2
+    enabled: stops.length >= 2 && !isEditMode // Disable route calculation in edit mode
   })
 
-  // Update stops when route calculation completes
+  // Update stops when route calculation completes (only in add mode)
   useEffect(() => {
-    if (calculatedStops.length > 0 && calculatedStops.length === stops.length) {
+    if (!isEditMode && calculatedStops.length > 0 && calculatedStops.length === stops.length) {
       // Only update if the calculated stops are different from current stops
       const hasChanges = calculatedStops.some((calcStop, index) => {
         const currentStop = stops[index]
@@ -52,7 +52,7 @@ export const useStopManagement = (
         setStops(calculatedStops)
       }
     }
-  }, [calculatedStops, stops, setStops])
+  }, [calculatedStops, stops, setStops, isEditMode])
 
   const handleLocationSelect = useCallback((location: HereAutosuggestResult) => {
     setNewStopForm((prev) => ({
@@ -129,21 +129,6 @@ export const useStopManagement = (
     })
   }, [])
 
-  // Format functions with unit conversion using distance-utils
-  const formatDistance = useCallback(
-    (distance: number) => {
-      // Distance comes from HERE API in meters, use utility function
-      const unit = routeSettings.distanceUnit === "km" ? "km" : "miles"
-      return formatDistanceUtil(distance, unit)
-    },
-    [routeSettings.distanceUnit]
-  )
-
-  const formatDuration = useCallback((duration: number) => {
-    // Duration comes from HERE API in seconds, use utility function
-    return formatDurationUtil(duration)
-  }, [])
-
   const handleReorderStops = useCallback(
     (reorderedStops: ITripStopResponse[]) => {
       setStops(reorderedStops)
@@ -160,8 +145,6 @@ export const useStopManagement = (
     handleStopUpdate,
     handleReorderStops,
     resetStopForm,
-    formatDistance,
-    formatDuration,
     routeData,
     isCalculatingRoute,
     recalculateRoute

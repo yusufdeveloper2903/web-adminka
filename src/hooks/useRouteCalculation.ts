@@ -52,11 +52,6 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
     enabled && !!routingParams && stops.length >= 2
   )
 
-  // Debug log for route calculation
-  if (routingParams) {
-    console.log("📊 [ROUTE CALCULATION] Using HERE API for stops table")
-  }
-
   // Process routing data
   const routeData: RouteCalculationResult | null = useMemo(() => {
     if (!data?.routes?.[0]) return null
