@@ -21,14 +21,6 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       enableSorting: false
     },
     {
-      accessorKey: "id",
-      header: "ID",
-      meta: {
-        className: "min-w-[80px] w-[5%]"
-      },
-      cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
-    },
-    {
       accessorKey: "unitNumber",
       header: "Unit",
       meta: {
@@ -74,13 +66,6 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
         className: "min-w-[180px] w-[15%]"
       },
       enableSorting: false
-    },
-    {
-      accessorKey: "vehicleId",
-      header: "Vehicle ID",
-      meta: {
-        className: "min-w-[120px] w-[10%]"
-      }
     },
     {
       accessorKey: "active",
@@ -129,7 +114,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
         const truck = row.original
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-start">
             <Button
               variant="ghost"
               size="icon"
