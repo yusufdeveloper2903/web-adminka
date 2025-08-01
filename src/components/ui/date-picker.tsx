@@ -142,19 +142,51 @@ export function DateTimePicker({
             <label htmlFor="time" className="text-sm font-medium">
               Time:
             </label>
-            <input
-              id="time"
-              type="time"
-              value={timeValue}
-              onChange={(e) => handleTimeChange(e.target.value)}
-              step="60"
-              className="border-input placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              style={{
-                colorScheme: "light dark"
-              }}
-              // Force 24-hour format using locale
-              lang="en-GB"
-            />
+            <div className="flex w-full items-center gap-2">
+              <div className="relative flex-1">
+                <select
+                  value={timeValue.split(":")[0]}
+                  onChange={(e) => {
+                    const minutes = timeValue.split(":")[1] || "00"
+                    handleTimeChange(`${e.target.value.padStart(2, "0")}:${minutes}`)
+                  }}
+                  className="border-input focus-visible:ring-ring h-9 w-full cursor-pointer appearance-none rounded-md border bg-transparent pr-8 pl-3 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <svg className="text-muted-foreground h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <span className="text-muted-foreground text-sm font-medium">:</span>
+              <div className="relative flex-1">
+                <select
+                  value={timeValue.split(":")[1] || "00"}
+                  onChange={(e) => {
+                    const hours = timeValue.split(":")[0] || "00"
+                    handleTimeChange(`${hours}:${e.target.value}`)
+                  }}
+                  className="border-input focus-visible:ring-ring h-9 w-full cursor-pointer appearance-none rounded-md border bg-transparent pr-8 pl-3 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <option key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <svg className="text-muted-foreground h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </PopoverContent>

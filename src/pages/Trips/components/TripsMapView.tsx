@@ -1,7 +1,7 @@
 import { LazyMap } from "@/components/shared"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "next-themes"
-import { Maximize2, Minimize2, FileText, PlusIcon, MinusIcon, ClipboardListIcon } from "lucide-react"
+import { Maximize2, Minimize2, PlusIcon, MinusIcon, ClipboardListIcon } from "lucide-react"
 import { useMemo, useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouteStore, useTripsStore } from "@/store"
