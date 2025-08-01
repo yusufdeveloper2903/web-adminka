@@ -85,7 +85,8 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[80px] w-[5%]"
         },
-        cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>
+        cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "unitNumber",
@@ -93,7 +94,8 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[80px] w-[6%]"
         },
-        cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>
+        cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>,
+        enableSorting: false
       },
 
       {
@@ -120,7 +122,8 @@ const useTripsColumns = () => {
         header: "Load Number",
         meta: {
           className: "min-w-[120px] w-[8%] text-left"
-        }
+        },
+        enableSorting: false
       },
 
       {
@@ -131,44 +134,6 @@ const useTripsColumns = () => {
         },
         enableSorting: false
       },
-
-      {
-        accessorKey: "tripStatus",
-        header: "Status",
-        meta: {
-          className: "min-w-[100px] w-[9%] text-left"
-        },
-        cell: ({ row }) => {
-          const status = row.original.tripStatus
-          let statusClass = ""
-          let statusText = status
-
-          switch (status) {
-            case "UPCOMING":
-              statusClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
-              statusText = "Upcoming"
-              break
-            case "IN_TRANSIT":
-            case "IN TRANSIT":
-              statusClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
-              statusText = "In Transit"
-              break
-            case "COMPLETED":
-              statusClass = "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-              statusText = "Completed"
-              break
-            default:
-              statusClass = "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
-          }
-
-          return (
-            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusClass}`}>
-              {statusText}
-            </span>
-          )
-        }
-      },
-
       {
         accessorKey: "miles",
         header: "Miles",
@@ -207,7 +172,7 @@ const useTripsColumns = () => {
 
       {
         accessorKey: "totalMiles",
-        header: "Total Miles",
+        header: "TOTAL MILES",
         meta: {
           className: "min-w-[115px] w-[7%] bg-gray-50 dark:bg-gray-800 text-left"
         },
@@ -244,14 +209,49 @@ const useTripsColumns = () => {
       },
 
       {
-        accessorKey: "created",
-        header: "Created",
+        accessorKey: "updates",
+        header: "Updated",
         meta: {
           className: "min-w-[140px] w-[12%] text-left"
         },
         cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
+      {
+        accessorKey: "tripStatus",
+        header: "Status",
+        meta: {
+          className: "min-w-[100px] w-[9%] text-left"
+        },
+        cell: ({ row }) => {
+          const status = row.original.tripStatus
+          let statusClass = ""
+          let statusText = status
 
+          switch (status) {
+            case "UPCOMING":
+              statusClass = "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+              statusText = "Upcoming"
+              break
+            case "IN_TRANSIT":
+            case "IN TRANSIT":
+              statusClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+              statusText = "In Transit"
+              break
+            case "COMPLETED":
+              statusClass = "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+              statusText = "Completed"
+              break
+            default:
+              statusClass = "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
+          }
+
+          return (
+            <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusClass}`}>
+              {statusText}
+            </span>
+          )
+        }
+      },
       {
         id: "actions",
         header: "Actions",
