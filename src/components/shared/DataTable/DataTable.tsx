@@ -252,7 +252,7 @@ function DataTable<TData, TValue>({
               <TableRow
                 key={rows[virtualRow.index].id}
                 data-index={virtualRow.index}
-                className="hover:bg-muted/50 absolute top-0 left-0 flex !h-9 w-full text-xs"
+                className="hover:bg-muted/100 absolute top-0 left-0 flex !h-9 w-full text-xs"
                 style={{
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`
