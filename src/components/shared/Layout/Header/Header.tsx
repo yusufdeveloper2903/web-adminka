@@ -5,11 +5,15 @@ const Header = () => {
   const { title, metadata, filters, actions, viewSwitcher } = useHeaderStore()
 
   return (
-    <header className="border-border bg-card flex h-16 shrink-0 items-center justify-between border-b px-4 lg:px-6">
+    <header className="border-border bg-card px4 mb-2 ml-2 pr-4 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b">
       <div className="flex flex-1 items-center gap-4">
         {/* Left Side */}
         <section className="flex items-center gap-4">
-          {title && <h2 className="text-lg font-medium">{title}</h2>}
+          {title && (
+            <h2 className="bg-blue-primary flex h-12 items-center justify-center rounded-l-[8px] px-5 text-base font-medium text-white">
+              {title}
+            </h2>
+          )}
           <div className="flex items-center gap-2">
             {filters.map((filter) => (
               <div key={filter.id}>{filter.node}</div>

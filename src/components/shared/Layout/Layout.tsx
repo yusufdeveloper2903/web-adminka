@@ -5,11 +5,11 @@ import AppDrawer from "../AppDrawer"
 
 const Layout = () => {
   return (
-    <div className="bg-background flex h-screen w-full">
+    <div className="bg-blue-light flex h-screen w-full p-2">
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto pl-2">
           <Outlet />
         </main>
         <AppDrawer />

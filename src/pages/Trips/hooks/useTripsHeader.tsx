@@ -125,7 +125,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           node: (
             <SearchableSelect
               options={truckOptions}
-              placeholder="Filter by Truck..."
+              placeholder="Unit"
               isLoading={isTrucksLoading}
               onDebouncedInputChange={setTruckSearch}
               onFetchNextPage={() => {
@@ -144,6 +144,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ truckId: option ? option.value : undefined })
               }
+              className="!min-h-8"
             />
           )
         },
@@ -152,7 +153,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           node: (
             <SearchableSelect
               options={driverOptions}
-              placeholder="Filter by Driver..."
+              placeholder="Driver"
               isLoading={isDriversLoading || isFetchingNextDriverPage}
               onDebouncedInputChange={setDriverSearch}
               onFetchNextPage={() => {
@@ -173,6 +174,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ driverId: option ? option.value : undefined })
               }
+              className="!min-h-8"
             />
           )
         },
@@ -181,7 +183,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
           node: (
             <SearchableSelect
               options={loadOptions}
-              placeholder="Filter by Load number..."
+              placeholder="Load"
               isLoading={isLoadsLoading}
               onDebouncedInputChange={setLoadSearch}
               onFetchNextPage={() => {
@@ -193,6 +195,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ loadNumber: option ? option.value : undefined })
               }
+              className="!min-h-8"
             />
           )
         },
@@ -212,7 +215,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
       ],
       viewSwitcher: (
         <Tabs value={view} onValueChange={(value) => setView(value as "table" | "map")}>
-          <TabsList>
+          <TabsList className="h-9">
             <TabsTrigger value="table">Table</TabsTrigger>
             <TabsTrigger value="map">Map</TabsTrigger>
           </TabsList>

@@ -82,7 +82,7 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
               placeholder="Search..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-48"
+              className="h-8 w-48"
             />
           )
         },
@@ -108,6 +108,7 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ driverId: option ? option.value : undefined })
               }
+              className="!min-h-8"
             />
           )
         },

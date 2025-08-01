@@ -69,7 +69,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             placeholder="Search..."
             value={dispatcherKeyword}
             onChange={(e) => setDispatcherKeyword(e.target.value)}
-            className="w-48"
+            className="h-8 w-48"
           />
         )
       },
@@ -95,6 +95,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             onChange={(option: SingleValue<{ value: string; label: string }>) =>
               setFilters({ teamId: option ? option.value : undefined })
             }
+            className="!min-h-8"
           />
         )
       },
@@ -124,7 +125,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             placeholder="Search..."
             value={teamKeyword}
             onChange={(e) => setTeamKeyword(e.target.value)}
-            className="w-48"
+            className="h-8 w-48"
           />
         )
       },
@@ -152,12 +153,12 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
       actions: [
         {
           id: isDispatchersTab ? "add_dispatcher" : "add_team",
-          label: isDispatchersTab ? "Add Dispatcher" : "Add Team",
+          label: isDispatchersTab ? "New Dispatcher" : "New Team",
           disabled: isLoading,
           icon: addIcon,
           onClick: () =>
             setDrawerConfig({
-              title: isDispatchersTab ? "Add New Dispatcher" : "Add New Team",
+              title: isDispatchersTab ? "New New Dispatcher" : "New Team",
               content: isDispatchersTab ? <NewDispatcherForm /> : <NewTeamForm />
             })
         },

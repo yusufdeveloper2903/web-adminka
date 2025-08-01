@@ -219,7 +219,7 @@ const SearchableSelect = ({
       classNames={{
         control: ({ isFocused }) =>
           cn(
-            "flex w-full min-w-0 rounded-md border dark:bg-input/30 px-3 py-1 text-sm shadow-xs transition-colors",
+            "flex w-full min-w-0 rounded-md !min-h-[36px] border dark:bg-input/30 px-2 overflow-hidden text-xs shadow-xs transition-colors h-6",
             "file:border-0 file:bg-transparent file:text-sm file:font-medium",
             "placeholder:text-muted-foreground",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -232,18 +232,18 @@ const SearchableSelect = ({
             className
           ),
         container: () => `min-w-[160px] ${fullWidth ? "auto" : "max-w-[200px]"}`, // Fixed min/max width
-        placeholder: () => "text-muted-foreground text-sm truncate",
-        input: () => "text-foreground text-sm flex-1 min-w-0",
-        valueContainer: () => "flex items-center py-1 flex-1 min-w-0 overflow-hidden",
-        singleValue: () => "text-foreground text-sm truncate max-w-full",
+        placeholder: () => "text-muted-foreground text-xs truncate",
+        input: () => "text-foreground text-xs flex-1 min-w-0",
+        valueContainer: () => "flex items-center py-0 flex-1 min-w-0 overflow-hidden",
+        singleValue: () => "text-foreground text-xs truncate max-w-full",
         multiValue: () => "bg-secondary text-secondary-foreground rounded px-1 py-0.5 text-xs",
         multiValueLabel: () => "text-secondary-foreground",
         multiValueRemove: () => "text-secondary-foreground hover:text-destructive",
         indicatorsContainer: () => "flex items-center flex-shrink-0", // Prevent shrinking
         clearIndicator: () =>
-          "text-muted-foreground hover:text-foreground cursor-pointer p-1 w-6 h-6 flex items-center justify-center",
+          "text-muted-foreground hover:text-foreground cursor-pointer p-0 w-4 h-4 flex items-center justify-center",
         dropdownIndicator: () =>
-          "text-muted-foreground hover:text-foreground cursor-pointer p-1 w-6 h-6 flex items-center justify-center",
+          "text-muted-foreground hover:text-foreground cursor-pointer p-0 w-4 h-4 flex items-center justify-center",
         menu: () =>
           cn(
             "relative min-w-[8rem] mt-0.5 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg",

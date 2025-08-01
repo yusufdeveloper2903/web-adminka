@@ -37,12 +37,12 @@ const useShopsHeader = ({ isLoading, totalDBRowCount, refetch }: UseShopsHeaderP
       actions: [
         {
           id: "add_shop",
-          label: "Add Shop",
+          label: "New Shop",
           disabled: isLoading,
           icon: addIcon,
           onClick: () =>
             setDrawerConfig({
-              title: "Add New Shop",
+              title: "New Shop",
               content: <NewShopForm />
             })
         },
@@ -62,7 +62,7 @@ const useShopsHeader = ({ isLoading, totalDBRowCount, refetch }: UseShopsHeaderP
               placeholder="Search..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-48"
+              className="h-8 w-48"
             />
           )
         },

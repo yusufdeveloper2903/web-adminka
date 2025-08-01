@@ -62,7 +62,7 @@ const useUsersHeader = ({ isLoading, totalDBRowCount, refetch }: UseUsersHeaderP
               placeholder="Search by name..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-48"
+              className="w-48 h-8"
             />
           )
         },

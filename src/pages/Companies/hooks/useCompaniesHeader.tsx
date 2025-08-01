@@ -57,7 +57,7 @@ const useCompaniesHeader = ({ isLoading, totalDBRowCount, refetch }: UseCompanie
               placeholder="Search..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-48"
+              className="w-48 h-8"
             />
           )
         },
