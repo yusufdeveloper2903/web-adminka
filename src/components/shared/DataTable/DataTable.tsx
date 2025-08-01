@@ -283,12 +283,6 @@ function DataTable<TData, TValue>({
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <div className="text-muted-foreground bg-background/95 supports-[backdrop-filter]:bg-background/60 shrink-0 border-t py-2 text-center text-sm backdrop-blur">
-        Fetched {flatData.length} of {totalDBRowCount} rows.
-        {isFetching && !isLoading ? " (Background updating...)" : ""}
-      </div>
     </div>
   )
 }

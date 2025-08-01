@@ -87,7 +87,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
       actions: [
         {
           id: "add_trip",
-          label: "Add Trip",
+          label: "New Trip",
           icon: addTripIcon,
           disabled: isLoading,
           onClick: () =>
