@@ -54,9 +54,104 @@ const TripFormFields = ({
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
   const [showDateTimeSection, setShowDateTimeSection] = useState(false)
+  const [currentTripStatus, setCurrentTripStatus] = useState("")
 
-  // Watch for tripStatus changes to show/hide date/time section
-  const currentTripStatus = form?.state?.values?.tripStatus || ""
+  // Robust trip status tracking with multiple fallbacks
+  useEffect(() => {
+    // Get initial value from form state with multiple fallbacks
+    const getFormValue = () => {
+      return (
+        form?.state?.values?.tripStatus ||
+        form?.getFieldValue?.("tripStatus") ||
+        form?.state?.fieldMeta?.tripStatus?.value ||
+        ""
+      )
+    }
+
+    const initialStatus = getFormValue()
+    if (initialStatus) {
+      setCurrentTripStatus(initialStatus)
+      setShowDateTimeSection(initialStatus === "COMPLETED")
+    }
+
+    // Subscribe to form changes with robust error handling
+    let unsubscribe: (() => void) | undefined
+
+    try {
+      if (form?.store?.subscribe) {
+        unsubscribe = form.store.subscribe(() => {
+          const newStatus = getFormValue()
+          if (newStatus && newStatus !== currentTripStatus) {
+            setCurrentTripStatus(newStatus)
+            setShowDateTimeSection(newStatus === "COMPLETED")
+          }
+        })
+      }
+    } catch (error) {
+      console.warn("Form subscription failed:", error)
+    }
+
+    return () => {
+      if (unsubscribe) {
+        try {
+          unsubscribe()
+        } catch (error) {
+          console.warn("Form unsubscribe failed:", error)
+        }
+      }
+    }
+  }, [form, currentTripStatus])
+
+  // Additional safety check - watch form state directly
+  useEffect(() => {
+    const formStatus = form?.state?.values?.tripStatus
+    if (formStatus && formStatus !== currentTripStatus) {
+      setCurrentTripStatus(formStatus)
+      setShowDateTimeSection(formStatus === "COMPLETED")
+    }
+  }, [form?.state?.values?.tripStatus, currentTripStatus])
+
+  // Initialize on mount with delay to ensure form is ready
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const formStatus = form?.state?.values?.tripStatus
+      if (formStatus && !currentTripStatus) {
+        setCurrentTripStatus(formStatus)
+        setShowDateTimeSection(formStatus === "COMPLETED")
+
+        // Force set field value if it's COMPLETED and not set
+        if (formStatus === "COMPLETED" && form?.setFieldValue) {
+          form.setFieldValue("tripStatus", "COMPLETED")
+        }
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [form, currentTripStatus])
+
+  // Additional effect specifically for COMPLETED status
+  useEffect(() => {
+    if (currentTripStatus === "COMPLETED" && form?.setFieldValue) {
+      const timer = setTimeout(() => {
+        // Double-check and force set COMPLETED value
+        const currentFieldValue = form?.state?.values?.tripStatus
+        if (currentFieldValue !== "COMPLETED") {
+          form.setFieldValue("tripStatus", "COMPLETED")
+        }
+      }, 200)
+
+      return () => clearTimeout(timer)
+    }
+  }, [currentTripStatus, form])
+
+  // Prevent Select component reset by monitoring field state
+  useEffect(() => {
+    const fieldValue = form?.state?.values?.tripStatus
+    if (fieldValue && fieldValue !== currentTripStatus) {
+      setCurrentTripStatus(fieldValue)
+      setShowDateTimeSection(fieldValue === "COMPLETED")
+    }
+  }, [form?.state?.values?.tripStatus, currentTripStatus])
 
   // Also listen to form state changes directly
   useEffect(() => {
@@ -288,36 +383,60 @@ const TripFormFields = ({
         <Label htmlFor="tripStatus">Trip Status</Label>
         <form.Field
           name="tripStatus"
-          children={(field: any) => (
-            <div>
-              <Select
-                value={field.state.value}
-                onValueChange={(value) => {
-                  field.handleChange(value)
-                  // Force update the state immediately for debugging
-                  if (value === "COMPLETED") {
-                    setShowDateTimeSection(true)
-                  } else {
-                    setShowDateTimeSection(false)
-                  }
-                }}
-              >
-                <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>
-                  <SelectValue placeholder="Select trip status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TRIP_STATUS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <span className={option.className}>{option.label}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {field.state.meta.errors.length > 0 && (
-                <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
-              )}
-            </div>
-          )}
+          children={(field: any) => {
+            // Robust value handling with multiple fallbacks
+            const selectValue = field.state.value || field.state.meta?.initialValue || currentTripStatus || ""
+
+            // Debug logging for COMPLETED status
+
+            return (
+              <div>
+                <Select
+                  key={`tripStatus-${selectValue || "empty"}`} // Force re-mount on value change
+                  value={selectValue || undefined} // Ensure undefined instead of empty string
+                  onValueChange={(value) => {
+                    // Prevent empty value changes that reset the select
+                    if (!value || value === "") {
+                      return
+                    }
+
+                    // Prevent unnecessary changes to same value
+                    if (value === selectValue) {
+                      return
+                    }
+
+                    // Update form field
+                    field.handleChange(value)
+
+                    // Update local state immediately
+                    setCurrentTripStatus(value)
+                    setShowDateTimeSection(value === "COMPLETED")
+
+                    // Force form validation if needed
+                    if (field.handleBlur) {
+                      field.handleBlur()
+                    }
+                  }}
+                >
+                  <SelectTrigger
+                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""} ${selectValue ? TRIP_STATUS_OPTIONS.find((opt) => opt.value === selectValue)?.className : ""}`}
+                  >
+                    <SelectValue placeholder="Select trip status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TRIP_STATUS_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        <span className={option.className}>{option.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {field.state.meta.errors.length > 0 && (
+                  <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                )}
+              </div>
+            )
+          }}
         />
       </div>
 
