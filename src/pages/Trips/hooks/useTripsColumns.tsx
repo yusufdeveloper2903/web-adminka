@@ -127,45 +127,45 @@ const useTripsColumns = () => {
       },
       {
         accessorKey: "miles",
-        header: <div className="!text-red-200">Miles</div>,
+        header: (<div className="!text-gray-900 dark:!text-gray-100">Miles</div>) as any,
         meta: {
-          className: "min-w-[60px] w-[6%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[60px] w-[6%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
       },
 
       {
         accessorKey: "totalEmpty",
-        header: "Total Empty",
+        header: (<div className="!text-gray-900 dark:!text-gray-100">Total Empty</div>) as any,
         meta: {
-          className: "min-w-[105px] w-[8%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[105px] w-[8%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },
 
       {
         accessorKey: "pu",
-        header: "PU",
+        header: (<div className="!text-gray-900 dark:!text-gray-100">PU</div>) as any,
         meta: {
-          className: "min-w-[55px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[55px] w-[5%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
       },
 
       {
         accessorKey: "trl",
-        header: "TRL",
+        header: (<div className="!text-gray-900 dark:!text-gray-100">TRL</div>) as any,
         meta: {
-          className: "min-w-[60px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[60px] w-[5%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
       },
 
       {
         accessorKey: "totalMiles",
-        header: "TOTAL MILES",
+        header: (<div className="!text-gray-900 dark:!text-gray-100">TOTAL MILES</div>) as any,
         meta: {
-          className: "min-w-[115px] w-[7%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[115px] w-[7%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => (
           <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>

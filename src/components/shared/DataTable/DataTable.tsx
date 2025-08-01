@@ -185,7 +185,7 @@ function DataTable<TData, TValue>({
         <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
           <TableHeader className="bg-blue-primary sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-blue-primary flex w-full text-xs">
+              <TableRow key={headerGroup.id} className="hover:bg-blue-primary dark:bg-back flex w-full text-xs">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -212,11 +212,32 @@ function DataTable<TData, TValue>({
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() ? (
                           header.column.getIsSorted() === "asc" ? (
-                            <ArrowUpIcon className="ml-1 h-4 w-4 flex-shrink-0" />
+                            <ArrowUpIcon
+                              className={cn(
+                                "ml-1 h-4 w-4 flex-shrink-0",
+                                header.column.columnDef.meta?.className?.includes("bg-gray")
+                                  ? "text-gray-900 dark:text-gray-100"
+                                  : "text-white"
+                              )}
+                            />
                           ) : header.column.getIsSorted() === "desc" ? (
-                            <ArrowDownIcon className="ml-1 h-4 w-4 flex-shrink-0" />
+                            <ArrowDownIcon
+                              className={cn(
+                                "ml-1 h-4 w-4 flex-shrink-0",
+                                header.column.columnDef.meta?.className?.includes("bg-gray")
+                                  ? "text-gray-900 dark:text-gray-100"
+                                  : "text-white"
+                              )}
+                            />
                           ) : (
-                            <ArrowUpDownIcon className="ml-1 h-4 w-4 flex-shrink-0 opacity-50" />
+                            <ArrowUpDownIcon
+                              className={cn(
+                                "ml-1 h-4 w-4 flex-shrink-0 opacity-50",
+                                header.column.columnDef.meta?.className?.includes("bg-gray")
+                                  ? "text-gray-900 dark:text-gray-100"
+                                  : "text-white"
+                              )}
+                            />
                           )
                         ) : null}
                       </div>

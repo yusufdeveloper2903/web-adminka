@@ -92,6 +92,7 @@ h1 {
 
 @theme {
   --color-blue-primary: #0e416c;
+  --color-gray-table: #f1f1f6;
 }
 
 @theme inline {
