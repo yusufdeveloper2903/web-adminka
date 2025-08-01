@@ -127,7 +127,7 @@ const useTripsColumns = () => {
       },
       {
         accessorKey: "miles",
-        header: "Miles",
+        header: <div className="!text-red-200">Miles</div>,
         meta: {
           className: "min-w-[60px] w-[6%] bg-gray-50 dark:bg-gray-800 text-left"
         },

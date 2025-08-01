@@ -183,9 +183,9 @@ function DataTable<TData, TValue>({
         className="h-full overflow-auto"
       >
         <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
-          <TableHeader className="bg-background sticky top-0 z-10">
+          <TableHeader className="bg-blue-primary sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="flex w-full text-xs">
+              <TableRow key={headerGroup.id} className="hover:bg-blue-primary flex w-full text-xs">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -195,8 +195,8 @@ function DataTable<TData, TValue>({
                       <div
                         className={
                           header.column.getCanSort()
-                            ? "flex w-full cursor-pointer items-center select-none"
-                            : "flex w-full"
+                            ? "flex w-full cursor-pointer items-center text-white select-none"
+                            : "flex w-full text-white"
                         }
                         onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                         title={
