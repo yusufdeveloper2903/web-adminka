@@ -5,12 +5,12 @@ const Header = () => {
   const { title, metadata, filters, actions, viewSwitcher } = useHeaderStore()
 
   return (
-    <header className="border-border bg-card px4 mb-2 ml-2 pr-4 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b">
+    <header className="border-border bg-card px4 mb-2 ml-2 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b pr-4">
       <div className="flex flex-1 items-center gap-4">
         {/* Left Side */}
         <section className="flex items-center gap-4">
           {title && (
-            <h2 className="bg-blue-primary flex h-12 items-center justify-center rounded-l-[8px] px-5 text-base font-medium text-white">
+            <h2 className="bg-blue-primary dark:bg-muted flex h-12 items-center justify-center rounded-l-[8px] px-5 text-base font-medium text-white">
               {title}
             </h2>
           )}

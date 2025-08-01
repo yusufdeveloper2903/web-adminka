@@ -72,7 +72,7 @@ const AppSidebar = () => {
     <Sidebar
       collapsible="icon"
       className={cn(
-        "border-r border-slate-700 !bg-[#0E416C] rounded-[8px]",
+        "rounded-[8px] border-r border-slate-700 !bg-[#0E416C]",
         "[&[data-state=expanded]>[data-slot=sidebar-gap]]:w-[var(--sidebar-width)]",
         "[&[data-state=collapsed]>[data-slot=sidebar-gap]]:w-[var(--sidebar-width-icon)]",
         "[&[data-state=expanded]>[data-slot=sidebar-container]]:w-[var(--sidebar-width)]",

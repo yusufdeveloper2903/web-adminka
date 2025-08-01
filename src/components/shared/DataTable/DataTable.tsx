@@ -134,7 +134,7 @@ function DataTable<TData, TValue>({
 
   if (isLoading) {
     return (
-      <div className="max-h-[calc(100vh-6rem)] overflow-auto rounded-lg border">
+      <div className="dark:bg-background h-[calc(100vh-74px)] overflow-auto rounded-lg border bg-white">
         <Table className="grid w-full">
           <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -155,7 +155,7 @@ function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {Array.from({ length: 20 }).map((_, index) => (
+            {Array.from({ length: 22 }).map((_, index) => (
               <TableRow key={index} className="flex w-full">
                 {table.getAllColumns().map((column) => (
                   <TableCell key={column.id} className={cn("flex items-center", column.columnDef.meta?.className)}>
@@ -176,16 +176,19 @@ function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] border bg-white">
+    <div className="dark:bg-background relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] border bg-white">
       <div
         ref={tableContainerRef}
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
         className="h-full overflow-auto"
       >
         <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
-          <TableHeader className="bg-blue-primary sticky top-0 z-10">
+          <TableHeader className="bg-blue-primary dark:bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-blue-primary dark:bg-back flex w-full text-xs">
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-blue-primary dark:hover:bg-muted/100 flex w-full text-xs"
+              >
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -252,7 +255,7 @@ function DataTable<TData, TValue>({
               <TableRow
                 key={rows[virtualRow.index].id}
                 data-index={virtualRow.index}
-                className="hover:bg-muted/100 absolute top-0 left-0 flex !h-9 w-full text-xs"
+                className="hover:bg-muted/100h hover:dark:bg-muted/50 absolute top-0 left-0 flex !h-9 w-full text-xs"
                 style={{
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`
