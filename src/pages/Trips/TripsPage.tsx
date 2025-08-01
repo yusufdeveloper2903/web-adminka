@@ -49,7 +49,7 @@ const TripsPage = () => {
   })
 
   // Columns with handlers
-  const columns = useTripsColumns()
+  const { columns, reportDialog } = useTripsColumns()
 
   return (
     <div className="relative h-full w-full">
@@ -100,6 +100,9 @@ const TripsPage = () => {
         {/* Actual Map Component - Only render after first view */}
         {mapView.shouldRender && <TripsMapView isVisible={mapView.isActive} />}
       </div>
+
+      {/* Mileage Report Dialog */}
+      {reportDialog}
     </div>
   )
 }

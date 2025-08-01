@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Edit, Map, RouteIcon } from "lucide-react"
-import { useCallback, useMemo } from "react"
+import { Edit, Map, FileText } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
 import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
+import TripMileageReportDialog from "../components/TripMileageReportDialog"
+import { useTripSummaryQuery } from "@/hooks/trips"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
 
@@ -13,7 +15,19 @@ const useTripsColumns = () => {
   const { setTripData } = useRouteStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
 
-  // Fetch selected trip data for edit mode
+  // State for mileage report dialog
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [selectedTripForReport, setSelectedTripForReport] = useState<ITripListResponse | null>(null)
+
+  // Fetch trip summary data for report
+  const { data: tripSummaryData } = useTripSummaryQuery(
+    {
+      truckId: selectedTripForReport?.truckId || 0,
+      driverId: selectedTripForReport?.driverId,
+      loadNumber: selectedTripForReport?.loadNumber || ""
+    },
+    !!selectedTripForReport
+  )
 
   const handleRouteClick = useCallback(
     (trip: any) => {
@@ -48,6 +62,11 @@ const useTripsColumns = () => {
     },
     [setSelectedTripId, setDrawerConfig]
   )
+
+  const handleReportClick = useCallback((trip: ITripListResponse) => {
+    setSelectedTripForReport(trip)
+    setIsReportDialogOpen(true)
+  }, [])
 
   const columns: ColumnDef<ITripListResponse>[] = useMemo(
     () => [
@@ -237,7 +256,7 @@ const useTripsColumns = () => {
         id: "actions",
         header: "Actions",
         meta: {
-          className: "min-w-[100px] w-[6%] text-center"
+          className: "min-w-[100px] w-[10%] text-center"
         },
         cell: ({ row }) => {
           const trip = row.original
@@ -249,15 +268,30 @@ const useTripsColumns = () => {
               <Button variant="ghost" size="icon" onClick={() => handleEditClick(trip)} title="Edit Trip">
                 <Edit className="h-4 w-4" />
               </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleReportClick(trip)} title="Mileage Report">
+                <FileText className="h-4 w-4" />
+              </Button>
             </div>
           )
         }
       }
     ],
-    [handleEditClick, handleRouteClick]
+    [handleEditClick, handleReportClick, handleRouteClick]
   )
 
-  return columns
+  return {
+    columns,
+    reportDialog: (
+      <TripMileageReportDialog
+        isOpen={isReportDialogOpen}
+        onClose={() => {
+          setIsReportDialogOpen(false)
+          setSelectedTripForReport(null)
+        }}
+        tripData={tripSummaryData}
+      />
+    )
+  }
 }
 
 export default useTripsColumns
