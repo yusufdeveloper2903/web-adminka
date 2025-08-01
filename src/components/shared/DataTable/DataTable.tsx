@@ -142,7 +142,7 @@ function DataTable<TData, TValue>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
+                    className={cn("flex items-center font-medium", header.column.columnDef.meta?.className)}
                   >
                     {!header.isPlaceholder && (
                       <div className="w-full p-1">
@@ -158,10 +158,7 @@ function DataTable<TData, TValue>({
             {Array.from({ length: 20 }).map((_, index) => (
               <TableRow key={index} className="flex w-full">
                 {table.getAllColumns().map((column) => (
-                  <TableCell
-                    key={column.id}
-                    className={cn("flex items-center px-4 py-2", column.columnDef.meta?.className)}
-                  >
+                  <TableCell key={column.id} className={cn("flex items-center", column.columnDef.meta?.className)}>
                     <Skeleton className="h-5 w-full" />
                   </TableCell>
                 ))}
@@ -188,11 +185,11 @@ function DataTable<TData, TValue>({
         <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
           <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="flex w-full">
+              <TableRow key={headerGroup.id} className="flex w-full text-xs">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={cn("flex items-center px-4 py-2 font-medium", header.column.columnDef.meta?.className)}
+                    className={cn("flex items-center font-medium", header.column.columnDef.meta?.className)}
                   >
                     {header.isPlaceholder ? null : (
                       <div
@@ -234,7 +231,7 @@ function DataTable<TData, TValue>({
               <TableRow
                 key={rows[virtualRow.index].id}
                 data-index={virtualRow.index}
-                className="hover:bg-muted/50 absolute top-0 left-0 flex !h-9 w-full"
+                className="hover:bg-muted/50 absolute top-0 left-0 flex !h-9 w-full text-xs"
                 style={{
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`
@@ -244,7 +241,7 @@ function DataTable<TData, TValue>({
                   <TableCell
                     key={cell.id}
                     title={cell.getValue() != null ? String(cell.getValue()) : undefined}
-                    className={cn("flex items-center px-4", cell.column.columnDef.meta?.className)}
+                    className={cn("flex items-center", cell.column.columnDef.meta?.className)}
                   >
                     <div className="w-full truncate">{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
                   </TableCell>

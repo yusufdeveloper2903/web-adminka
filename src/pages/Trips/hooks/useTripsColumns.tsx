@@ -74,25 +74,16 @@ const useTripsColumns = () => {
         accessorKey: "No",
         header: "№",
         meta: {
-          className: "min-w-[60px] w-[4%]"
+          className: "min-w-[40px] w-[2%]"
         },
         cell: ({ row }) => <span>{row.index + 1}</span>,
-        enableSorting: false
-      },
-      {
-        accessorKey: "id",
-        header: "ID",
-        meta: {
-          className: "min-w-[80px] w-[5%]"
-        },
-        cell: ({ row }) => <span className="font-mono text-sm">{row.original.id}</span>,
         enableSorting: false
       },
       {
         accessorKey: "unitNumber",
         header: "Unit",
         meta: {
-          className: "min-w-[80px] w-[6%]"
+          className: "min-w-[50px] w-[5%]"
         },
         cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>,
         enableSorting: false
@@ -102,7 +93,7 @@ const useTripsColumns = () => {
         accessorKey: "driverName",
         header: "Driver",
         meta: {
-          className: "min-w-[150px] w-[11%]"
+          className: "min-w-[140px] w-[10%]"
         },
         cell: ({ row }) => <span className="font-bold">{row.original.driverName}</span>,
         enableSorting: false
@@ -121,7 +112,7 @@ const useTripsColumns = () => {
         accessorKey: "loadNumber",
         header: "Load Number",
         meta: {
-          className: "min-w-[120px] w-[8%] text-left"
+          className: "min-w-[115px] w-[8%] text-left"
         },
         enableSorting: false
       },
@@ -138,7 +129,7 @@ const useTripsColumns = () => {
         accessorKey: "miles",
         header: "Miles",
         meta: {
-          className: "min-w-[85px] w-[6%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[60px] w-[6%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
       },
@@ -147,7 +138,7 @@ const useTripsColumns = () => {
         accessorKey: "totalEmpty",
         header: "Total Empty",
         meta: {
-          className: "min-w-[110px] w-[8%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[105px] w-[8%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
       },
@@ -156,7 +147,7 @@ const useTripsColumns = () => {
         accessorKey: "pu",
         header: "PU",
         meta: {
-          className: "min-w-[75px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[55px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
       },
@@ -165,7 +156,7 @@ const useTripsColumns = () => {
         accessorKey: "trl",
         header: "TRL",
         meta: {
-          className: "min-w-[75px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
+          className: "min-w-[60px] w-[5%] bg-gray-50 dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
       },
@@ -209,10 +200,10 @@ const useTripsColumns = () => {
       },
 
       {
-        accessorKey: "updates",
+        accessorKey: "updated",
         header: "Updated",
         meta: {
-          className: "min-w-[140px] w-[12%] text-left"
+          className: "min-w-[120px] w-[11%] text-left"
         },
         cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
       },
@@ -256,7 +247,7 @@ const useTripsColumns = () => {
         id: "actions",
         header: "Actions",
         meta: {
-          className: "min-w-[100px] w-[10%] text-center"
+          className: "min-w-[100px] w-[11%] text-center"
         },
         cell: ({ row }) => {
           const trip = row.original
