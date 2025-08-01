@@ -56,10 +56,9 @@ const TripsPage = () => {
       {/* Table View - Always mounted for fast switching */}
       <div
         className={cn(
-          "absolute inset-0 h-full w-full transition-opacity duration-300 ease-out",
+          "absolute inset-0 w-full transition-opacity duration-300 ease-out",
           view !== "table" && "pointer-events-none opacity-0"
         )}
-        style={{ height: "calc(100vh - 120px)" }}
       >
         <DataTable
           columns={columns}

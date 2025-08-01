@@ -176,7 +176,7 @@ function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="relative overflow-auto rounded-[8px] border bg-white">
+    <div className="relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] border bg-white">
       <div
         ref={tableContainerRef}
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
