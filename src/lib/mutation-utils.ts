@@ -67,6 +67,14 @@ export const ENTITY_ERROR_MESSAGES = {
     CREATE_SUCCESS: "User created successfully!",
     UPDATE_SUCCESS: "User updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `User ${active ? "activated" : "deactivated"} successfully!`
+  },
+  globalSetting: {
+    INVALID_DATA: "Invalid global setting data. Please check your input and try again.",
+    NOT_FOUND: "Global setting not found.",
+    ALREADY_EXISTS: "Global setting with this name already exists.",
+    CREATE_SUCCESS: "Global setting created successfully!",
+    UPDATE_SUCCESS: "Global setting updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Global setting ${active ? "activated" : "deactivated"} successfully!`
   }
 } as const
 
