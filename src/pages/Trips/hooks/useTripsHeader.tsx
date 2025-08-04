@@ -79,10 +79,6 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     [loadsData]
   )
 
-  console.log("truckOptions", truckOptions)
-  console.log("driverOptions", driverOptions)
-  console.log("loadOptions", loadOptions)
-
   useEffect(() => {
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
 
@@ -165,11 +161,13 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               }}
               hasNextPage={hasNextDriverPage}
               isClearable
-              value={
-                filters.driverId && driverOptions.length > 0
-                  ? driverOptions.find((opt) => opt.value === filters.driverId) || null
-                  : null
-              }
+              value={(() => {
+                if (!filters.driverId) return null
+
+                const foundOption = driverOptions.find((opt) => opt.value === filters.driverId)
+
+                return foundOption || null
+              })()}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ driverId: option ? option.value : undefined })
               }
@@ -229,7 +227,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <Button
               size="sm"
               onClick={onMapSubmit}
-              disabled={!filters.truckId || !filters.driverId || !filters.loadNumber}
+              disabled={!filters.truckId || !filters.driverId || !filters.loadNumber || isLoading}
             >
               Submit
             </Button>
