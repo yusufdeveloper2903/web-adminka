@@ -176,14 +176,14 @@ function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="dark:bg-background relative h-[calc(100vh-74px)] overflow-auto rounded-[8px]">
+    <div className="dark:bg-card relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] dark:rounded-none">
       <div
         ref={tableContainerRef}
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}
         className="h-full overflow-auto"
       >
         <Table className={cn("grid w-full", { "pointer-events-none": isFetching && !isLoading })}>
-          <TableHeader className="bg-blue-primary dark:bg-background sticky top-0 z-10">
+          <TableHeader className="bg-blue-primary dark:bg-muted sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
