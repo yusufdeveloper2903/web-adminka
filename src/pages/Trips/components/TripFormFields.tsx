@@ -452,7 +452,7 @@ const TripFormFields = ({
           {/* Date/time inputs */}
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDateTime">Start Date/Time</Label>
+              <Label htmlFor="startDateTime">Start DateTime</Label>
               <form.Field
                 name="startDateTime"
                 children={(field: any) => (
@@ -472,7 +472,7 @@ const TripFormFields = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDateTime">End Date/Time</Label>
+              <Label htmlFor="endDateTime">Delivery DateTime</Label>
               <form.Field
                 name="endDateTime"
                 children={(field: any) => (
@@ -495,7 +495,7 @@ const TripFormFields = ({
           {/* Odometer inputs (Optional) */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startOdometer">Start Odometer (Optional)</Label>
+              <Label htmlFor="startOdometer">Start Odometer</Label>
               <form.Field
                 name="startOdometer"
                 children={(field: any) => (
@@ -518,7 +518,7 @@ const TripFormFields = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endOdometer">End Odometer (Optional)</Label>
+              <Label htmlFor="endOdometer">Delivery Odometer</Label>
               <form.Field
                 name="endOdometer"
                 children={(field: any) => (

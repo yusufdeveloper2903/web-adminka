@@ -9,12 +9,11 @@ const Layout = () => {
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto pl-2">
+        <main className="ml-2 flex-1 overflow-x-hidden overflow-y-auto rounded-[8px] border bg-white">
           <Outlet />
         </main>
         <AppDrawer />
       </div>
-      {/* <TanStackRouterDevtools /> */}
     </div>
   )
 }
