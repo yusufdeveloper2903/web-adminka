@@ -36,7 +36,7 @@ const NewTruckForm = ({ truck, onClose }: NewTruckFormProps) => {
         className="space-y-6"
       >
         {/* Truck Form Fields */}
-        <TruckFormFields form={form} />
+        <TruckFormFields form={form} truck={truck}/>
 
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Edit } from "lucide-react"
+import { Edit, EyeIcon } from "lucide-react"
 import { useDrawerStore } from "@/store"
-import { NewTruckForm } from "../components"
+import { NewTruckForm, TruckViewFields } from "../components"
 import type { ITruckResponse } from "@/types"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
@@ -19,6 +19,13 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       },
       cell: ({ row }) => <span>{row.index + 1}</span>,
       enableSorting: false
+    },
+    {
+      accessorKey: "vehicleId",
+      header: "Vehicle ID",
+      meta: {
+        className: "min-w-[100px] w-[8%]"
+      }
     },
     {
       accessorKey: "unitNumber",

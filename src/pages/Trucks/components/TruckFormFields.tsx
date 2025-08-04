@@ -1,13 +1,14 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { AutosuggestInput } from "@/components/shared/AutosuggestInput"
-import type { HereAutosuggestResult } from "@/types"
+import type { HereAutosuggestResult, ITruckResponse } from "@/types"
 
 interface TruckFormFieldsProps {
+  truck?: ITruckResponse
   form: any // TanStack form instance
 }
 
-const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
+const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
   const handleLocationSelect = (location: HereAutosuggestResult) => {
     form.setFieldValue("homeLocation", location.address.label)
     form.setFieldValue("homeLatitude", location.position.lat)
@@ -75,6 +76,17 @@ const TruckFormFields = ({ form }: TruckFormFieldsProps) => {
           )}
         />
       </div>
+
+      <section className="flex gap-4">
+        <div className="w-1/2">
+          <Label htmlFor="vehicleId">Vehicle ID</Label>
+          <Input disabled value={truck?.vehicleId || "N/A"} />
+        </div>
+        <div className="w-1/2">
+          <Label htmlFor="vinNumber">Vin Number</Label>
+          <Input disabled value={truck?.vinNumber || "N/A"} />
+        </div>
+      </section>
 
       {/* Samsara VIN */}
       <div className="space-y-2">
