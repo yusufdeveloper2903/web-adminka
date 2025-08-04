@@ -390,14 +390,14 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
                     className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-t-sm border border-b-0 border-[#1188C3] bg-[#F2F7FD] backdrop-blur-sm"
                     onClick={() => handleZoomIn(trip.id)}
                   >
-                    <PlusIcon />
+                    <PlusIcon className="dark:text-black" />
                     <span className="pointer-events-none absolute bottom-0 h-[1px] w-4/5 cursor-none bg-[#C0C0C0]" />
                   </button>
                   <button
                     className="flex h-[30px] w-8 cursor-pointer items-center justify-center rounded-b-sm border border-t-0 border-[#1188C3] bg-[#F2F7FD] backdrop-blur-sm"
                     onClick={() => handleZoomOut(trip.id)}
                   >
-                    <MinusIcon />
+                    <MinusIcon className="dark:text-black" />
                   </button>
                 </div>
 

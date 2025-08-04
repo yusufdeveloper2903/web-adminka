@@ -43,8 +43,11 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
                     <Input
                       type="number"
                       placeholder="Enter home radius"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      value={field.state.value === 0 ? "" : field.state.value}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.handleChange(value === "" ? 0 : Number(value))
+                      }}
                       onBlur={field.handleBlur}
                       className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
@@ -69,8 +72,11 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
                     <Input
                       type="number"
                       placeholder="Enter shop radius"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      value={field.state.value === 0 ? "" : field.state.value}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.handleChange(value === "" ? 0 : Number(value))
+                      }}
                       onBlur={field.handleBlur}
                       className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
@@ -95,8 +101,11 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
                     <Input
                       type="number"
                       placeholder="Enter pickup radius"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      value={field.state.value === 0 ? "" : field.state.value}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.handleChange(value === "" ? 0 : Number(value))
+                      }}
                       onBlur={field.handleBlur}
                       className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
@@ -121,8 +130,11 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
                     <Input
                       type="number"
                       placeholder="Enter trailer radius"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      value={field.state.value === 0 ? "" : field.state.value}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.handleChange(value === "" ? 0 : Number(value))
+                      }}
                       onBlur={field.handleBlur}
                       className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
@@ -147,8 +159,11 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
                     <Input
                       type="number"
                       placeholder="Enter delivery radius"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      value={field.state.value === 0 ? "" : field.state.value}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.handleChange(value === "" ? 0 : Number(value))
+                      }}
                       onBlur={field.handleBlur}
                       className={`w-full pl-10 ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />

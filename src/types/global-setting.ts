@@ -28,4 +28,4 @@ export interface IGlobalSettingData {
 
 export type ICreateGlobalSettingRequest = IGlobalSettingData
 
-export type IUpdateGlobalSettingRequest = IGlobalSettingData & { id: number }
+export type IUpdateGlobalSettingRequest = IGlobalSettingData

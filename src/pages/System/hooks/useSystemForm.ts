@@ -3,7 +3,7 @@ import { z } from "zod"
 import { useGlobalSettingByType } from "@/hooks/global-setting"
 import { useCreateGlobalSettingMutation, useUpdateGlobalSettingMutation } from "@/hooks/global-setting"
 import { useEffect } from "react"
-import type { ICreateGlobalSettingRequest, IUpdateGlobalSettingRequest } from "@/types"
+import type { ICreateGlobalSettingRequest } from "@/types"
 
 // Zod validation schema
 const systemFormSchema = z.object({
@@ -56,14 +56,10 @@ export const useSystemForm = () => {
         }
 
         if (isEditing && globalSettings) {
-          // Update existing settings
-          const updateData: IUpdateGlobalSettingRequest = {
-            ...settingsData,
-            id: globalSettings.id
-          }
+          // Update existing settings - don't include id in payload
           await updateMutation.mutateAsync({
             id: globalSettings.id,
-            data: updateData
+            data: settingsData
           })
         } else {
           // Create new settings
