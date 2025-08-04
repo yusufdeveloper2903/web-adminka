@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { TripsMapView } from "../Trips/components"
 import { useRouteStore } from "@/store"
+import { useTripSummaryQuery } from "@/hooks/trips"
+import { toast } from "sonner"
 import useRoutesHeader from "./hooks/useRoutesHeader"
 
 interface RouteFilters {
@@ -50,6 +52,27 @@ const RoutesPage = () => {
           loadNumber: filters.loadNumber
         }
       : undefined
+
+  // Fetch trip summary to check for errors
+  const { error: tripSummaryError } = useTripSummaryQuery(
+    {
+      truckId: tripData?.truckId || 0,
+      driverId: tripData?.driverId,
+      loadNumber: tripData?.loadNumber || ""
+    },
+    !!tripData
+  )
+
+  // Show error toast when trip summary fails
+  useEffect(() => {
+    if (tripSummaryError && shouldFetchTrip) {
+      const errorMessage = (tripSummaryError as any)?.response?.data?.message || "Trip not found or invalid parameters"
+      toast.error("Route Error", {
+        description: errorMessage
+      })
+      setShouldFetchTrip(false) // Reset to hide the map
+    }
+  }, [tripSummaryError, shouldFetchTrip])
 
   // Header Configuration Hook
   useRoutesHeader({

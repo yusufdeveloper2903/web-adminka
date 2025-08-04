@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react"
+import { useMemo, useEffect, useState, useCallback } from "react"
 import useTripsHeader from "./hooks/useTripsHeader"
 import useTripsColumns from "./hooks/useTripsColumns"
 import { useLazyView } from "./hooks/useLazyView"
@@ -12,6 +12,19 @@ import { TripsMapView } from "./components"
 const TripsPage = () => {
   const { view, filters, setSelectedTripId, setSorting } = useTripsStore()
   const { clearRoute } = useRouteStore()
+  const [shouldFetchMapTrip, setShouldFetchMapTrip] = useState(false)
+
+  // Reset map trip data when switching views or filters change
+  useEffect(() => {
+    if (view === "table") {
+      setShouldFetchMapTrip(false)
+    }
+  }, [view])
+
+  // Reset map trip data when filters change (so user needs to submit again)
+  useEffect(() => {
+    setShouldFetchMapTrip(false)
+  }, [filters.truckId, filters.driverId, filters.loadNumber])
 
   // Cleanup when component unmounts or when leaving the page
   useEffect(() => {
@@ -24,8 +37,10 @@ const TripsPage = () => {
 
   const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters }), [filters])
 
-  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useTripsInfiniteQuery(cleanObject(queryFilters))
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useTripsInfiniteQuery(
+    cleanObject(queryFilters),
+    view === "table" // Only fetch when table view is active
+  )
 
   const flatData = useMemo(() => {
     return data?.pages?.flatMap((page) => page.content) ?? []
@@ -41,11 +56,29 @@ const TripsPage = () => {
     onLoadComplete: () => console.log("✅ Map loaded successfully!")
   })
 
+  // Handle map view submit
+  const handleMapSubmit = useCallback(() => {
+    if (filters.truckId && filters.driverId && filters.loadNumber) {
+      setShouldFetchMapTrip(true)
+    }
+  }, [filters.truckId, filters.driverId, filters.loadNumber])
+
+  // Prepare trip data for map view when submit is clicked
+  const mapTripData =
+    shouldFetchMapTrip && filters.truckId && filters.driverId && filters.loadNumber
+      ? {
+          truckId: Number(filters.truckId),
+          driverId: Number(filters.driverId),
+          loadNumber: filters.loadNumber
+        }
+      : undefined
+
   // Header Configuration Hook
   useTripsHeader({
     isLoading: isFetching,
     totalDBRowCount,
-    refetch
+    refetch,
+    onMapSubmit: handleMapSubmit
   })
 
   // Columns with handlers
@@ -97,7 +130,7 @@ const TripsPage = () => {
         )}
 
         {/* Actual Map Component - Only render after first view */}
-        {mapView.shouldRender && <TripsMapView isVisible={mapView.isActive} />}
+        {mapView.shouldRender && <TripsMapView isVisible={mapView.isActive} tripData={mapTripData} />}
       </div>
 
       {/* Mileage Report Dialog */}

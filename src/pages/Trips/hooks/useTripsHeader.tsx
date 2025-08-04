@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui"
 import { useDrawerStore, useHeaderStore, useTripsStore } from "@/store"
-import { Plus, RefreshCw, RouteIcon } from "lucide-react"
+import { Plus, RefreshCw } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import * as React from "react"
+
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib"
@@ -19,9 +19,10 @@ interface UseTripsHeaderParams {
   isLoading: boolean
   totalDBRowCount: number
   refetch: () => void
+  onMapSubmit?: () => void
 }
 
-const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderParams) => {
+const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: UseTripsHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
   const { view, setView, filters, setFilters, resetFilters } = useTripsStore()
@@ -77,6 +78,10 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
       ) ?? [],
     [loadsData]
   )
+
+  console.log("truckOptions", truckOptions)
+  console.log("driverOptions", driverOptions)
+  console.log("loadOptions", loadOptions)
 
   useEffect(() => {
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
@@ -134,11 +139,8 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               hasNextPage={hasNextTruckPage}
               isClearable
               value={
-                filters.truckId
-                  ? {
-                      value: filters.truckId,
-                      label: truckOptions.find((opt) => opt.value === filters.truckId)?.label || filters.truckId
-                    }
+                filters.truckId && truckOptions.length > 0
+                  ? truckOptions.find((opt) => opt.value === filters.truckId) || null
                   : null
               }
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
@@ -164,11 +166,8 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               hasNextPage={hasNextDriverPage}
               isClearable
               value={
-                filters.driverId
-                  ? {
-                      value: filters.driverId,
-                      label: driverOptions.find((opt) => opt.value === filters.driverId)?.label || filters.driverId
-                    }
+                filters.driverId && driverOptions.length > 0
+                  ? driverOptions.find((opt) => opt.value === filters.driverId) || null
                   : null
               }
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
@@ -191,7 +190,11 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
               }}
               hasNextPage={hasNextLoadPage}
               isClearable
-              value={filters.loadNumber ? { value: filters.loadNumber, label: filters.loadNumber } : null}
+              value={
+                filters.loadNumber && loadOptions.length > 0
+                  ? loadOptions.find((opt) => opt.value === filters.loadNumber) || null
+                  : null
+              }
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ loadNumber: option ? option.value : undefined })
               }
@@ -214,12 +217,24 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
         }
       ],
       viewSwitcher: (
-        <Tabs value={view} onValueChange={(value) => setView(value as "table" | "map")}>
-          <TabsList className="h-9">
-            <TabsTrigger value="table">Table</TabsTrigger>
-            <TabsTrigger value="map">Map</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex items-center gap-2">
+          <Tabs value={view} onValueChange={(value) => setView(value as "table" | "map")}>
+            <TabsList className="h-9">
+              <TabsTrigger value="table">Table</TabsTrigger>
+              <TabsTrigger value="map">Map</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {view === "map" && onMapSubmit && (
+            <Button
+              size="sm"
+              onClick={onMapSubmit}
+              disabled={!filters.truckId || !filters.driverId || !filters.loadNumber}
+            >
+              Submit
+            </Button>
+          )}
+        </div>
       )
     })
 
@@ -230,27 +245,28 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch }: UseTripsHeaderP
     isLoading,
     totalDBRowCount,
     refetch,
-    setHeaderConfig,
-    resetHeaderConfig,
-    setDrawerConfig,
     view,
-    setView,
     filters,
-    setFilters,
     truckOptions,
     driverOptions,
     loadOptions,
     isTrucksLoading,
     isDriversLoading,
     isLoadsLoading,
-    fetchNextTruck,
-    fetchNextDriver,
-    fetchNextLoad,
     hasNextTruckPage,
     hasNextDriverPage,
     hasNextLoadPage,
+    isFetchingNextDriverPage,
+    onMapSubmit,
+    setHeaderConfig,
     resetFilters,
-    isFetchingNextDriverPage
+    setDrawerConfig,
+    fetchNextTruck,
+    setFilters,
+    fetchNextDriver,
+    fetchNextLoad,
+    setView,
+    resetHeaderConfig
   ])
 
   return { filters, view, setView }

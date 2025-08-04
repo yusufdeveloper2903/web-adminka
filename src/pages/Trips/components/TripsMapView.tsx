@@ -11,6 +11,7 @@ import { useTripSummaryQuery } from "@/hooks/trips"
 import { useGlobalSettingByType } from "@/hooks/global-setting"
 import { formatDuration, metersToMiles } from "@/lib/distance-utils"
 import TripReportDialog from "./TripReportDialog"
+import { toast } from "sonner"
 
 interface TripMapData {
   id: string
@@ -65,24 +66,19 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
       driverId: effectiveTripData?.driverId,
       loadNumber: effectiveTripData?.loadNumber || ""
     },
-    !!effectiveTripData && (tripData ? true : !!selectedTripId)
+    // Only fetch when we have tripData (from submit) or selectedTripId (from table row click)
+    !!tripData || (!!effectiveTripData && !!selectedTripId)
   )
 
-  // Debug query state only when there are issues (only for store-based data)
-  if (!tripData && selectedTripId && !currentTripData) {
-    console.log("Trip selected but currentTripData is null:", { selectedTripId, currentTripData })
-  }
-
-  if (!tripData && currentTripData && !tripSummaryData && !isTripSummaryLoading && !tripSummaryError) {
-    console.log("Query should be enabled but no data:", {
-      enabled: !!currentTripData && !!selectedTripId,
-      params: {
-        truckId: currentTripData?.truckId || 0,
-        driverId: currentTripData?.driverId,
-        loadNumber: currentTripData?.loadNumber || ""
-      }
-    })
-  }
+  // Show error toast when trip summary fails (only for trips page with tripData)
+  useEffect(() => {
+    if (tripSummaryError && tripData && !mapOnly) {
+      const errorMessage = (tripSummaryError as any)?.response?.data?.message || "Failed to load trip data"
+      toast.error("Trip Data Error", {
+        description: errorMessage
+      })
+    }
+  }, [tripSummaryError, tripData, mapOnly])
 
   // Refs for each map to control zoom
   const mapRefs = useRef<Record<string, LazyMapRef | null>>({})

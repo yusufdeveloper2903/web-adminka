@@ -9,12 +9,13 @@ const fetchTrips = async (filters: ITripsFiltersRequest, pageParam: number): Pro
   return response.data.data
 }
 
-export const useTripsInfiniteQuery = (filters: ITripsFiltersRequest = {}) => {
+export const useTripsInfiniteQuery = (filters: ITripsFiltersRequest = {}, enabled: boolean = true) => {
   return useInfiniteQuery({
     queryKey: ["trips", filters],
     queryFn: ({ pageParam = 0 }) => fetchTrips(filters, pageParam),
     getNextPageParam,
     initialPageParam: 0,
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
+    enabled
   })
 }
