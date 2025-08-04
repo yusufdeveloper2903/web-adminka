@@ -84,16 +84,9 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             onFetchNextPage={fetchNextPage}
             hasNextPage={hasNextPage}
             isClearable
-            value={
-              filters.teamId
-                ? {
-                    value: filters.teamId,
-                    label: teamOptions.find((opt) => opt.value === filters.teamId)?.label || ""
-                  }
-                : null
-            }
+            value={filters.team || null}
             onChange={(option: SingleValue<{ value: string; label: string }>) =>
-              setFilters({ teamId: option ? option.value : undefined })
+              setFilters({ team: option || undefined })
             }
             className="!min-h-8"
           />
@@ -109,7 +102,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
               resetFilters()
               setDispatcherKeyword("")
             }}
-            disabled={!filters.keyword && !filters.teamId}
+            disabled={!filters.keyword && !filters.team}
           >
             <RotateCcw className="h-4 w-4" />
           </Button>

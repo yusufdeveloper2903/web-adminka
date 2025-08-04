@@ -9,7 +9,16 @@ import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/typ
 import type { SingleValue } from "react-select"
 import { RotateCcw } from "lucide-react"
 
+interface SelectOption {
+  value: string
+  label: string
+}
+
 interface RouteFilters {
+  truck?: SelectOption
+  driver?: SelectOption
+  load?: SelectOption
+  // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
   loadNumber?: string
@@ -75,7 +84,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
     [loadsData]
   )
 
-  const canSubmit = filters.truckId && filters.driverId && filters.loadNumber
+  const canSubmit = filters.truck && filters.driver && filters.load
 
   useEffect(() => {
     setHeaderConfig({
@@ -93,16 +102,12 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               onFetchNextPage={fetchNextTruck}
               hasNextPage={hasNextTruckPage}
               isClearable
-              value={
-                filters.truckId
-                  ? {
-                      value: filters.truckId,
-                      label: truckOptions.find((opt) => opt.value === filters.truckId)?.label || filters.truckId
-                    }
-                  : null
-              }
+              value={filters.truck || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ truckId: option ? option.value : undefined })
+                setFilters({ 
+                  truck: option || undefined,
+                  truckId: option?.value || undefined 
+                })
               }
             />
           )
@@ -118,16 +123,12 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               onFetchNextPage={fetchNextDriver}
               hasNextPage={hasNextDriverPage}
               isClearable
-              value={
-                filters.driverId
-                  ? {
-                      value: filters.driverId,
-                      label: driverOptions.find((opt) => opt.value === filters.driverId)?.label || filters.driverId
-                    }
-                  : null
-              }
+              value={filters.driver || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ driverId: option ? option.value : undefined })
+                setFilters({ 
+                  driver: option || undefined,
+                  driverId: option?.value || undefined 
+                })
               }
             />
           )
@@ -143,9 +144,12 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               onFetchNextPage={fetchNextLoad}
               hasNextPage={hasNextLoadPage}
               isClearable
-              value={filters.loadNumber ? { value: filters.loadNumber, label: filters.loadNumber } : null}
+              value={filters.load || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ loadNumber: option ? option.value : undefined })
+                setFilters({ 
+                  load: option || undefined,
+                  loadNumber: option?.value || undefined 
+                })
               }
             />
           )
@@ -159,7 +163,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               onClick={() => {
                 resetFilters()
               }}
-              disabled={!filters.driverId && !filters.loadNumber && !filters.truckId}
+              disabled={!filters.driver && !filters.load && !filters.truck}
             >
               <RotateCcw className="h-4 w-4" />
             </Button>

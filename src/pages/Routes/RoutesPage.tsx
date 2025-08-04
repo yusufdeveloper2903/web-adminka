@@ -5,7 +5,16 @@ import { useTripSummaryQuery } from "@/hooks/trips"
 import { toast } from "sonner"
 import useRoutesHeader from "./hooks/useRoutesHeader"
 
+interface SelectOption {
+  value: string
+  label: string
+}
+
 interface RouteFilters {
+  truck?: SelectOption
+  driver?: SelectOption
+  load?: SelectOption
+  // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
   loadNumber?: string
@@ -38,18 +47,18 @@ const RoutesPage = () => {
   }
 
   const handleSubmit = () => {
-    if (filters.truckId && filters.driverId && filters.loadNumber) {
+    if (filters.truck && filters.driver && filters.load) {
       setShouldFetchTrip(true)
     }
   }
 
   // Prepare trip data for TripsMapView when submit is clicked
   const tripData =
-    shouldFetchTrip && filters.truckId && filters.driverId && filters.loadNumber
+    shouldFetchTrip && filters.truck && filters.driver && filters.load
       ? {
-          truckId: Number(filters.truckId),
-          driverId: Number(filters.driverId),
-          loadNumber: filters.loadNumber
+          truckId: Number(filters.truck.value),
+          driverId: Number(filters.driver.value),
+          loadNumber: filters.load.value
         }
       : undefined
 

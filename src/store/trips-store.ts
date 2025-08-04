@@ -1,13 +1,18 @@
+import type { ISelectOption } from "@/types"
 import { create } from "zustand"
 
 type TripsView = "table" | "map"
 
 interface TripFilters {
+  truck?: ISelectOption
+  driver?: ISelectOption
+  load?: ISelectOption
+  sortName?: string
+  sortDir?: string
+  // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
   loadNumber?: string
-  sortName?: string
-  sortDir?: string
 }
 
 interface TripsViewState {
@@ -22,11 +27,15 @@ interface TripsViewState {
 }
 
 const initialFilters: TripFilters = {
+  truck: undefined,
+  driver: undefined,
+  load: undefined,
+  sortName: undefined,
+  sortDir: undefined,
+  // Legacy fields
   truckId: undefined,
   driverId: undefined,
-  loadNumber: undefined,
-  sortName: undefined,
-  sortDir: undefined
+  loadNumber: undefined
 }
 
 export const useTripsStore = create<TripsViewState>((set) => ({
@@ -35,7 +44,23 @@ export const useTripsStore = create<TripsViewState>((set) => ({
   selectedTripId: null,
   setSelectedTripId: (selectedTripId) => set({ selectedTripId }),
   filters: initialFilters,
-  setFilters: (newFilters) => set((state) => ({ filters: { ...state.filters, ...newFilters } })),
+  setFilters: (newFilters) =>
+    set((state) => {
+      const updatedFilters = { ...state.filters, ...newFilters }
+
+      // Update legacy fields for API compatibility
+      if (newFilters.truck !== undefined) {
+        updatedFilters.truckId = newFilters.truck?.value
+      }
+      if (newFilters.driver !== undefined) {
+        updatedFilters.driverId = newFilters.driver?.value
+      }
+      if (newFilters.load !== undefined) {
+        updatedFilters.loadNumber = newFilters.load?.value
+      }
+
+      return { filters: updatedFilters }
+    }),
   resetFilters: () => set({ filters: initialFilters }),
   setSorting: (sortName, sortDir) =>
     set((state) => ({

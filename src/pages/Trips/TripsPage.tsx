@@ -14,28 +14,28 @@ const TripsPage = () => {
   const { clearRoute } = useRouteStore()
   const [shouldFetchMapTrip, setShouldFetchMapTrip] = useState(false)
 
-  // Reset map trip data when switching views or filters change
   useEffect(() => {
     if (view === "table") {
       setShouldFetchMapTrip(false)
     }
   }, [view])
 
-  // Reset map trip data when filters change (so user needs to submit again)
   useEffect(() => {
     setShouldFetchMapTrip(false)
-  }, [filters.truckId, filters.driverId, filters.loadNumber])
+  }, [filters.truck, filters.driver, filters.load])
 
-  // Cleanup when component unmounts or when leaving the page
   useEffect(() => {
     return () => {
-      // Clear selected trip and route data when leaving trips page
       setSelectedTripId(null)
       clearRoute()
     }
   }, [clearRoute, setSelectedTripId])
 
-  const queryFilters: ITripsFiltersRequest = useMemo(() => ({ ...filters }), [filters])
+  const queryFilters: ITripsFiltersRequest = useMemo(() => {
+    // Extract only API-compatible fields (exclude option objects)
+    const { truck, driver, load, ...apiFilters } = filters
+    return apiFilters
+  }, [filters])
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useTripsInfiniteQuery(
     cleanObject(queryFilters),
@@ -58,18 +58,18 @@ const TripsPage = () => {
 
   // Handle map view submit
   const handleMapSubmit = useCallback(() => {
-    if (filters.truckId && filters.driverId && filters.loadNumber) {
+    if (filters.truck && filters.driver && filters.load) {
       setShouldFetchMapTrip(true)
     }
-  }, [filters.truckId, filters.driverId, filters.loadNumber])
+  }, [filters.truck, filters.driver, filters.load])
 
   // Prepare trip data for map view when submit is clicked
   const mapTripData =
-    shouldFetchMapTrip && filters.truckId && filters.driverId && filters.loadNumber
+    shouldFetchMapTrip && filters.truck && filters.driver && filters.load
       ? {
-          truckId: Number(filters.truckId),
-          driverId: Number(filters.driverId),
-          loadNumber: filters.loadNumber
+          truckId: Number(filters.truck.value),
+          driverId: Number(filters.driver.value),
+          loadNumber: filters.load.value
         }
       : undefined
 

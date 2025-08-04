@@ -134,13 +134,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               }}
               hasNextPage={hasNextTruckPage}
               isClearable
-              value={
-                filters.truckId && truckOptions.length > 0
-                  ? truckOptions.find((opt) => opt.value === filters.truckId) || null
-                  : null
-              }
+              value={filters.truck || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ truckId: option ? option.value : undefined })
+                setFilters({ truck: option || undefined })
               }
               className="!min-h-8"
             />
@@ -161,15 +157,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               }}
               hasNextPage={hasNextDriverPage}
               isClearable
-              value={(() => {
-                if (!filters.driverId) return null
-
-                const foundOption = driverOptions.find((opt) => opt.value === filters.driverId)
-
-                return foundOption || null
-              })()}
+              value={filters.driver || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ driverId: option ? option.value : undefined })
+                setFilters({ driver: option || undefined })
               }
               className="!min-h-8"
             />
@@ -188,13 +178,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               }}
               hasNextPage={hasNextLoadPage}
               isClearable
-              value={
-                filters.loadNumber && loadOptions.length > 0
-                  ? loadOptions.find((opt) => opt.value === filters.loadNumber) || null
-                  : null
-              }
+              value={filters.load || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ loadNumber: option ? option.value : undefined })
+                setFilters({ load: option || undefined })
               }
               className="!min-h-8"
             />
@@ -207,7 +193,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               variant="ghost"
               size="icon"
               onClick={resetFilters}
-              disabled={!filters.driverId && !filters.loadNumber && !filters.truckId}
+              disabled={!filters.driver && !filters.load && !filters.truck}
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -227,7 +213,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <Button
               size="sm"
               onClick={onMapSubmit}
-              disabled={!filters.truckId || !filters.driverId || !filters.loadNumber || isLoading}
+              disabled={!filters.truck || !filters.driver || !filters.load || isLoading}
             >
               Submit
             </Button>
