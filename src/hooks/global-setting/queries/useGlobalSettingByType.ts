@@ -3,7 +3,7 @@ import api from "@/lib/axios"
 import type { GlobalSettingType, IApiResponse, IGlobalSettingResponse } from "@/types"
 
 const fetchGlobalSettingByType = async (type: GlobalSettingType = "TRIP"): Promise<IGlobalSettingResponse> => {
-  const response = await api.get<IApiResponse<IGlobalSettingResponse>>(`/global-setting/${type}`)
+  const response = await api.get<IApiResponse<IGlobalSettingResponse>>(`/global-setting/by-type?type=${type}`)
   return response.data.data
 }
 

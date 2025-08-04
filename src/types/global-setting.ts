@@ -1,8 +1,6 @@
-import type { IPaginatedResponse } from "./api"
-
 export type GlobalSettingType = "TRIP"
 
-export interface IGlobalSettingData {
+export interface IGlobalSettingResponse {
   id: number
   homeRadius: number
   shopRadius: number
@@ -15,9 +13,6 @@ export interface IGlobalSettingData {
   created: string
   updated: string
 }
-
-// Trucks List Response (paginated)
-export type IGlobalSettingResponse = IPaginatedResponse<IGlobalSettingData>
 
 // Base Truck Data (common fields for create/update)
 export interface IGlobalSettingData {

@@ -8,6 +8,7 @@ import { useRouteStore, useTripsStore } from "@/store"
 import RouteLoadingOverlay from "@/components/shared/MapComponent/RouteLoadingOverlay"
 import type { LazyMapRef } from "@/components/shared/MapComponent/LazyMap"
 import { useTripSummaryQuery } from "@/hooks/trips"
+import { useGlobalSettingByType } from "@/hooks/global-setting"
 import { formatDuration, metersToMiles } from "@/lib/distance-utils"
 import TripReportDialog from "./TripReportDialog"
 
@@ -49,6 +50,9 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
 
   // Use tripData prop if provided, otherwise fall back to currentTripData from store
   const effectiveTripData = tripData || currentTripData
+
+  // Fetch global settings to determine which maps to show
+  const { data: globalSettings } = useGlobalSettingByType("TRIP")
 
   // Fetch trip summary data with route information
   const {
@@ -175,8 +179,21 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
     if (mapOnly) {
       return tripsData.filter((trip) => trip.id === "here")
     }
-    return tripsData
-  }, [tripsData, mapOnly])
+
+    // Filter trips based on global settings
+    if (!globalSettings) {
+      return tripsData // Show all if settings not loaded yet
+    }
+
+    const enabledTrips = tripsData.filter((trip) => {
+      if (trip.id === "here") return true // Always show HERE
+      if (trip.id === "samsara") return globalSettings.samsaraEnabled
+      if (trip.id === "gle") return globalSettings.gleEnabled
+      return false
+    })
+
+    return enabledTrips
+  }, [tripsData, mapOnly, globalSettings])
 
   const handleToggleExpand = (mapId: string) => {
     // Only transition this specific map
@@ -264,7 +281,13 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
       <div
         className={cn(
           "grid h-full gap-2 transition-all duration-300 ease-in-out",
-          mapOnly || expandedMap ? "grid-cols-1 grid-rows-1" : "grid-cols-2 grid-rows-2"
+          mapOnly || expandedMap
+            ? "grid-cols-1 grid-rows-1"
+            : displayedTrips.length === 1
+              ? "grid-cols-1 grid-rows-1" // Only HERE map
+              : displayedTrips.length === 2
+                ? "grid-cols-2 grid-rows-1" // HERE + one other (1/2 width each)
+                : "grid-cols-2 grid-rows-2" // All three maps (original layout)
         )}
       >
         {displayedTrips.map((trip) => (
@@ -272,10 +295,12 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
             key={trip.id}
             className={cn(
               "bg-card relative overflow-hidden rounded-lg border transition-all duration-300 ease-in-out",
-              // Grid layout classes - fixed positions
-              trip.id === "here" && !expandedMap && "col-span-1 row-span-2", // Left side large
-              trip.id === "samsara" && !expandedMap && "col-span-1 row-span-1", // Top right
-              trip.id === "gle" && !expandedMap && "col-span-1 row-span-1" // Bottom right
+              // Dynamic grid layout based on number of displayed trips
+              !expandedMap && displayedTrips.length === 1 && "col-span-1 row-span-1", // Single map (full)
+              !expandedMap && displayedTrips.length === 2 && "col-span-1 row-span-1", // Two maps (1/2 each)
+              !expandedMap && displayedTrips.length === 3 && trip.id === "here" && "col-span-1 row-span-2", // HERE large
+              !expandedMap && displayedTrips.length === 3 && trip.id === "samsara" && "col-span-1 row-span-1", // Samsara top right
+              !expandedMap && displayedTrips.length === 3 && trip.id === "gle" && "col-span-1 row-span-1" // GLE bottom right
             )}
             style={{
               // Simple visibility hiding
