@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Home, Building2, MapPin, Truck, Package } from "lucide-react"
+import { Home, StoreIcon, MapPin, Truck, Package } from "lucide-react"
 
 interface SystemFormFieldsProps {
   form: any // TanStack form instance
@@ -68,7 +68,7 @@ const SystemFormFields = ({ form }: SystemFormFieldsProps) => {
               children={(field: any) => (
                 <div>
                   <div className="relative">
-                    <Building2 className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
+                    <StoreIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                     <Input
                       type="number"
                       placeholder="Enter shop radius"

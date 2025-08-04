@@ -305,7 +305,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
           >
             {/* Header */}
             {!mapOnly && (
-              <div className="bg-background/90 absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg p-3 backdrop-blur-sm">
+              <div className="bg-background/90 dark:bg-card absolute top-0 right-0 left-0 z-10 flex items-center justify-between rounded-t-lg p-3 backdrop-blur-sm">
                 <h3 className="text-sm font-semibold">{trip.title}</h3>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-4 text-xs">
