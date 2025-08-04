@@ -91,7 +91,7 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
           node: (
             <SearchableSelect
               options={driverOptions}
-              placeholder="Filter by Driver..."
+              placeholder="Driver"
               isLoading={isDriversLoading}
               onDebouncedInputChange={setDriverSearch}
               onFetchNextPage={fetchNextDriver}

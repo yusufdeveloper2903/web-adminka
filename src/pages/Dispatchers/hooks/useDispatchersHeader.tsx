@@ -78,7 +78,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
         node: (
           <SearchableSelect
             options={teamOptions}
-            placeholder="Filter by Team..."
+            placeholder="Team"
             isLoading={isTeamsLoading}
             onDebouncedInputChange={setTeamSelectSearch}
             onFetchNextPage={fetchNextPage}
