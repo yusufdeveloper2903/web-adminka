@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   hasNextPage: boolean
   onSortingChange?: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
   sorting?: { sortName?: string; sortDir?: string }
+  className?: string
 }
 
 function DataTable<TData, TValue>({
@@ -44,7 +45,8 @@ function DataTable<TData, TValue>({
   totalDBRowCount,
   hasNextPage,
   onSortingChange,
-  sorting: externalSorting
+  sorting: externalSorting,
+  className
 }: DataTableProps<TData, TValue>) {
   // Reference to scrolling element
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -134,7 +136,9 @@ function DataTable<TData, TValue>({
 
   if (isLoading) {
     return (
-      <div className="dark:bg-background h-[calc(100vh-74px)] overflow-auto rounded-lg border bg-white">
+      <div
+        className={cn("dark:bg-background h-[calc(100vh-74px)] overflow-auto rounded-lg border bg-white", className)}
+      >
         <Table className="grid w-full">
           <TableHeader className="bg-background sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -176,7 +180,12 @@ function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="dark:bg-card relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] dark:rounded-none">
+    <div
+      className={cn(
+        "dark:bg-card relative h-[calc(100vh-74px)] overflow-auto rounded-[8px] dark:rounded-none",
+        className
+      )}
+    >
       <div
         ref={tableContainerRef}
         onScroll={(e) => fetchMoreOnBottomReached(e.currentTarget)}

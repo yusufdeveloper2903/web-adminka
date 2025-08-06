@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { ICreateTripRequest, ITripStopResponse } from "@/types"
+import type { ICreateTripRequest, ITripListResponse, ITripStopResponse, ITripsResponse } from "@/types"
 
 interface RouteSettings {
   hasTrailer: boolean
@@ -26,11 +26,11 @@ interface RouteState {
   mapLoadingStates: MapLoadingState // Individual map loading states
   routeSettings: RouteSettings
   // Backend trip data for polyline visualization
-  currentTripData: any | null
+  currentTripData: ITripListResponse | null
   // HERE maps route data for dynamic updates
   hereRouteData: RouteData | null
   setRoute: (route: ICreateTripRequest) => void
-  setTripData: (trip: any) => void
+  setTripData: (trip: ITripListResponse | null) => void
   setHereRouteData: (routeData: RouteData) => void
   clearRoute: () => void
   toggleRouteVisibility: () => void

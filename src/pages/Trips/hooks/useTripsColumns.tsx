@@ -6,7 +6,6 @@ import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import TripMileageReportDialog from "../components/TripMileageReportDialog"
-import { useTripSummaryQuery } from "@/hooks/trips"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
 
@@ -17,17 +16,6 @@ const useTripsColumns = () => {
 
   // State for mileage report dialog
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
-  const [selectedTripForReport, setSelectedTripForReport] = useState<ITripListResponse | null>(null)
-
-  // Fetch trip summary data for report
-  const { data: tripSummaryData } = useTripSummaryQuery(
-    {
-      truckId: selectedTripForReport?.truckId || 0,
-      driverId: selectedTripForReport?.driverId,
-      loadNumber: selectedTripForReport?.loadNumber || ""
-    },
-    !!selectedTripForReport
-  )
 
   const handleRouteClick = useCallback(
     (trip: any) => {
@@ -64,7 +52,7 @@ const useTripsColumns = () => {
   )
 
   const handleReportClick = useCallback((trip: ITripListResponse) => {
-    setSelectedTripForReport(trip)
+    setTripData(trip)
     setIsReportDialogOpen(true)
   }, [])
 
@@ -277,9 +265,8 @@ const useTripsColumns = () => {
         isOpen={isReportDialogOpen}
         onClose={() => {
           setIsReportDialogOpen(false)
-          setSelectedTripForReport(null)
+          setTripData(null)
         }}
-        tripData={tripSummaryData}
       />
     )
   }

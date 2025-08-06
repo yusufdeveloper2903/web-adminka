@@ -2,73 +2,73 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DataTable } from "@/components/shared"
 import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
-import { metersToMiles } from "@/lib/distance-utils"
-import type { ITripSummaryResponse } from "@/types"
+import { useTripReportSummaryQuery } from "@/hooks/trips"
+import { useRouteStore } from "@/store"
 
 interface TripMileageReportDialogProps {
   isOpen: boolean
   onClose: () => void
-  tripData?: ITripSummaryResponse
 }
 
-interface MileageReportRow {
-  no: number
-  system: string
-  miles: number
-  totalEmpty: number
-  pu: number
-  trl: number
-  totalMiles: number
-  differences: number
-}
+const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogProps) => {
+  const { currentTripData } = useRouteStore()
 
-const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageReportDialogProps) => {
+  const { data: tripReportData, isFetching } = useTripReportSummaryQuery(
+    {
+      truckId: currentTripData?.truckId as number,
+      driverId: currentTripData?.driverId,
+      loadNumber: currentTripData?.loadNumber as string
+    },
+    !!currentTripData?.truckId && !!currentTripData?.loadNumber
+  )
+
+  const { hereStats, samsaraStats, gleStats } = tripReportData || {}
+
   // Generate report data
-  const reportData: MileageReportRow[] = useMemo(() => {
-    if (!tripData) return []
+  const reportData = useMemo(() => {
+    if (!currentTripData) return []
 
     const hereData = {
       no: 1,
       system: "HERE",
-      miles: tripData.mileStats.miles,
-      totalEmpty: tripData.mileStats.totalEmpty,
-      pu: tripData.mileStats.pu,
-      trl: tripData.mileStats.trl,
-      totalMiles: tripData.mileStats.totalMiles,
+      miles: hereStats?.miles,
+      totalEmpty: hereStats?.totalEmpty,
+      pu: hereStats?.pu,
+      trl: hereStats?.trl,
+      totalMiles: hereStats?.totalMiles,
+      totalOdometers: hereStats?.totalOdometers,
       differences: 0 // HERE is baseline
     }
 
     const samsaraData = {
       no: 2,
       system: "SAMSARA",
-      miles: tripData.samsaraLocation ? Math.round(metersToMiles(tripData.samsaraLocation.distance)) : 0,
-      totalEmpty: tripData.mileStats.totalEmpty, // Same as HERE
-      pu: tripData.mileStats.pu, // Same as HERE
-      trl: tripData.mileStats.trl, // Same as HERE
-      totalMiles: tripData.samsaraLocation ? Math.round(metersToMiles(tripData.samsaraLocation.distance)) : 0,
-      differences: tripData.samsaraLocation
-        ? Math.round(metersToMiles(tripData.samsaraLocation.distance)) - tripData.mileStats.totalMiles
-        : 0
+      miles: samsaraStats?.miles,
+      totalEmpty: samsaraStats?.totalEmpty,
+      pu: samsaraStats?.pu,
+      trl: samsaraStats?.trl,
+      totalMiles: samsaraStats?.totalMiles,
+      totalOdometers: samsaraStats?.totalOdometers,
+      differences: Number(samsaraStats?.totalMiles) - Number(hereStats?.totalMiles) || 0
     }
 
     const gleData = {
-      no: 3,
+      no: 2,
       system: "GLE",
-      miles: tripData.gleLocation ? Math.round(metersToMiles(tripData.gleLocation.distance)) : 0,
-      totalEmpty: tripData.mileStats.totalEmpty, // Same as HERE
-      pu: tripData.mileStats.pu, // Same as HERE
-      trl: tripData.mileStats.trl, // Same as HERE
-      totalMiles: tripData.gleLocation ? Math.round(metersToMiles(tripData.gleLocation.distance)) : 0,
-      differences: tripData.gleLocation
-        ? Math.round(metersToMiles(tripData.gleLocation.distance)) - tripData.mileStats.totalMiles
-        : 0
+      miles: gleStats?.miles,
+      totalEmpty: gleStats?.totalEmpty,
+      pu: gleStats?.pu,
+      trl: gleStats?.trl,
+      totalMiles: gleStats?.totalMiles,
+      totalOdometers: gleStats?.totalOdometers,
+      differences: Number(gleStats?.totalMiles) - Number(hereStats?.totalMiles) || 0
     }
 
     return [hereData, samsaraData, gleData]
-  }, [tripData])
+  }, [tripReportData])
 
   // Define columns
-  const columns: ColumnDef<MileageReportRow>[] = useMemo(
+  const columns: ColumnDef<any>[] = useMemo(
     () => [
       {
         accessorKey: "no",
@@ -94,7 +94,8 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.miles.toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.miles}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "totalEmpty",
@@ -102,7 +103,8 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
         meta: {
           className: "min-w-[100px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.totalEmpty.toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.totalEmpty}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "pu",
@@ -110,7 +112,8 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.pu.toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.pu}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "trl",
@@ -118,7 +121,8 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.trl.toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{row.original.trl}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "totalMiles",
@@ -126,7 +130,17 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
         meta: {
           className: "min-w-[120px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-bold text-blue-600">{row.original.totalMiles.toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-bold text-blue-600">{row.original.totalMiles}</span>,
+        enableSorting: false
+      },
+      {
+        accessorKey: "totalOdometers",
+        header: "TOTAL ODOMETERS",
+        meta: {
+          className: "min-w-[120px] w-[15%] text-left"
+        },
+        cell: ({ row }) => <span className="font-bold text-blue-600">{row.original.totalOdometers}</span>,
+        enableSorting: false
       },
       {
         accessorKey: "differences",
@@ -152,9 +166,9 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[85vh] overflow-hidden sm:max-w-4xl">
+      <DialogContent className="max-h-[85vh] overflow-hidden pb-6 sm:max-w-6xl">
         <DialogHeader>
-          <DialogTitle>Mileage Report - {tripData?.loadNumber}</DialogTitle>
+          <DialogTitle>Mileage Report - {currentTripData?.loadNumber}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -162,26 +176,26 @@ const TripMileageReportDialog = ({ isOpen, onClose, tripData }: TripMileageRepor
           <div className="flex gap-4 text-sm">
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">Truck:</span>
-              <span className="font-medium">{tripData?.unitNumber}</span>
-              <span className="font-medium">{tripData?.driverName}</span>
+              <span className="font-medium">{currentTripData?.unitNumber}</span>
+              <span className="font-medium">{currentTripData?.driverName}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">Load Number:</span>
-              <span className="font-medium">{tripData?.loadNumber}</span>
+              <span className="font-medium">{currentTripData?.loadNumber}</span>
             </div>
           </div>
 
-          {/* Data Table */}
-          <div className="h-[400px]">
+          <div className="rounded-[8px] border">
             <DataTable
               columns={columns}
               data={reportData}
               isLoading={false}
-              isFetching={false}
+              isFetching={isFetching}
               fetchNextPage={() => {}}
               totalDBRowCount={reportData.length}
               hasNextPage={false}
-              onSortingChange={() => {}} // Enable sorting
+              onSortingChange={() => {}}
+              className="h-[160px]"
             />
           </div>
         </div>

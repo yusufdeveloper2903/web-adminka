@@ -101,14 +101,8 @@ export interface ITripDetailResponse {
   active: boolean
   created: string
   updated: string
-  mileStats: {
+  mileStats: ITripSummary & {
     id: number
-    miles: number
-    totalEmpty: number
-    pu: number
-    trl: number
-    totalMiles: number
-    totalOdometers: number | null
     created: string
     updated: string
   }
@@ -127,6 +121,12 @@ export interface ITripDetailResponse {
   }
   tripStops: ITripStopResponse[]
   driverIds: string[]
+}
+
+export interface ITripReportSummaryResponse {
+  hereStats?: ITripSummary
+  gleStats?: ITripSummary
+  samsaraStats?: ITripSummary
 }
 
 // Trips List Response (paginated)
@@ -212,6 +212,15 @@ export interface ITripSummaryResponse {
     created: string
     updated: string
   }>
+}
+
+interface ITripSummary {
+  miles: number
+  totalEmpty: number
+  pu: number
+  trl: number
+  totalMiles: number
+  totalOdometers: number | null
 }
 
 export interface ILoadNumberResponse {
