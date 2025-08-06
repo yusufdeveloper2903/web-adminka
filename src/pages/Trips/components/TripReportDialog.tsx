@@ -16,7 +16,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
 
   // Generate report data for each map type
   const generateReportData = () => {
-    const baseStops = tripData.tripStops.map((stop, index) => ({
+    const baseStops = tripData.tripStops.map((stop) => ({
       id: stop.id,
       city: stop.address,
       stopType: stop.stopType,
@@ -110,19 +110,19 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
             <div className="space-y-2">
               <section className="flex justify-between">
                 <div className="text-muted-foreground text-xs">
-                  <strong>Segment Miles/Hours:</strong> Distance and time from previous stop to current stop
+                  <strong>Miles/Hours:</strong> Distance and time from previous stop to current stop
                   <br />
-                  <strong>Cumulative Miles:</strong> Total distance from trip start to current stop
+                  <strong>Total Miles:</strong> Total distance from trip start to current stop
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">Total Miles:</span>
-                      <span className="font-medium text-blue-600">{reportData[mapType].totalMiles}</span>
+                      <span className="font-medium text-[#0061A0]">{reportData[mapType].totalMiles}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="text-muted-foreground">Total Hours:</span>
-                      <span className="font-medium text-blue-600">{reportData[mapType].totalHours}</span>
+                      <span className="font-medium text-[#0061A0]">{reportData[mapType].totalHours}</span>
                     </div>
                   </div>
                 </div>
@@ -130,27 +130,27 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
               <div className="rounded-lg border">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="max-w-[120px] pl-4">
+                    <TableRow className="border-b border-[#30B0C7]">
+                      <TableHead className="max-w-[120px] pl-4 text-left">
                         <div className="truncate">Stop Type</div>
                       </TableHead>
-                      <TableHead className="max-w-[250px]">
+                      <TableHead className="max-w-[250px] text-left">
                         <div className="truncate">City</div>
                       </TableHead>
-                      <TableHead className="max-w-[100px] text-left">
-                        <div className="truncate">Segment Miles</div>
+                      <TableHead className="max-w-[100px] text-left font-medium">
+                        <div className="truncate">Miles</div>
                       </TableHead>
-                      <TableHead className="max-w-[120px] text-left">
-                        <div className="truncate">Cumulative Miles</div>
+                      <TableHead className="max-w-[120px] text-left font-semibold text-[#0061A0]">
+                        <div className="truncate">Total Miles</div>
                       </TableHead>
-                      <TableHead className="max-w-[100px] text-left">
-                        <div className="truncate">Segment Hours</div>
+                      <TableHead className="max-w-[100px] text-left font-medium">
+                        <div className="truncate">Hours</div>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {reportData[mapType].stops.map((stop) => (
-                      <TableRow key={stop.id}>
+                    {reportData[mapType].stops.map((stop, index) => (
+                      <TableRow key={stop.id} className={index !== 0 ? "bg-[#F1F1F6]" : ""}>
                         <TableCell className="max-w-[120px] pl-4 font-medium">
                           <div className="truncate">
                             {stop.stopType === "START"
@@ -174,7 +174,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
                         <TableCell className="max-w-[100px] text-left">
                           <div className="truncate">{stop.miles > 0 ? stop.miles.toFixed(1) : "-"}</div>
                         </TableCell>
-                        <TableCell className="max-w-[120px] text-left font-medium text-blue-600">
+                        <TableCell className="max-w-[120px] text-left font-medium text-[#0061A0]">
                           <div className="truncate">{stop.totalMiles > 0 ? stop.totalMiles.toFixed(1) : "-"}</div>
                         </TableCell>
                         <TableCell className="max-w-[100px] text-left">
@@ -183,11 +183,11 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
                       </TableRow>
                     ))}
                     {/* Total row */}
-                    <TableRow className="bg-muted/50 font-medium">
+                    <TableRow className="font-medium">
                       <TableCell className="pl-4" colSpan={3}>
                         Total
                       </TableCell>
-                      <TableCell className="text-left font-bold text-blue-600">
+                      <TableCell className="text-left font-bold text-[#0061A0]">
                         {reportData[mapType].totalMiles}
                       </TableCell>
                       <TableCell className="text-left font-bold">{reportData[mapType].totalHours}</TableCell>
