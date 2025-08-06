@@ -95,16 +95,13 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     })
   }, [])
 
-  const handleToDateChange = useCallback(
-    (date: Date | undefined) => {
-      const toDate = date ? dayjs(date).endOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
-      setFilters({
-        dateFilterType: "custom",
-        toDate
-      })
-    },
-    [setFilters]
-  )
+  const handleToDateChange = useCallback((date: Date | undefined) => {
+    const toDate = date ? dayjs(date).endOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
+    setFilters({
+      dateFilterType: "custom",
+      toDate
+    })
+  }, [])
 
   // Check if custom dates are being used
   const isCustomDateActive = filters.dateFilterType === "custom"
@@ -282,13 +279,14 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
           id: "from-date-filter",
           node: (
             <DatePicker
-              value={filters.fromDate ? dayjs(filters.fromDate, "MM/DD/YYYY").toDate() : undefined}
+              value={filters.fromDate ? dayjs(filters.fromDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
               onChange={handleFromDateChange}
               placeholder="From Date"
               disabled={isPeriodActive}
               className="!min-h-8 w-[140px]"
               displayFormat={TABLE_DATE_FORMAT}
               allowFuture={true}
+              maxDate={filters.toDate ? dayjs(filters.toDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
             />
           )
         },
@@ -296,13 +294,14 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
           id: "to-date-filter",
           node: (
             <DatePicker
-              value={filters.toDate ? dayjs(filters.toDate, "MM/DD/YYYY").toDate() : undefined}
+              value={filters.toDate ? dayjs(filters.toDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
               onChange={handleToDateChange}
               placeholder="To Date"
               disabled={isPeriodActive}
               className="!min-h-8 w-[140px]"
               displayFormat={TABLE_DATE_FORMAT}
               allowFuture={true}
+              minDate={filters.fromDate ? dayjs(filters.fromDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
             />
           )
         },

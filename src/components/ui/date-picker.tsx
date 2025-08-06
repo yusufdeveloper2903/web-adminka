@@ -23,6 +23,8 @@ interface DatePickerProps {
   className?: string
   displayFormat?: string
   allowFuture?: boolean
+  minDate?: Date
+  maxDate?: Date
 }
 
 export function DatePicker({
@@ -32,7 +34,9 @@ export function DatePicker({
   disabled = false,
   className,
   displayFormat = UI_DATE_FORMAT,
-  allowFuture = false
+  allowFuture = false,
+  minDate,
+  maxDate
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -56,7 +60,21 @@ export function DatePicker({
             onChange(date)
             setOpen(false)
           }}
-          disabled={(date) => (!allowFuture && date > new Date()) || date < new Date(MIN_DATE)}
+          disabled={(date) => {
+            // Check future date restriction
+            if (!allowFuture && date > new Date()) return true
+            
+            // Check minimum date
+            if (date < new Date(MIN_DATE)) return true
+            
+            // Check custom minDate
+            if (minDate && date < minDate) return true
+            
+            // Check custom maxDate
+            if (maxDate && date > maxDate) return true
+            
+            return false
+          }}
           initialFocus
         />
       </PopoverContent>

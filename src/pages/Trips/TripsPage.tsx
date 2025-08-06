@@ -33,7 +33,20 @@ const TripsPage = () => {
 
   const queryFilters: ITripsFiltersRequest = useMemo(() => {
     // Extract only API-compatible fields (exclude option objects)
-    const { truck, driver, load, ...apiFilters } = filters
+    const { truck, driver, load, dateFilterType, ...apiFilters } = filters
+
+    // For custom date filters, only include dates if both are present
+    if (dateFilterType === "custom") {
+      if (apiFilters.fromDate && apiFilters.toDate) {
+        return apiFilters // Both dates present, include them
+      } else {
+        // One or both dates missing, exclude date filters
+        const { fromDate, toDate, ...filtersWithoutDates } = apiFilters
+        return filtersWithoutDates
+      }
+    }
+
+    // For period filters (weekly, monthly, yearly), include dates
     return apiFilters
   }, [filters])
 
