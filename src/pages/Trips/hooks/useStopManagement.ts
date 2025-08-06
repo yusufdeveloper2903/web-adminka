@@ -15,7 +15,6 @@ export const useStopManagement = (
   setStops: React.Dispatch<React.SetStateAction<ITripStopResponse[]>>,
   isEditMode: boolean = false
 ) => {
-  const { routeSettings } = useRouteStore()
   const [newStopForm, setNewStopForm] = useState<NewStopFormData>({
     city: "",
     stopType: "PICKUP" as StopType,
@@ -23,7 +22,7 @@ export const useStopManagement = (
     selectedLocation: undefined
   })
 
-  // Use route calculation hook
+  // Use route calculation hook - enable for both add and edit modes
   const {
     stops: calculatedStops,
     routeData,
@@ -31,12 +30,12 @@ export const useStopManagement = (
     refetch: recalculateRoute
   } = useRouteCalculation({
     stops,
-    enabled: stops.length >= 2 && !isEditMode // Disable route calculation in edit mode
+    enabled: stops.length >= 2 // Enable route calculation in both modes
   })
 
-  // Update stops when route calculation completes (only in add mode)
+  // Update stops when route calculation completes (both add and edit modes)
   useEffect(() => {
-    if (!isEditMode && calculatedStops.length > 0 && calculatedStops.length === stops.length) {
+    if (calculatedStops.length > 0 && calculatedStops.length === stops.length) {
       // Only update if the calculated stops are different from current stops
       const hasChanges = calculatedStops.some((calcStop, index) => {
         const currentStop = stops[index]
@@ -87,6 +86,11 @@ export const useStopManagement = (
       }))
     })
 
+    // Trigger route recalculation after adding stop
+    setTimeout(() => {
+      recalculateRoute()
+    }, 100)
+
     // Reset form
     setNewStopForm({
       city: "",
@@ -94,7 +98,7 @@ export const useStopManagement = (
       loadStatus: "LOADED" as LoadStatus,
       selectedLocation: undefined
     })
-  }, [newStopForm, stops, setStops])
+  }, [newStopForm, stops, setStops, recalculateRoute])
 
   const handleRemoveStop = useCallback(
     (index: number) => {
@@ -109,15 +113,29 @@ export const useStopManagement = (
       }))
 
       setStops(recalculatedStops)
+
+      // Trigger route recalculation after removing stop
+      if (recalculatedStops.length >= 2) {
+        setTimeout(() => {
+          recalculateRoute()
+        }, 100)
+      }
     },
-    [stops, setStops]
+    [stops, setStops, recalculateRoute]
   )
 
   const handleStopUpdate = useCallback(
     (index: number, field: keyof ITripStopResponse, value: any) => {
       setStops((prev) => prev.map((stop, i) => (i === index ? { ...stop, [field]: value } : stop)))
+
+      // Only trigger route recalculation if location-related fields are updated
+      if (field === "latitude" || field === "longitude" || field === "address") {
+        setTimeout(() => {
+          recalculateRoute()
+        }, 100)
+      }
     },
-    [setStops]
+    [setStops, recalculateRoute]
   )
 
   const resetStopForm = useCallback(() => {
@@ -132,8 +150,13 @@ export const useStopManagement = (
   const handleReorderStops = useCallback(
     (reorderedStops: ITripStopResponse[]) => {
       setStops(reorderedStops)
+
+      // Trigger route recalculation after reordering stops
+      setTimeout(() => {
+        recalculateRoute()
+      }, 100)
     },
-    [setStops]
+    [setStops, recalculateRoute]
   )
 
   return {

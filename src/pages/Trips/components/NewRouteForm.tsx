@@ -44,6 +44,15 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
 
       // Populate stops
       if (tripData.tripStops && tripData.tripStops.length > 0) {
+        console.log(
+          "📥 Loading trip stops from backend:",
+          tripData.tripStops.map((s) => ({
+            address: s.address,
+            distance: s.distance,
+            totalDistance: s.totalDistance,
+            duration: s.duration
+          }))
+        )
         setStops(tripData.tripStops)
       }
     }
