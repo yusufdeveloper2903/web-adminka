@@ -50,7 +50,7 @@ const AppDrawer = () => {
             </SheetTitle>
           )}
         </SheetHeader>
-        <div className="py-4">{content}</div>
+        <div>{content}</div>
       </SheetContent>
     </Sheet>
   )

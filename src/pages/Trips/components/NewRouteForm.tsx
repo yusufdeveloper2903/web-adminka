@@ -62,7 +62,7 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
           e.stopPropagation()
           form.handleSubmit()
         }}
-        className="space-y-6"
+        className="space-y-4"
       >
         <TripFormFields
           form={form}
