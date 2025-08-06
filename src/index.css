@@ -276,3 +276,55 @@ h1 {
 .shimmer {
   animation: shimmer 2s infinite;
 }
+/* Date Range Picker Custom Styles */
+.date-range-picker .rdp-day_range_middle {
+  background-color: hsl(var(--primary) / 0.3) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 500 !important;
+}
+
+.date-range-picker .rdp-day_range_start,
+.date-range-picker .rdp-day_range_end {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 600 !important;
+}
+
+.date-range-picker .rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  font-weight: 600 !important;
+}
+
+/* Dark mode adjustments */
+.dark .date-range-picker .rdp-day_range_middle {
+  background-color: hsl(var(--primary) / 0.4) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .date-range-picker .rdp-day_range_start,
+.dark .date-range-picker .rdp-day_range_end {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+/* Hover states */
+.date-range-picker .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_range_start):not(.rdp-day_range_end):not(.rdp-day_range_middle) {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Range selection visual improvements */
+.date-range-picker .rdp-day_range_middle {
+  border-radius: 0 !important;
+}
+
+.date-range-picker .rdp-day_range_start {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.date-range-picker .rdp-day_range_end {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}

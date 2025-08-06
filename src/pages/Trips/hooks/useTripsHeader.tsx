@@ -12,7 +12,7 @@ import { useDriversInfiniteQuery } from "@/hooks/drivers"
 import { RotateCcw } from "lucide-react"
 import { useLoadNumbersQuery } from "@/hooks/trips"
 import { SearchableSelect } from "@/components/ui"
-import { DatePicker } from "@/components/ui/date-picker"
+import { DateRangePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/types"
 import type { SingleValue } from "react-select"
@@ -75,33 +75,34 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
   }
 
   // Handle period select change
-  const handlePeriodChange = useCallback((value: string) => {
-    if (value === "weekly" || value === "monthly" || value === "yearly") {
-      const { fromDate, toDate } = calculateDateRange(value)
+  const handlePeriodChange = useCallback(
+    (value: string) => {
+      if (value === "weekly" || value === "monthly" || value === "yearly") {
+        const { fromDate, toDate } = calculateDateRange(value)
+        setFilters({
+          dateFilterType: value,
+          fromDate,
+          toDate
+        })
+      }
+    },
+    [setFilters]
+  )
+
+  // Handle custom date range changes
+  const handleDateRangeChange = useCallback(
+    (range: { from?: Date; to?: Date }) => {
+      const fromDate = range.from ? dayjs(range.from).startOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
+      const toDate = range.to ? dayjs(range.to).endOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
+
       setFilters({
-        dateFilterType: value,
+        dateFilterType: "custom",
         fromDate,
         toDate
       })
-    }
-  }, [])
-
-  // Handle custom date changes
-  const handleFromDateChange = useCallback((date: Date | undefined) => {
-    const fromDate = date ? dayjs(date).startOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
-    setFilters({
-      dateFilterType: "custom",
-      fromDate
-    })
-  }, [])
-
-  const handleToDateChange = useCallback((date: Date | undefined) => {
-    const toDate = date ? dayjs(date).endOf("day").format(BACKEND_DATETIME_FORMAT) : undefined
-    setFilters({
-      dateFilterType: "custom",
-      toDate
-    })
-  }, [])
+    },
+    [setFilters]
+  )
 
   // Check if custom dates are being used
   const isCustomDateActive = filters.dateFilterType === "custom"
@@ -276,32 +277,18 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
           )
         },
         {
-          id: "from-date-filter",
+          id: "date-range-filter",
           node: (
-            <DatePicker
-              value={filters.fromDate ? dayjs(filters.fromDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
-              onChange={handleFromDateChange}
-              placeholder="From Date"
+            <DateRangePicker
+              value={{
+                from: filters.fromDate ? dayjs(filters.fromDate, BACKEND_DATETIME_FORMAT).toDate() : undefined,
+                to: filters.toDate ? dayjs(filters.toDate, BACKEND_DATETIME_FORMAT).toDate() : undefined
+              }}
+              onChange={handleDateRangeChange}
+              placeholder="Date Range"
               disabled={isPeriodActive}
-              className="!min-h-8 w-[140px]"
               displayFormat={TABLE_DATE_FORMAT}
               allowFuture={true}
-              maxDate={filters.toDate ? dayjs(filters.toDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
-            />
-          )
-        },
-        {
-          id: "to-date-filter",
-          node: (
-            <DatePicker
-              value={filters.toDate ? dayjs(filters.toDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
-              onChange={handleToDateChange}
-              placeholder="To Date"
-              disabled={isPeriodActive}
-              className="!min-h-8 w-[140px]"
-              displayFormat={TABLE_DATE_FORMAT}
-              allowFuture={true}
-              minDate={filters.fromDate ? dayjs(filters.fromDate, BACKEND_DATETIME_FORMAT).toDate() : undefined}
             />
           )
         },
@@ -374,8 +361,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     isPeriodActive,
     handlePeriodChange,
     dateFilterOptions,
-    handleFromDateChange,
-    handleToDateChange
+    handleDateRangeChange
   ])
 
   return { filters, view, setView }

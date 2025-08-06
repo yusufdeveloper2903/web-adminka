@@ -26,8 +26,8 @@ const Header = () => {
       </div>
 
       {/* Right Side */}
-      <section className="flex items-center gap-4">
-        {metadata && <div className="text-muted-foreground text-sm">{metadata}</div>}
+      <section className="flex items-center gap-4 max-2xl:overflow-x-auto">
+        {metadata && <div className="text-muted-foreground text-sm whitespace-pre">{metadata}</div>}
         {actions.map(({ id, label, onClick, variant, disabled, icon }) => (
           <Button key={id} onClick={onClick} variant={variant || "default"} size="sm" disabled={disabled}>
             {label}

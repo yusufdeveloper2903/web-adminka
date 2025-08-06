@@ -63,16 +63,16 @@ export function DatePicker({
           disabled={(date) => {
             // Check future date restriction
             if (!allowFuture && date > new Date()) return true
-            
+
             // Check minimum date
             if (date < new Date(MIN_DATE)) return true
-            
+
             // Check custom minDate
             if (minDate && date < minDate) return true
-            
+
             // Check custom maxDate
             if (maxDate && date > maxDate) return true
-            
+
             return false
           }}
           initialFocus
@@ -215,3 +215,5 @@ export function DateTimePicker({
     </Popover>
   )
 }
+// Re-export DateRangePicker
+export { DateRangePicker } from "./date-range-picker"
