@@ -7,9 +7,10 @@ import type { ITruckResponse } from "@/types"
 interface NewTruckFormProps {
   truck?: ITruckResponse
   onClose?: () => void
+  isViewMode?: boolean
 }
 
-const NewTruckForm = ({ truck, onClose }: NewTruckFormProps) => {
+const NewTruckForm = ({ truck, onClose, isViewMode = false }: NewTruckFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useTruckForm({ truck })
 
@@ -36,7 +37,7 @@ const NewTruckForm = ({ truck, onClose }: NewTruckFormProps) => {
         className="space-y-6"
       >
         {/* Truck Form Fields */}
-        <TruckFormFields form={form} truck={truck}/>
+        <TruckFormFields form={form} truck={truck} isViewMode={isViewMode} />
 
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
@@ -48,20 +49,22 @@ const NewTruckForm = ({ truck, onClose }: NewTruckFormProps) => {
         )}
 
         {/* Bottom buttons */}
-        <div className="flex justify-between">
-          <Button type="button" variant="destructive" onClick={handleClearForm}>
-            Clear Form
-          </Button>
+        {!isViewMode && (
+          <div className="flex justify-between">
+            <Button type="button" variant="destructive" onClick={handleClearForm}>
+              Clear Form
+            </Button>
 
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditing ? "Updating..." : "Creating...") : isEditing ? "Submit" : "Submit"}
-            </Button>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (isEditing ? "Updating..." : "Creating...") : isEditing ? "Submit" : "Submit"}
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </form>
     </div>
   )

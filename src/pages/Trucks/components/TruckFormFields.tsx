@@ -5,10 +5,11 @@ import type { HereAutosuggestResult, ITruckResponse } from "@/types"
 
 interface TruckFormFieldsProps {
   truck?: ITruckResponse
-  form: any // TanStack form instance
+  form: any
+  isViewMode?: boolean
 }
 
-const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
+const TruckFormFields = ({ truck, form, isViewMode = false }: TruckFormFieldsProps) => {
   const handleLocationSelect = (location: HereAutosuggestResult) => {
     form.setFieldValue("homeLocation", location.address.label)
     form.setFieldValue("homeLatitude", location.position.lat)
@@ -46,6 +47,7 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                disabled={isViewMode}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -68,6 +70,7 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                disabled={isViewMode}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -77,16 +80,14 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
         />
       </div>
 
-      <section className="flex gap-4">
-        <div className="w-1/2">
-          <Label htmlFor="vehicleId">Vehicle ID</Label>
-          <Input disabled value={truck?.vehicleId || "N/A"} />
-        </div>
-        <div className="w-1/2">
-          <Label htmlFor="vinNumber">Vin Number</Label>
-          <Input disabled value={truck?.vinNumber || "N/A"} />
-        </div>
-      </section>
+      {isViewMode && (
+        <section className="flex gap-4">
+          <div className="w-full">
+            <Label htmlFor="vehicleId">Vehicle ID</Label>
+            <Input disabled={isViewMode} value={truck?.vehicleId || "N/A"} />
+          </div>
+        </section>
+      )}
 
       {/* Samsara VIN */}
       <div className="space-y-2">
@@ -101,6 +102,7 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                disabled={isViewMode}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -123,6 +125,7 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
                 onLocationSelect={handleLocationSelect}
                 placeholder="Enter home location"
                 className={field.state.meta.errors.length > 0 ? "border-red-500" : ""}
+                disabled={isViewMode}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -198,6 +201,7 @@ const TruckFormFields = ({ truck, form }: TruckFormFieldsProps) => {
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                disabled={isViewMode}
               />
               {field.state.meta.errors.length > 0 && (
                 <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>

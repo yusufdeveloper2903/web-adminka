@@ -134,6 +134,18 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
             >
               <Edit className="h-4 w-4" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setDrawerConfig({
+                  title: `View Truck: ${truck.id}`,
+                  content: <NewTruckForm truck={truck} onClose={closeDrawer} isViewMode />
+                })
+              }}
+            >
+              <EyeIcon className="h-4 w-4" />
+            </Button>
           </div>
         )
       },
