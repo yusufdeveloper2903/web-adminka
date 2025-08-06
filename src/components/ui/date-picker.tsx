@@ -21,6 +21,8 @@ interface DatePickerProps {
   placeholder?: string
   disabled?: boolean
   className?: string
+  displayFormat?: string
+  allowFuture?: boolean
 }
 
 export function DatePicker({
@@ -28,7 +30,9 @@ export function DatePicker({
   onChange,
   placeholder = "Pick a date",
   disabled = false,
-  className
+  className,
+  displayFormat = UI_DATE_FORMAT,
+  allowFuture = false
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -41,7 +45,7 @@ export function DatePicker({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? dayjs(value).format(UI_DATE_FORMAT) : <span>{placeholder}</span>}
+          {value ? dayjs(value).format(displayFormat) : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -52,7 +56,7 @@ export function DatePicker({
             onChange(date)
             setOpen(false)
           }}
-          disabled={(date) => date > new Date() || date < new Date(MIN_DATE)}
+          disabled={(date) => (!allowFuture && date > new Date()) || date < new Date(MIN_DATE)}
           initialFocus
         />
       </PopoverContent>

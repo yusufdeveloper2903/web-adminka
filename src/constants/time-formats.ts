@@ -5,6 +5,7 @@ export const UI_DATE_FORMAT = "MMMM D, YYYY" // January 15, 2025
 export const UI_DATETIME_FORMAT = "MMMM D, YYYY [at] HH:mm" // January 15, 2025 at 14:30
 export const UI_TIME_FORMAT = "HH:mm" // 14:30
 export const TABLE_UI_FORMAT = "DD.MM.YYYY HH:mm" // 01.15.2025 14:30
+export const TABLE_DATE_FORMAT = "DD.MM.YYYY" // 01.15.2025
 
 // Input formats for form fields
 export const INPUT_DATETIME_LOCAL_FORMAT = "YYYY-MM-DDTHH:mm" // 2025-01-15T14:30

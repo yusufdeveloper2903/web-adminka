@@ -9,6 +9,10 @@ interface TripFilters {
   load?: ISelectOption
   sortName?: string
   sortDir?: string
+  // Date filters
+  dateFilterType?: "custom" | "weekly" | "monthly" | "yearly"
+  fromDate?: string // MM/DD/YYYY format for API
+  toDate?: string // MM/DD/YYYY format for API
   // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
@@ -32,6 +36,10 @@ const initialFilters: TripFilters = {
   load: undefined,
   sortName: undefined,
   sortDir: undefined,
+  // Date filters
+  dateFilterType: undefined,
+  fromDate: undefined,
+  toDate: undefined,
   // Legacy fields
   truckId: undefined,
   driverId: undefined,

@@ -52,6 +52,8 @@ export interface ITripsFiltersRequest extends IBaseFiltersRequest {
   truckId?: string
   driverId?: string
   loadNumber?: string
+  fromDate?: string // MM/DD/YYYY format
+  toDate?: string // MM/DD/YYYY format
 }
 
 // Trip List Item Response (for infinite query)
