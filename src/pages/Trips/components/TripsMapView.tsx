@@ -56,11 +56,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
   const { data: globalSettings } = useGlobalSettingByType("TRIP")
 
   // Fetch trip summary data with route information
-  const {
-    data: tripSummaryData,
-    isLoading: isTripSummaryLoading,
-    error: tripSummaryError
-  } = useTripSummaryQuery(
+  const { data: tripSummaryData, error: tripSummaryError } = useTripSummaryQuery(
     {
       truckId: effectiveTripData?.truckId || 0,
       driverId: effectiveTripData?.driverId,

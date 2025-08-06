@@ -75,6 +75,14 @@ export const ENTITY_ERROR_MESSAGES = {
     CREATE_SUCCESS: "Global setting created successfully!",
     UPDATE_SUCCESS: "Global setting updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `Global setting ${active ? "activated" : "deactivated"} successfully!`
+  },
+  userRouteSetting: {
+    INVALID_DATA: "Invalid user route setting data. Please check your input and try again.",
+    NOT_FOUND: "User route setting not found.",
+    ALREADY_EXISTS: "User route setting with this name already exists.",
+    CREATE_SUCCESS: "User route setting created successfully!",
+    UPDATE_SUCCESS: "User route setting updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `User route setting ${active ? "activated" : "deactivated"} successfully!`
   }
 } as const
 

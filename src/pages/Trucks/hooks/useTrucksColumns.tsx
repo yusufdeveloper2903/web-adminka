@@ -21,13 +21,6 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       enableSorting: false
     },
     {
-      accessorKey: "vehicleId",
-      header: "Vehicle ID",
-      meta: {
-        className: "min-w-[100px] w-[8%]"
-      }
-    },
-    {
       accessorKey: "unitNumber",
       header: "Unit",
       meta: {

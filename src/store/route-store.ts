@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { ICreateTripRequest, ITripListResponse, ITripStopResponse, ITripsResponse } from "@/types"
+import type { ICreateTripRequest, ITripListResponse, ITripStopResponse } from "@/types"
 
 interface RouteSettings {
   hasTrailer: boolean

@@ -49,7 +49,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
       trl: samsaraStats?.trl,
       totalMiles: samsaraStats?.totalMiles,
       totalOdometers: samsaraStats?.totalOdometers,
-      differences: Number(samsaraStats?.totalMiles) - Number(hereStats?.totalMiles) || 0
+      differences: (Number(samsaraStats?.totalMiles) - Number(hereStats?.totalMiles)).toFixed(1) || 0
     }
 
     const gleData = {
@@ -65,7 +65,27 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
     }
 
     return [hereData, samsaraData, gleData]
-  }, [tripReportData])
+  }, [
+    currentTripData,
+    gleStats?.miles,
+    gleStats?.pu,
+    gleStats?.totalEmpty,
+    gleStats?.totalMiles,
+    gleStats?.totalOdometers,
+    gleStats?.trl,
+    hereStats?.miles,
+    hereStats?.pu,
+    hereStats?.totalEmpty,
+    hereStats?.totalMiles,
+    hereStats?.totalOdometers,
+    hereStats?.trl,
+    samsaraStats?.miles,
+    samsaraStats?.pu,
+    samsaraStats?.totalEmpty,
+    samsaraStats?.totalMiles,
+    samsaraStats?.totalOdometers,
+    samsaraStats?.trl
+  ])
 
   // Define columns
   const columns: ColumnDef<any>[] = useMemo(
@@ -76,7 +96,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[60px] w-[8%] text-center"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.no}</span>,
+        cell: ({ row }) => <span className="font-medium">{row.original.no ?? "-"}</span>,
         enableSorting: false
       },
       {
@@ -85,7 +105,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[100px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-bold">{row.original.system}</span>,
+        cell: ({ row }) => <span className="font-bold">{row.original.system ?? "-"}</span>,
         enableSorting: false
       },
       {
@@ -94,7 +114,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.miles}</span>,
+        cell: ({ row }) => <span className="font-medium">{row.original.miles == null ? "-" : row.original.miles}</span>,
         enableSorting: false
       },
       {
@@ -103,7 +123,9 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[100px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.totalEmpty}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.totalEmpty == null ? "-" : row.original.totalEmpty}</span>
+        ),
         enableSorting: false
       },
       {
@@ -112,7 +134,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.pu}</span>,
+        cell: ({ row }) => <span className="font-medium">{row.original.pu == null ? "-" : row.original.pu}</span>,
         enableSorting: false
       },
       {
@@ -121,7 +143,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[80px] w-[12%] text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{row.original.trl}</span>,
+        cell: ({ row }) => <span className="font-medium">{row.original.trl == null ? "-" : row.original.trl}</span>,
         enableSorting: false
       },
       {
@@ -130,7 +152,11 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[120px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-bold text-blue-600">{row.original.totalMiles}</span>,
+        cell: ({ row }) => (
+          <span className="font-bold text-blue-600">
+            {row.original.totalMiles == null ? "-" : row.original.totalMiles}
+          </span>
+        ),
         enableSorting: false
       },
       {
@@ -139,7 +165,11 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         meta: {
           className: "min-w-[120px] w-[15%] text-left"
         },
-        cell: ({ row }) => <span className="font-bold text-blue-600">{row.original.totalOdometers}</span>,
+        cell: ({ row }) => (
+          <span className="font-bold text-blue-600">
+            {row.original.totalOdometers == null ? "-" : row.original.totalOdometers}
+          </span>
+        ),
         enableSorting: false
       },
       {
