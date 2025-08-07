@@ -247,3 +247,15 @@ export interface ITripInfoResponse {
   totalDuration: number
   stopsCount: number
 }
+
+export interface ITripVehicleByLoadNumberResponse {
+  trucks: {
+    id: number
+    unitNumber: string
+  }[]
+  drivers: {
+    id: number
+    firstName: string
+    lastName: string
+  }[]
+}

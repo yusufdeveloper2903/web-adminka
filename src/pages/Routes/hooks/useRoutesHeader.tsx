@@ -1,13 +1,10 @@
 import { Button } from "@/components/ui"
 import { useHeaderStore } from "@/store"
-import { useEffect, useMemo, useState } from "react"
-import { useTrucksInfiniteQuery } from "@/hooks/trucks"
-import { useDriversInfiniteQuery } from "@/hooks/drivers"
-import { useLoadNumbersQuery } from "@/hooks/trips"
+import { useEffect, useState } from "react"
 import { SearchableSelect } from "@/components/ui"
-import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/types"
 import type { SingleValue } from "react-select"
 import { RotateCcw } from "lucide-react"
+import { useSmartFilters } from "@/hooks/useSmartFilters"
 
 interface SelectOption {
   value: string
@@ -29,62 +26,39 @@ interface UseRoutesHeaderProps {
   setFilters: (filters: Partial<RouteFilters>) => void
   resetFilters: () => void
   onSubmit: () => void
+  isLoading?: boolean
 }
 
-const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRoutesHeaderProps) => {
+const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoading = false }: UseRoutesHeaderProps) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
 
   const [truckSearch, setTruckSearch] = useState("")
   const [driverSearch, setDriverSearch] = useState("")
   const [loadSearch, setLoadSearch] = useState("")
 
+  // Use smart filters hook
   const {
-    data: trucksData,
-    fetchNextPage: fetchNextTruck,
-    hasNextPage: hasNextTruckPage,
-    isLoading: isTrucksLoading
-  } = useTrucksInfiniteQuery({ keyword: truckSearch })
-  const {
-    data: driversData,
-    fetchNextPage: fetchNextDriver,
-    hasNextPage: hasNextDriverPage,
-    isLoading: isDriversLoading
-  } = useDriversInfiniteQuery({ keyword: driverSearch })
-  const {
-    data: loadsData,
-    fetchNextPage: fetchNextLoad,
-    hasNextPage: hasNextLoadPage,
-    isLoading: isLoadsLoading
-  } = useLoadNumbersQuery({ keyword: loadSearch })
+    truckOptions,
+    driverOptions,
+    loadOptions,
+    fetchNextTruck,
+    hasNextTruckPage,
+    isTrucksLoading,
+    fetchNextDriver,
+    hasNextDriverPage,
+    isDriversLoading,
+    fetchNextLoad,
+    hasNextLoadPage,
+    isLoadsLoading
+  } = useSmartFilters({
+    filters,
+    setFilters,
+    truckSearch,
+    driverSearch,
+    loadSearch
+  })
 
-  const truckOptions = useMemo(
-    () =>
-      trucksData?.pages.flatMap((page) =>
-        page.content.map((truck: ITruckResponse) => ({ value: truck.id.toString(), label: truck.unitNumber }))
-      ) ?? [],
-    [trucksData]
-  )
-
-  const driverOptions = useMemo(
-    () =>
-      driversData?.pages.flatMap((page) =>
-        page.content.map((driver: IDriverResponse) => ({
-          value: driver.id.toString(),
-          label: `${driver.firstName} ${driver.lastName}`
-        }))
-      ) ?? [],
-    [driversData]
-  )
-
-  const loadOptions = useMemo(
-    () =>
-      loadsData?.pages.flatMap((page) =>
-        page.content.map((load: ILoadNumberResponse) => ({ value: load.loadNumber, label: load.loadNumber }))
-      ) ?? [],
-    [loadsData]
-  )
-
-  const canSubmit = filters.truck && filters.driver && filters.load
+  const canSubmit = filters.truck && filters.load
 
   useEffect(() => {
     setHeaderConfig({
@@ -92,11 +66,34 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
       description: "Select a truck, driver, and load number to display the route.",
       filters: [
         {
+          id: "load-filter",
+          node: (
+            <SearchableSelect
+              options={loadOptions}
+              placeholder="Load"
+              isLoading={isLoadsLoading}
+              onDebouncedInputChange={setLoadSearch}
+              onFetchNextPage={fetchNextLoad}
+              hasNextPage={hasNextLoadPage}
+              isClearable
+              value={filters.load || null}
+              onChange={(option: SingleValue<{ value: string; label: string }>) => {
+                setFilters({
+                  load: option || undefined,
+                  loadNumber: option?.value || undefined,
+                  // Clear truck and driver when load changes to trigger re-filtering
+                  ...(option && { truck: undefined, truckId: undefined, driver: undefined, driverId: undefined })
+                })
+              }}
+            />
+          )
+        },
+        {
           id: "truck-filter",
           node: (
             <SearchableSelect
               options={truckOptions}
-              placeholder="Select Truck..."
+              placeholder="Unit"
               isLoading={isTrucksLoading}
               onDebouncedInputChange={setTruckSearch}
               onFetchNextPage={fetchNextTruck}
@@ -104,9 +101,9 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               isClearable
               value={filters.truck || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ 
+                setFilters({
                   truck: option || undefined,
-                  truckId: option?.value || undefined 
+                  truckId: option?.value || undefined
                 })
               }
             />
@@ -117,7 +114,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
           node: (
             <SearchableSelect
               options={driverOptions}
-              placeholder="Select Driver..."
+              placeholder="Driver"
               isLoading={isDriversLoading}
               onDebouncedInputChange={setDriverSearch}
               onFetchNextPage={fetchNextDriver}
@@ -125,30 +122,9 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               isClearable
               value={filters.driver || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ 
+                setFilters({
                   driver: option || undefined,
-                  driverId: option?.value || undefined 
-                })
-              }
-            />
-          )
-        },
-        {
-          id: "load-filter",
-          node: (
-            <SearchableSelect
-              options={loadOptions}
-              placeholder="Select Load Number..."
-              isLoading={isLoadsLoading}
-              onDebouncedInputChange={setLoadSearch}
-              onFetchNextPage={fetchNextLoad}
-              hasNextPage={hasNextLoadPage}
-              isClearable
-              value={filters.load || null}
-              onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ 
-                  load: option || undefined,
-                  loadNumber: option?.value || undefined 
+                  driverId: option?.value || undefined
                 })
               }
             />
@@ -163,7 +139,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
               onClick={() => {
                 resetFilters()
               }}
-              disabled={!filters.driver && !filters.load && !filters.truck}
+              disabled={!filters.load && !filters.truck}
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -172,8 +148,8 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
         {
           id: "submit-filter",
           node: (
-            <Button type="button" onClick={onSubmit} disabled={!canSubmit}>
-              Submit
+            <Button type="button" onClick={onSubmit} disabled={!canSubmit || isLoading}>
+              {isLoading ? "Loading..." : "Submit"}
             </Button>
           )
         }
@@ -205,7 +181,8 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit }: UseRou
     fetchNextDriver,
     hasNextDriverPage,
     fetchNextLoad,
-    hasNextLoadPage
+    hasNextLoadPage,
+    isLoading
   ])
 }
 

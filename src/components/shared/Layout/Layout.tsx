@@ -8,7 +8,7 @@ const Layout = () => {
     <>
       {/* Background layer to prevent black background showing during scroll overflow */}
       <div className="bg-blue-light dark:bg-background fixed inset-0 -z-10" />
-      
+
       <div className="bg-blue-light dark:bg-background flex h-screen w-full p-2">
         <AppSidebar />
         <div className="flex flex-1 flex-col overflow-hidden">

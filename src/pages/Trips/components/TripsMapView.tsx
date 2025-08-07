@@ -47,7 +47,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
   const { selectedTripId } = useTripsStore()
 
   // Get route calculation loading state and current trip data
-  const { mapLoadingStates, currentTripData } = useRouteStore()
+  const { mapLoadingStates, currentTripData, setMapSubmitLoading } = useRouteStore()
 
   // Use tripData prop if provided, otherwise fall back to currentTripData from store
   const effectiveTripData = tripData || currentTripData
@@ -56,7 +56,11 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
   const { data: globalSettings } = useGlobalSettingByType("TRIP")
 
   // Fetch trip summary data with route information
-  const { data: tripSummaryData, error: tripSummaryError } = useTripSummaryQuery(
+  const {
+    data: tripSummaryData,
+    error: tripSummaryError,
+    isFetching: isTripSummaryFetching
+  } = useTripSummaryQuery(
     {
       truckId: effectiveTripData?.truckId || 0,
       driverId: effectiveTripData?.driverId,
@@ -65,6 +69,11 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
     // Only fetch when we have tripData (from submit) or selectedTripId (from table row click)
     !!tripData || (!!effectiveTripData && !!selectedTripId)
   )
+
+  // Update global loading state when trip summary is fetching
+  useEffect(() => {
+    setMapSubmitLoading(isTripSummaryFetching)
+  }, [isTripSummaryFetching])
 
   // Show error toast when trip summary fails (only for trips page with tripData)
   useEffect(() => {

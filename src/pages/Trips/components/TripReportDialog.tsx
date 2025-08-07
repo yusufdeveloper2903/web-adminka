@@ -150,7 +150,7 @@ const TripReportDialog = ({ isOpen, onClose, tripData, mapType = "here" }: TripR
                   </TableHeader>
                   <TableBody>
                     {reportData[mapType].stops.map((stop, index) => (
-                      <TableRow key={stop.id} className={index !== 0 ? "bg-[#F1F1F6] dark:bg-background" : ""}>
+                      <TableRow key={stop.id} className={index !== 0 ? "dark:bg-background bg-[#F1F1F6]" : ""}>
                         <TableCell className="max-w-[120px] pl-4 font-medium">
                           <div className="truncate">
                             {stop.stopType === "START"

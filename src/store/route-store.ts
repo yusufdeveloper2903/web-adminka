@@ -29,12 +29,15 @@ interface RouteState {
   currentTripData: ITripListResponse | null
   // HERE maps route data for dynamic updates
   hereRouteData: RouteData | null
+  // Map submit loading state (for submit buttons)
+  isMapSubmitLoading: boolean
   setRoute: (route: ICreateTripRequest) => void
   setTripData: (trip: ITripListResponse | null) => void
   setHereRouteData: (routeData: RouteData) => void
   clearRoute: () => void
   toggleRouteVisibility: () => void
   setMapLoading: (mapType: keyof MapLoadingState, isLoading: boolean) => void
+  setMapSubmitLoading: (isLoading: boolean) => void
   updateRouteSettings: (settings: Partial<RouteSettings>) => void
 }
 
@@ -50,6 +53,7 @@ export const useRouteStore = create<RouteState>((set) => ({
   },
   currentTripData: null,
   hereRouteData: null,
+  isMapSubmitLoading: false,
   routeSettings: {
     hasTrailer: true, // Default to 53' trailer
     routingMode: "practical", // Default to practical routing
@@ -101,6 +105,11 @@ export const useRouteStore = create<RouteState>((set) => ({
         [mapType]: isLoading
       }
     })),
+
+  setMapSubmitLoading: (isLoading) =>
+    set({
+      isMapSubmitLoading: isLoading
+    }),
 
   updateRouteSettings: (settings) =>
     set((state) => ({

@@ -23,7 +23,7 @@ interface RouteFilters {
 const RoutesPage = () => {
   const [filters, setFilters] = useState<RouteFilters>({})
   const [shouldFetchTrip, setShouldFetchTrip] = useState(false)
-  const { clearRoute } = useRouteStore()
+  const { clearRoute, isMapSubmitLoading } = useRouteStore()
 
   // Cleanup when component unmounts or when leaving the page
   useEffect(() => {
@@ -31,7 +31,7 @@ const RoutesPage = () => {
       // Clear route data when leaving routes page
       clearRoute()
     }
-  }, [])
+  }, [clearRoute])
 
   const handleSetFilters = (newFilters: Partial<RouteFilters>) => {
     const updatedFilters = { ...filters, ...newFilters }
@@ -47,17 +47,17 @@ const RoutesPage = () => {
   }
 
   const handleSubmit = () => {
-    if (filters.truck && filters.driver && filters.load) {
+    if (filters.truck && filters.load) {
       setShouldFetchTrip(true)
     }
   }
 
   // Prepare trip data for TripsMapView when submit is clicked
   const tripData =
-    shouldFetchTrip && filters.truck && filters.driver && filters.load
+    shouldFetchTrip && filters.truck && filters.load
       ? {
           truckId: Number(filters.truck.value),
-          driverId: Number(filters.driver.value),
+          driverId: filters.driver ? Number(filters.driver.value) : undefined,
           loadNumber: filters.load.value
         }
       : undefined
@@ -88,7 +88,8 @@ const RoutesPage = () => {
     filters,
     setFilters: handleSetFilters,
     resetFilters: handleResetFilters,
-    onSubmit: handleSubmit
+    onSubmit: handleSubmit,
+    isLoading: isMapSubmitLoading
   })
 
   return (

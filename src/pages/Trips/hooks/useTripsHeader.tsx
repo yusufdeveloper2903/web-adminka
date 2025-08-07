@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui"
-import { useDrawerStore, useHeaderStore, useTripsStore } from "@/store"
+import { useDrawerStore, useHeaderStore, useTripsStore, useRouteStore } from "@/store"
 import { Plus, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
@@ -7,17 +7,14 @@ import { NewRouteForm, RouteSettingsPopover } from "../components"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib"
 
-import { useTrucksInfiniteQuery } from "@/hooks/trucks"
-import { useDriversInfiniteQuery } from "@/hooks/drivers"
 import { RotateCcw } from "lucide-react"
-import { useLoadNumbersQuery } from "@/hooks/trips"
 import { SearchableSelect } from "@/components/ui"
 import { DateRangePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { IDriverResponse, ILoadNumberResponse, ITruckResponse } from "@/types"
 import type { SingleValue } from "react-select"
 import dayjs from "dayjs"
 import { BACKEND_DATETIME_FORMAT, TABLE_DATE_FORMAT } from "@/constants/time-formats"
+import { useSmartFilters } from "@/hooks/useSmartFilters"
 
 interface UseTripsHeaderParams {
   isLoading: boolean
@@ -30,6 +27,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
   const { view, setView, filters, setFilters, resetFilters } = useTripsStore()
+  const { isMapSubmitLoading } = useRouteStore()
 
   const [truckSearch, setTruckSearch] = useState("")
   const [driverSearch, setDriverSearch] = useState("")
@@ -108,53 +106,27 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
   const isCustomDateActive = filters.dateFilterType === "custom"
   const isPeriodActive = filters.dateFilterType && filters.dateFilterType !== "custom"
 
+  // Use smart filters hook
   const {
-    data: trucksData,
-    fetchNextPage: fetchNextTruck,
-    hasNextPage: hasNextTruckPage,
-    isLoading: isTrucksLoading
-  } = useTrucksInfiniteQuery({ keyword: truckSearch })
-  const {
-    data: driversData,
-    fetchNextPage: fetchNextDriver,
-    hasNextPage: hasNextDriverPage,
-    isLoading: isDriversLoading,
-    isFetchingNextPage: isFetchingNextDriverPage
-  } = useDriversInfiniteQuery({ keyword: driverSearch })
-
-  const {
-    data: loadsData,
-    fetchNextPage: fetchNextLoad,
-    hasNextPage: hasNextLoadPage,
-    isLoading: isLoadsLoading
-  } = useLoadNumbersQuery({ keyword: loadSearch })
-
-  const truckOptions = useMemo(
-    () =>
-      trucksData?.pages.flatMap((page) =>
-        page.content.map((truck: ITruckResponse) => ({ value: truck.id.toString(), label: truck.unitNumber }))
-      ) ?? [],
-    [trucksData]
-  )
-
-  const driverOptions = useMemo(
-    () =>
-      driversData?.pages.flatMap((page) =>
-        page.content.map((driver: IDriverResponse) => ({
-          value: driver.id.toString(),
-          label: `${driver.firstName} ${driver.lastName}`
-        }))
-      ) ?? [],
-    [driversData]
-  )
-
-  const loadOptions = useMemo(
-    () =>
-      loadsData?.pages.flatMap((page) =>
-        page.content.map((load: ILoadNumberResponse) => ({ value: load.loadNumber, label: load.loadNumber }))
-      ) ?? [],
-    [loadsData]
-  )
+    truckOptions,
+    driverOptions,
+    loadOptions,
+    fetchNextTruck,
+    hasNextTruckPage,
+    isTrucksLoading,
+    fetchNextDriver,
+    hasNextDriverPage,
+    isDriversLoading,
+    fetchNextLoad,
+    hasNextLoadPage,
+    isLoadsLoading
+  } = useSmartFilters({
+    filters,
+    setFilters,
+    truckSearch,
+    driverSearch,
+    loadSearch
+  })
 
   useEffect(() => {
     const addTripIcon = <Plus className="mr-2 h-4 w-4" />
@@ -191,11 +163,36 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
       ],
       filters: [
         {
-          id: "unit-filter",
+          id: "load-filter",
+          node: (
+            <SearchableSelect
+              options={loadOptions}
+              placeholder="Load"
+              isLoading={isLoadsLoading}
+              onDebouncedInputChange={setLoadSearch}
+              onFetchNextPage={() => {
+                fetchNextLoad()
+              }}
+              hasNextPage={hasNextLoadPage}
+              isClearable
+              value={filters.load || null}
+              onChange={(option: SingleValue<{ value: string; label: string }>) =>
+                setFilters({
+                  load: option ? option : undefined,
+                  // Clear truck and driver when load changes
+                  ...(option && { truck: undefined, driver: undefined })
+                })
+              }
+              className="!min-h-8"
+            />
+          )
+        },
+        {
+          id: "truck-filter",
           node: (
             <SearchableSelect
               options={truckOptions}
-              placeholder="Unit"
+              placeholder="Truck"
               isLoading={isTrucksLoading}
               onDebouncedInputChange={setTruckSearch}
               onFetchNextPage={() => {
@@ -217,39 +214,16 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <SearchableSelect
               options={driverOptions}
               placeholder="Driver"
-              isLoading={isDriversLoading || isFetchingNextDriverPage}
+              isLoading={isDriversLoading}
               onDebouncedInputChange={setDriverSearch}
               onFetchNextPage={() => {
-                if (hasNextDriverPage && !isFetchingNextDriverPage) {
-                  fetchNextDriver()
-                }
+                fetchNextDriver()
               }}
               hasNextPage={hasNextDriverPage}
               isClearable
               value={filters.driver || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({ driver: option ? option : undefined })
-              }
-              className="!min-h-8"
-            />
-          )
-        },
-        {
-          id: "load-filter",
-          node: (
-            <SearchableSelect
-              options={loadOptions}
-              placeholder="Load"
-              isLoading={isLoadsLoading}
-              onDebouncedInputChange={setLoadSearch}
-              onFetchNextPage={() => {
-                fetchNextLoad()
-              }}
-              hasNextPage={hasNextLoadPage}
-              isClearable
-              value={filters.load || null}
-              onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ load: option ? option : undefined })
               }
               className="!min-h-8"
             />
@@ -326,9 +300,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <Button
               size="sm"
               onClick={onMapSubmit}
-              disabled={!filters.truck || !filters.driver || !filters.load || isLoading}
+              disabled={!filters.truck || !filters.load || isLoading || isMapSubmitLoading}
             >
-              Submit
+              {isMapSubmitLoading ? "Loading..." : "Submit"}
             </Button>
           )}
         </div>
@@ -353,7 +327,6 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     hasNextTruckPage,
     hasNextDriverPage,
     hasNextLoadPage,
-    isFetchingNextDriverPage,
     onMapSubmit,
     setHeaderConfig,
     resetFilters,
