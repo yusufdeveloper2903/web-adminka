@@ -201,7 +201,7 @@ const TripFormFields = ({
       .flatMap((page) => page.content)
       .map((truck) => ({
         value: truck.id.toString(),
-        label: `${truck.unitNumber} - ${truck.licencePlate}`,
+        label: truck.unitNumber,
         data: truck
       }))
   }, [trucksData])
