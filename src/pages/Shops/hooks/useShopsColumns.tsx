@@ -7,6 +7,7 @@ import { NewShopForm } from "../components"
 import type { IShopResponse } from "@/types"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
+import { formatUTCToCDT } from "@/lib"
 
 const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -75,12 +76,12 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       }
     },
     {
-      accessorKey: "createdAt",
+      accessorKey: "created",
       header: "Created",
       meta: {
         className: "min-w-[120px] w-[16%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
+      cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
     },
     {
       id: "actions",

@@ -7,6 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import dayjs from "dayjs"
 import { Edit, Mail, Phone } from "lucide-react"
 import { NewUserForm } from "../components"
+import { formatUTCToCDT } from "@/lib"
 
 const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -94,7 +95,7 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[22%]"
       },
-      cell: ({ getValue }) => dayjs(getValue<string>()).format(TABLE_UI_FORMAT)
+      cell: ({ getValue }) => (getValue() ? formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT) : "-")
     },
     {
       id: "actions",

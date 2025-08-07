@@ -7,6 +7,7 @@ import type { ICompanyResponse } from "@/types"
 import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { NewCompanyForm } from "../components"
+import { formatUTCToCDT } from "@/lib"
 
 const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -93,7 +94,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[15%]"
       },
-      cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
+      cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
     },
     {
       id: "actions",

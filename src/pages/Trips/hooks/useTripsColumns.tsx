@@ -6,7 +6,7 @@ import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import TripMileageReportDialog from "../components/TripMileageReportDialog"
-import dayjs from "dayjs"
+import { formatUTCToCDT } from "@/lib"
 import { TABLE_UI_FORMAT } from "@/constants"
 
 const useTripsColumns = () => {
@@ -51,10 +51,13 @@ const useTripsColumns = () => {
     [setSelectedTripId, setDrawerConfig]
   )
 
-  const handleReportClick = useCallback((trip: ITripListResponse) => {
-    setTripData(trip)
-    setIsReportDialogOpen(true)
-  }, [])
+  const handleReportClick = useCallback(
+    (trip: ITripListResponse) => {
+      setTripData(trip)
+      setIsReportDialogOpen(true)
+    },
+    [setTripData]
+  )
 
   const columns: ColumnDef<ITripListResponse>[] = useMemo(
     () => [
@@ -193,7 +196,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[120px] w-[11%] text-left"
         },
-        cell: ({ getValue }) => dayjs(getValue() as string).format(TABLE_UI_FORMAT)
+        cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
       },
       {
         accessorKey: "tripStatus",
