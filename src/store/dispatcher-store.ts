@@ -33,8 +33,8 @@ export const useDispatchersStore = create<DispatchersState>((set) => ({
       const updatedFilters = { ...state.filters, ...newFilters }
 
       // Update legacy field for API compatibility
-      if (newFilters.team !== undefined) {
-        updatedFilters.teamId = newFilters.team?.value
+      if ("team" in newFilters) {
+        updatedFilters.teamId = newFilters.team?.value || undefined
       }
 
       return { filters: updatedFilters }

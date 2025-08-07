@@ -57,14 +57,14 @@ export const useTripsStore = create<TripsViewState>((set) => ({
       const updatedFilters = { ...state.filters, ...newFilters }
 
       // Update legacy fields for API compatibility
-      if (newFilters.truck !== undefined) {
-        updatedFilters.truckId = newFilters.truck?.value
+      if ("truck" in newFilters) {
+        updatedFilters.truckId = newFilters.truck?.value || undefined
       }
-      if (newFilters.driver !== undefined) {
-        updatedFilters.driverId = newFilters.driver?.value
+      if ("driver" in newFilters) {
+        updatedFilters.driverId = newFilters.driver?.value || undefined
       }
-      if (newFilters.load !== undefined) {
-        updatedFilters.loadNumber = newFilters.load?.value
+      if ("load" in newFilters) {
+        updatedFilters.loadNumber = newFilters.load?.value || undefined
       }
 
       return { filters: updatedFilters }

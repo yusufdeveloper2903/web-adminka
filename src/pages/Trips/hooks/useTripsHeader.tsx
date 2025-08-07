@@ -205,7 +205,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               isClearable
               value={filters.truck || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ truck: option || undefined })
+                setFilters({ truck: option ? option : undefined })
               }
               className="!min-h-8"
             />
@@ -228,7 +228,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               isClearable
               value={filters.driver || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ driver: option || undefined })
+                setFilters({ driver: option ? option : undefined })
               }
               className="!min-h-8"
             />
@@ -249,7 +249,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               isClearable
               value={filters.load || null}
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
-                setFilters({ load: option || undefined })
+                setFilters({ load: option ? option : undefined })
               }
               className="!min-h-8"
             />
@@ -299,7 +299,14 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               variant="ghost"
               size="icon"
               onClick={resetFilters}
-              disabled={!filters.driver && !filters.load && !filters.truck && !filters.dateFilterType}
+              disabled={
+                !filters.driver &&
+                !filters.load &&
+                !filters.truck &&
+                !filters.dateFilterType &&
+                !filters.fromDate &&
+                !filters.toDate
+              }
             >
               <RotateCcw className="h-4 w-4" />
             </Button>

@@ -86,7 +86,7 @@ const useDispatchersHeader = ({ isLoading, totalDBRowCount, refetch, currentTab 
             isClearable
             value={filters.team || null}
             onChange={(option: SingleValue<{ value: string; label: string }>) =>
-              setFilters({ team: option || undefined })
+              setFilters({ team: option ? option : undefined })
             }
             className="!min-h-8"
           />
