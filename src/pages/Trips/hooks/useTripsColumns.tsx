@@ -6,7 +6,7 @@ import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import TripMileageReportDialog from "../components/TripMileageReportDialog"
-import { formatUTCToCDT } from "@/lib"
+import { formatUTCToCentral, formatThousands } from "@/lib"
 import { TABLE_UI_FORMAT } from "@/constants"
 
 const useTripsColumns = () => {
@@ -74,7 +74,7 @@ const useTripsColumns = () => {
         accessorKey: "unitNumber",
         header: "Unit",
         meta: {
-          className: "min-w-[50px] w-[5%]"
+          className: "min-w-[30px] w-[5%]"
         },
         cell: ({ row }) => <span className="font-bold">{row.original.unitNumber}</span>,
         enableSorting: false
@@ -122,7 +122,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[60px] w-[6%] bg-gray-table dark:bg-gray-800 text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{(row.original.miles || 0).toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{formatThousands(row.original.miles)}</span>
       },
 
       {
@@ -131,7 +131,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[105px] w-[8%] bg-gray-table dark:bg-gray-800 text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{(row.original.totalEmpty || 0).toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{formatThousands(row.original.totalEmpty)}</span>
       },
 
       {
@@ -140,7 +140,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[55px] w-[5%] bg-gray-table dark:bg-gray-800 text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{(row.original.pu || 0).toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{formatThousands(row.original.pu)}</span>
       },
 
       {
@@ -149,7 +149,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[60px] w-[5%] bg-gray-table dark:bg-gray-800 text-left"
         },
-        cell: ({ row }) => <span className="font-medium">{(row.original.trl || 0).toLocaleString()}</span>
+        cell: ({ row }) => <span className="font-medium">{formatThousands(row.original.trl)}</span>
       },
 
       {
@@ -158,9 +158,7 @@ const useTripsColumns = () => {
         meta: {
           className: "min-w-[115px] w-[7%] bg-gray-table dark:bg-gray-800 text-left"
         },
-        cell: ({ row }) => (
-          <span className="font-medium text-blue-600">{(row.original.totalMiles || 0).toLocaleString()}</span>
-        )
+        cell: ({ row }) => <span className="font-medium text-blue-600">{formatThousands(row.original.totalMiles)}</span>
       },
 
       {
@@ -194,9 +192,9 @@ const useTripsColumns = () => {
         accessorKey: "updated",
         header: "Updated",
         meta: {
-          className: "min-w-[120px] w-[11%] text-left"
+          className: "min-w-[120px] w-[13%] text-left"
         },
-        cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
+        cell: ({ getValue }) => formatUTCToCentral(getValue() as string, TABLE_UI_FORMAT, true)
       },
       {
         accessorKey: "tripStatus",

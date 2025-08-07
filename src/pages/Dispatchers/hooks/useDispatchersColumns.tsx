@@ -5,7 +5,7 @@ import { useDrawerStore } from "@/store"
 import { NewDispatcherForm } from "../components"
 import type { IDispatcherResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
-import { formatUTCToCDT } from "@/lib"
+import { formatUTCToCentral } from "@/lib"
 
 const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -74,7 +74,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[15%]"
       },
-      cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
+      cell: ({ getValue }) => formatUTCToCentral(getValue() as string, TABLE_UI_FORMAT)
     },
     {
       id: "actions",

@@ -4,9 +4,8 @@ import { Edit, EyeIcon } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewTruckForm } from "../components"
 import type { ITruckResponse } from "@/types"
-import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
-import { formatUTCToCDT } from "@/lib"
+import { formatUTCToCentral } from "@/lib"
 
 const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -103,7 +102,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       meta: {
         className: "min-w-[160px] w-[12%]"
       },
-      cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
+      cell: ({ getValue }) => formatUTCToCentral(getValue() as string, TABLE_UI_FORMAT)
     },
     {
       id: "actions",

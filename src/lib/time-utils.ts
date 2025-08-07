@@ -6,65 +6,44 @@ import timezone from "dayjs/plugin/timezone"
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-/**
- * Convert UTC datetime to Central Time (CDT/CST) timezone
- * Automatically handles daylight saving time
- * @param utcDateTime - UTC datetime string from backend
- * @returns dayjs object in Central timezone
- */
-export const convertUTCToCentral = (utcDateTime: string | Date) => {
+// Convert UTC to Central Time (handles CDT/CST automatically)
+const convertUTCToCentral = (utcDateTime: string | Date) => {
   try {
-    // Try using timezone plugin first
     return dayjs.utc(utcDateTime).tz("America/Chicago")
   } catch (error) {
     // Fallback to manual offset calculation
     const utcDate = dayjs.utc(utcDateTime)
-    const month = utcDate.month() + 1 // dayjs months are 0-indexed
-
-    // Daylight saving time roughly: March to November
+    const month = utcDate.month() + 1
     const isDST = month >= 3 && month <= 11
-    const offset = isDST ? -5 : -6 // CDT: UTC-5, CST: UTC-6
-
+    const offset = isDST ? -5 : -6
     return utcDate.utcOffset(offset)
   }
 }
 
-/**
- * Convert UTC datetime to Central Time and format for display
- * @param utcDateTime - UTC datetime string from backend
- * @param format - dayjs format string
- * @returns formatted datetime string in Central timezone
- */
-export const formatUTCToCentral = (utcDateTime: string | Date, format: string) => {
-  return convertUTCToCentral(utcDateTime).format(format)
+// Format UTC datetime to Central Time with optional CT suffix
+export const formatUTCToCentral = (utcDateTime: string | Date, format: string, showTimezone: boolean = false) => {
+  const formatted = convertUTCToCentral(utcDateTime).format(format)
+  return showTimezone ? `${formatted} CT` : formatted
 }
 
-/**
- * Legacy function - now uses proper timezone conversion
- * @param utcDateTime - UTC datetime string from backend
- * @param format - dayjs format string
- * @returns formatted datetime string in Central timezone
- */
-export const formatUTCToCDT = (utcDateTime: string | Date, format: string) => {
-  return formatUTCToCentral(utcDateTime, format)
+// Convert UTC to Central Time Date object (for form inputs)
+export const utcToCentralDate = (utcDateTime: string | Date): Date => {
+  return convertUTCToCentral(utcDateTime).toDate()
 }
 
-/**
- * Get current time in Central timezone (CDT/CST)
- * @returns dayjs object in Central timezone
- */
-export const getCurrentCentralTime = () => {
-  return dayjs().tz("America/Chicago")
+// Convert Central Time to UTC string (for backend)
+export const centralToUTC = (centralDateTime: Date | string): string => {
+  return dayjs(centralDateTime).utc().format()
 }
 
-/**
- * Legacy function for backward compatibility
- * @deprecated Use getCurrentCentralTime instead
- */
-export const getCurrentCDTTime = () => {
-  return getCurrentCentralTime()
+// Convert UTC string to Central Time string (for form display)
+export const utcToCentralString = (utcDateTime: string): string => {
+  if (!utcDateTime) return ""
+  return convertUTCToCentral(utcDateTime).format("YYYY-MM-DDTHH:mm")
 }
 
-export const convertLocalToUTC = (localDateTime: string | Date) => {
-  return dayjs(localDateTime).utc().format()
+// Convert Central Time string to UTC string (for backend submission)
+export const centralStringToUTC = (centralDateTime: string): string => {
+  if (!centralDateTime) return ""
+  return dayjs(centralDateTime).utc().format()
 }

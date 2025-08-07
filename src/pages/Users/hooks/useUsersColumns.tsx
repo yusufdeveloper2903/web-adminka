@@ -4,10 +4,9 @@ import { TABLE_UI_FORMAT } from "@/constants"
 import { useDrawerStore } from "@/store"
 import type { IUserResponse } from "@/types"
 import type { ColumnDef } from "@tanstack/react-table"
-import dayjs from "dayjs"
 import { Edit, Mail, Phone } from "lucide-react"
 import { NewUserForm } from "../components"
-import { formatUTCToCDT } from "@/lib"
+import { formatUTCToCentral } from "@/lib"
 
 const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -95,7 +94,7 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[22%]"
       },
-      cell: ({ getValue }) => (getValue() ? formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT) : "-")
+      cell: ({ getValue }) => (getValue() ? formatUTCToCentral(getValue() as string, TABLE_UI_FORMAT) : "-")
     },
     {
       id: "actions",

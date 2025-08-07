@@ -5,9 +5,8 @@ import { Edit, MapPin } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewShopForm } from "../components"
 import type { IShopResponse } from "@/types"
-import dayjs from "dayjs"
 import { TABLE_UI_FORMAT } from "@/constants"
-import { formatUTCToCDT } from "@/lib"
+import { formatUTCToCentral } from "@/lib"
 
 const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
   const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
@@ -81,7 +80,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       meta: {
         className: "min-w-[120px] w-[16%]"
       },
-      cell: ({ getValue }) => formatUTCToCDT(getValue() as string, TABLE_UI_FORMAT)
+      cell: ({ getValue }) => formatUTCToCentral(getValue() as string, TABLE_UI_FORMAT)
     },
     {
       id: "actions",

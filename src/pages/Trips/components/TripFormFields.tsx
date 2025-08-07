@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
 import { DateTimePicker } from "@/components/ui/date-picker"
 import { useMemo, useState, useEffect } from "react"
+import { utcToCentralString, centralStringToUTC } from "@/lib"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
 import type { ITruckResponse, IDispatcherResponse, ITripStopResponse } from "@/types"
@@ -452,15 +453,17 @@ const TripFormFields = ({
           {/* Date/time inputs */}
           <div className="mb-4 grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDateTime">Start DateTime</Label>
+              <Label htmlFor="startDateTime">Start DateTime (CT)</Label>
               <form.Field
                 name="startDateTime"
                 children={(field: any) => (
                   <div>
                     <DateTimePicker
-                      value={field.state.value}
-                      onChange={field.handleChange}
-                      placeholder="Select start date and time"
+                      value={field.state.value ? utcToCentralString(field.state.value) : ""}
+                      onChange={(value: string) => {
+                        field.handleChange(value ? centralStringToUTC(value) : "")
+                      }}
+                      placeholder="Select start date and time (CT)"
                       className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
                     {field.state.meta.errors.length > 0 && (
@@ -472,15 +475,17 @@ const TripFormFields = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDateTime">Delivery DateTime</Label>
+              <Label htmlFor="endDateTime">Delivery DateTime (CT)</Label>
               <form.Field
                 name="endDateTime"
                 children={(field: any) => (
                   <div>
                     <DateTimePicker
-                      value={field.state.value}
-                      onChange={field.handleChange}
-                      placeholder="Select end date and time"
+                      value={field.state.value ? utcToCentralString(field.state.value) : ""}
+                      onChange={(value: string) => {
+                        field.handleChange(value ? centralStringToUTC(value) : "")
+                      }}
+                      placeholder="Select end date and time (CT)"
                       className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                     />
                     {field.state.meta.errors.length > 0 && (
