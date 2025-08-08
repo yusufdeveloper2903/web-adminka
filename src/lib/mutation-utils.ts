@@ -83,6 +83,14 @@ export const ENTITY_ERROR_MESSAGES = {
     CREATE_SUCCESS: "User route setting created successfully!",
     UPDATE_SUCCESS: "User route setting updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `User route setting ${active ? "activated" : "deactivated"} successfully!`
+  },
+  changeCompanyTokens: {
+    INVALID_DATA: "Invalid tokens data. Please check your input and try again.",
+    NOT_FOUND: "Tokens not found.",
+    ALREADY_EXISTS: "Tokens with this name already exists.",
+    CREATE_SUCCESS: "Tokens created successfully!",
+    UPDATE_SUCCESS: "Tokens updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Tokens ${active ? "activated" : "deactivated"} successfully!`
   }
 } as const
 

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Edit } from "lucide-react"
+import { Edit, Key } from "lucide-react"
 import { useDrawerStore } from "@/store"
-import { NewDispatcherForm } from "../components"
+import { NewDispatcherForm, TokenForm } from "../components"
 import type { IDispatcherResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
@@ -86,7 +86,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
         const dispatcher = row.original
 
         return (
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -96,8 +96,21 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
                   content: <NewDispatcherForm dispatcher={dispatcher} onClose={closeDrawer} />
                 })
               }}
+              title="Edit Dispatcher"
             >
               <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setDrawerConfig({
+                  title: `Update API Tokens`,
+                  content: <TokenForm dispatcher={dispatcher} onClose={closeDrawer} />
+                })
+              }}
+            >
+              <Key className="h-4 w-4" />
             </Button>
           </div>
         )

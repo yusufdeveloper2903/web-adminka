@@ -27,3 +27,8 @@ export interface ICompanyData {
 export type ICreateCompanyRequest = ICompanyData
 
 export type IUpdateCompanyRequest = ICompanyData
+
+export type IChangeCompanyTokensRequest = {
+  samsaraToken: string
+  gleToken: string
+}
