@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
-import { Mail, Phone, Truck, Edit } from "lucide-react"
+import { Mail, Phone, Truck, Edit, KeyIcon } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { StatusBadge } from "@/components/shared"
 import type { ICompanyResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
-import { NewCompanyForm } from "../components"
+import { NewCompanyForm, TokenForm } from "../components"
 import { formatUTCToCentral } from "@/lib"
 
 const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
@@ -114,6 +114,18 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
               }}
             >
               <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setDrawerConfig({
+                  title: `Update API Tokens: ${company.name}`,
+                  content: <TokenForm company={company} onClose={closeDrawer} />
+                })
+              }}
+            >
+              <KeyIcon className="h-4 w-4" />
             </Button>
           </div>
         )
