@@ -7,6 +7,7 @@ import H from "@here/maps-api-for-javascript/bin/mapsjs.bundle.harp.js"
 import { useRouteStore } from "@/store"
 import { useHereRouting } from "./useHereRouting"
 import type { ITripStopResponse } from "@/types"
+import { metersToMiles } from "@/lib"
 
 interface UseMapSpecificVisualizationProps {
   mapInstance: React.RefObject<H.Map | null>
@@ -49,14 +50,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
   const createFallbackStopInfoBubble = useCallback((stop: any, index: number) => {
     const stopLetter = String.fromCharCode(65 + index)
 
-    const formatDuration = (d: number) => {
-      const hours = Math.floor(d / 3600000)
-      const minutes = Math.floor((d % 3600000) / 60000)
-      return `${hours}h ${minutes}m`
-    }
-
-    const formatDistance = (dist: number) => `${dist.toFixed(1)} mi`
-
     const stopTypeColors: { [key: string]: { bg: string; text: string } } = {
       START: { bg: "#E0F2FE", text: "#0284C7" },
       PICKUP: { bg: "#D1FAE5", text: "#059669" },
@@ -86,7 +79,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
             <div style="margin-left: 8px;">
               <div style="font-size: 11px; color: #6B7280; font-weight: 500;">DISTANCE</div>
-              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDistance(stop.distance)}</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${metersToMiles(stop.distance).toFixed(1)}</div>
             </div>
           </div>
 
@@ -94,7 +87,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <div style="margin-left: 8px;">
               <div style="font-size: 11px; color: #6B7280; font-weight: 500;">DURATION</div>
-              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDuration(stop.duration)}</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${metersToMiles(stop.duration).toFixed(1)}</div>
             </div>
           </div>
 
@@ -102,7 +95,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
             <div style="margin-left: 8px;">
               <div style="font-size: 11px; color: #6B7280; font-weight: 500;">TOTAL DIST.</div>
-              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${formatDistance(stop.totalDistance)}</div>
+              <div style="font-size: 14px; color: #1F2937; font-weight: 600;">${metersToMiles(stop.totalDistance).toFixed(1)}</div>
             </div>
           </div>
 
