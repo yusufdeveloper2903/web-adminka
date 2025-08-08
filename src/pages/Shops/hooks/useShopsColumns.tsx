@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, MapPin } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewShopForm } from "../components"
+import { StatusBadge } from "@/components/shared"
 import type { IShopResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
@@ -69,10 +69,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
       meta: {
         className: "min-w-[80px] w-[10%]"
       },
-      cell: ({ getValue }) => {
-        const isActive = getValue() as boolean
-        return <Badge variant={isActive ? "default" : "secondary"}>{isActive ? "Active" : "Inactive"}</Badge>
-      }
+      cell: ({ getValue }) => <StatusBadge isActive={getValue() as boolean} />
     },
     {
       accessorKey: "created",

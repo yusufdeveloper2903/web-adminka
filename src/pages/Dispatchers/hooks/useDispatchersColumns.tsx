@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, Key } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewDispatcherForm, TokenForm } from "../components"
+import { StatusBadge } from "@/components/shared"
 import type { IDispatcherResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
@@ -55,18 +56,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
       meta: {
         className: "min-w-[100px] w-[15%]"
       },
-      cell: ({ getValue }) => {
-        const isActive = getValue() as boolean
-        return (
-          <span
-            className={`rounded-full px-2 py-1 text-xs font-medium ${
-              isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        )
-      }
+      cell: ({ getValue }) => <StatusBadge isActive={getValue() as boolean} />
     },
     {
       accessorKey: "created",

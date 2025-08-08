@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Edit } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewTeamForm } from "../components"
+import { StatusBadge } from "@/components/shared"
 import type { ITeamResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
@@ -41,18 +42,7 @@ const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
       meta: {
         className: "min-w-[80px] w-[12%]"
       },
-      cell: ({ getValue }) => {
-        const isActive = getValue() as boolean
-        return (
-          <span
-            className={`rounded-full px-2 py-1 text-xs font-medium ${
-              isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        )
-      }
+      cell: ({ getValue }) => <StatusBadge isActive={getValue() as boolean} />
     },
     {
       accessorKey: "created",

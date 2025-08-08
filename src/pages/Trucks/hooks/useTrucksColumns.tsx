@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, EyeIcon } from "lucide-react"
 import { useDrawerStore } from "@/store"
 import { NewTruckForm } from "../components"
+import { StatusBadge } from "@/components/shared"
 import type { ITruckResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
@@ -73,20 +74,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       meta: {
         className: "min-w-[100px] w-[8%]"
       },
-      cell: ({ row }) => {
-        const isActive = row.original.active
-        return (
-          <span
-            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-              isActive
-                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
-                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
-            }`}
-          >
-            {isActive ? "Active" : "Inactive"}
-          </span>
-        )
-      }
+      cell: ({ row }) => <StatusBadge isActive={row.original.active} />
     },
     {
       accessorKey: "homeLocation",

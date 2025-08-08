@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Mail, Phone, Truck, Edit } from "lucide-react"
 import { useDrawerStore } from "@/store"
+import { StatusBadge } from "@/components/shared"
 import type { ICompanyResponse } from "@/types"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { NewCompanyForm } from "../components"
@@ -82,10 +82,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
       meta: {
         className: "min-w-[80px] w-[9%]"
       },
-      cell: ({ getValue }) => {
-        const isActive = getValue() as boolean
-        return <Badge variant={isActive ? "default" : "secondary"}>{isActive ? "Active" : "Inactive"}</Badge>
-      }
+      cell: ({ getValue }) => <StatusBadge isActive={getValue() as boolean} />
     },
     {
       accessorKey: "created",

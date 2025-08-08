@@ -1,7 +1,7 @@
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { TABLE_UI_FORMAT } from "@/constants"
 import { useDrawerStore } from "@/store"
+import { StatusBadge } from "@/components/shared"
 import type { IUserResponse } from "@/types"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, Mail, Phone } from "lucide-react"
@@ -83,10 +83,7 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
       meta: {
         className: "min-w-[80px] w-[12%]"
       },
-      cell: ({ getValue }) => {
-        const isActive = getValue<boolean>()
-        return <Badge variant={isActive ? "default" : "secondary"}>{isActive ? "Active" : "Inactive"}</Badge>
-      }
+      cell: ({ getValue }) => <StatusBadge isActive={getValue<boolean>()} />
     },
     {
       accessorKey: "created",
