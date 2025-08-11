@@ -1,31 +1,17 @@
 import { Button } from "@/components/ui"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useDrawerStore } from "@/store/drawer-store"
 import { XIcon } from "lucide-react"
+import { useEventListener } from "usehooks-ts"
 
 const AppDrawer = () => {
   const { isOpen, closeDrawer, title, content, headerActions, width } = useDrawerStore()
 
-  // Debug width
-
-  //   // Kichik drawer
-  // width: "sm:max-w-sm"      // 384px
-
-  // // O'rta drawer
-  // width: "sm:max-w-md"      // 448px
-  // width: "sm:max-w-lg"      // 512px
-  // width: "sm:max-w-xl"      // 576px
-  // width: "sm:max-w-2xl"     // 672px (default)
-
-  // // Katta drawer
-  // width: "sm:max-w-3xl"     // 768px
-  // width: "sm:max-w-4xl"     // 896px
-  // width: "sm:max-w-5xl"     // 1024px
-  // width: "sm:max-w-6xl"     // 1152px
-  // width: "sm:max-w-7xl"     // 1280px
-
-  // // Full width
-  // width: "sm:max-w-full"
+  useEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeDrawer()
+    }
+  })
 
   return (
     <Sheet open={isOpen} onOpenChange={() => {}}>

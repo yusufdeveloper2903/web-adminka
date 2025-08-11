@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore } from "@/store"
 import { useChangeCompanyTokensMutation } from "@/hooks/companies"
-import type { ICompanyResponse } from "@/types"
+import { useCompanyByIdQuery } from "@/hooks/companies/queries/useCompanyByIdQuery"
 
 // Zod validation schema
 const tokenFormSchema = z.object({
@@ -11,17 +11,18 @@ const tokenFormSchema = z.object({
 })
 
 interface UseTokenFormProps {
-  company: ICompanyResponse
+  companyId: number
 }
 
-export const useTokenForm = ({ company }: UseTokenFormProps) => {
+export const useTokenForm = ({ companyId }: UseTokenFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const changeTokensMutation = useChangeCompanyTokensMutation()
+  const { data: company, isLoading, isError } = useCompanyByIdQuery(companyId)
 
   const form = useForm({
     defaultValues: {
-      samsaraToken: "",
-      gleToken: ""
+      samsaraToken: company?.samsaraToken || "",
+      gleToken: company?.gleToken || ""
     },
     validators: {
       onChange: tokenFormSchema as any
@@ -30,9 +31,8 @@ export const useTokenForm = ({ company }: UseTokenFormProps) => {
       try {
         const validatedData = tokenFormSchema.parse(value)
 
-        console.log("Token data for backend:", validatedData)
-
         // Update company tokens
+        if (!company) return
         await changeTokensMutation.mutateAsync({
           companyId: company.id,
           data: {
@@ -64,7 +64,9 @@ export const useTokenForm = ({ company }: UseTokenFormProps) => {
     form,
     resetForm,
     tokenFormSchema,
-    isSubmitting: changeTokensMutation.isPending
+    isSubmitting: changeTokensMutation.isPending,
+    isLoading,
+    isError
   }
 }
 

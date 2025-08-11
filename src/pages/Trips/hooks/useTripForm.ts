@@ -134,9 +134,13 @@ export const useTripForm = (editMode: boolean = false) => {
 
         // Close drawer on success
         closeDrawer()
-
-        // Close drawer on success
-        closeDrawer()
+        // After successful creation, reset to initial values and clear persisted store
+        if (!editMode) {
+          resetNewTripData()
+          resetNewTripStops()
+          form.reset()
+          setStops([])
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)

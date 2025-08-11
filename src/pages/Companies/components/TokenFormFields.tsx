@@ -35,8 +35,7 @@ const TokenFormFields = ({ form }: TokenFormFieldsProps) => {
               <div className="relative">
                 <Key className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
-                  type="password"
-                  placeholder="Enter Samsara token"
+                  placeholder={"Enter Samsara token"}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -61,8 +60,7 @@ const TokenFormFields = ({ form }: TokenFormFieldsProps) => {
               <div className="relative">
                 <Shield className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
-                  type="password"
-                  placeholder="Enter GLE token"
+                  placeholder={"Enter GLE token"}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}

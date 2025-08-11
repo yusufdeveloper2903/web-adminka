@@ -71,8 +71,10 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
 
         // Close drawer on success
         closeDrawer()
-
-        // Do not auto-reset; keep values persisted until user explicitly clears
+        // After successful creation, reset to initial values and clear persisted store
+        if (!isEditing) {
+          resetForm()
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -90,7 +92,7 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
       if (state.values) setNewShopData(state.values)
     })
     return unsubscribe
-  }, [isEditing, form])
+  }, [isEditing, form, setNewShopData])
 
   // Snapshot on unmount
   useEffect(() => {

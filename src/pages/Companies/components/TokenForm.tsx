@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button"
 import { useTokenForm } from "../hooks/useTokenForm"
-import type { ICompanyResponse } from "@/types"
 import { TokenFormFields } from "."
 
 interface TokenFormWrapperProps {
-  company: ICompanyResponse
+  companyId: number
   onClose: () => void
 }
 
-const TokenForm = ({ company, onClose }: TokenFormWrapperProps) => {
-  const { form, isSubmitting } = useTokenForm({ company })
+const TokenForm = ({ companyId, onClose }: TokenFormWrapperProps) => {
+  const { form, isSubmitting } = useTokenForm({ companyId })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

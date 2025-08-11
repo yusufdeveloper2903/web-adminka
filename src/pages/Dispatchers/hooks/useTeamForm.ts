@@ -53,8 +53,10 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
 
         // Close drawer on success
         closeDrawer()
-
-        // Do not auto-reset; keep values persisted until user explicitly clears
+        // After successful creation, reset to initial values and clear persisted store
+        if (!isEditing) {
+          resetForm()
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -72,7 +74,7 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
       if (state.values) setNewTeamData(state.values)
     })
     return unsubscribe
-  }, [isEditing, form])
+  }, [isEditing, form, setNewTeamData])
 
   // Snapshot on unmount
   useEffect(() => {

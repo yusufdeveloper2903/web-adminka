@@ -109,7 +109,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit Company: ${company.name}`,
-                  content: <NewCompanyForm company={company} onClose={closeDrawer} />
+                  content: <NewCompanyForm companyId={company.id} onClose={closeDrawer} />
                 })
               }}
             >
@@ -121,7 +121,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Update API Tokens: ${company.name}`,
-                  content: <TokenForm company={company} onClose={closeDrawer} />
+                  content: <TokenForm companyId={company.id} onClose={closeDrawer} />
                 })
               }}
             >

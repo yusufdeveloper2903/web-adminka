@@ -12,6 +12,8 @@ export interface ICompanyResponse {
   active: boolean
   created: string
   updated: string
+  gleToken: string
+  samsaraToken: string
 }
 
 export type ICompaniesResponse = IPaginatedResponse<ICompanyResponse>

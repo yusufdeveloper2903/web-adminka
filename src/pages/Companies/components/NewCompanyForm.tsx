@@ -2,16 +2,15 @@ import { Button } from "@/components/ui/button"
 import { useDrawerStore } from "@/store"
 import { useCompanyForm } from "../hooks/useCompanyForm"
 import CompanyFormFields from "./CompanyFormFields"
-import type { ICompanyResponse } from "@/types"
 
 interface NewCompanyFormProps {
-  company?: ICompanyResponse
+  companyId: number
   onClose?: () => void
 }
 
-const NewCompanyForm = ({ company, onClose }: NewCompanyFormProps) => {
+const NewCompanyForm = ({ companyId, onClose }: NewCompanyFormProps) => {
   const { closeDrawer } = useDrawerStore()
-  const { form, resetForm, isSubmitting, isEditing } = useCompanyForm({ company })
+  const { form, resetForm, isSubmitting, isEditing } = useCompanyForm({ companyId })
 
   const handleClearForm = () => {
     resetForm()

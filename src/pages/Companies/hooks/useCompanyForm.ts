@@ -1,8 +1,10 @@
+import { useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore } from "@/store"
 import { useCreateCompanyMutation, useUpdateCompanyMutation } from "@/hooks/companies"
-import type { ICompanyData, ICompanyResponse } from "@/types"
+import type { ICompanyData } from "@/types"
+import { useCompanyByIdQuery } from "@/hooks/companies/queries/useCompanyByIdQuery"
 
 // Zod validation schema
 const companyFormSchema = z.object({
@@ -13,22 +15,23 @@ const companyFormSchema = z.object({
 })
 
 interface UseCompanyFormProps {
-  company?: ICompanyResponse
+  companyId?: number
 }
 
-export const useCompanyForm = ({ company }: UseCompanyFormProps = {}) => {
+export const useCompanyForm = ({ companyId }: UseCompanyFormProps = {}) => {
   const { closeDrawer } = useDrawerStore()
   const createCompanyMutation = useCreateCompanyMutation()
   const updateCompanyMutation = useUpdateCompanyMutation()
 
-  const isEditing = !!company
+  const isEditing = !!companyId
+  const { data: company } = useCompanyByIdQuery(companyId as number, isEditing)
 
   const form = useForm({
     defaultValues: {
-      name: company?.name || "",
-      email: company?.email || "",
-      phone: company?.phone || "",
-      usDot: company?.usDot || ""
+      name: "",
+      email: "",
+      phone: "",
+      usDot: ""
     },
     validators: {
       onChange: companyFormSchema as any
@@ -44,12 +47,10 @@ export const useCompanyForm = ({ company }: UseCompanyFormProps = {}) => {
           usDot: validatedData.usDot
         }
 
-        console.log("Company data for backend:", companyData)
-
-        if (isEditing && company) {
+        if (isEditing && companyId) {
           // Update company
           await updateCompanyMutation.mutateAsync({
-            id: company.id,
+            id: companyId,
             data: companyData
           })
         } else {
@@ -73,6 +74,16 @@ export const useCompanyForm = ({ company }: UseCompanyFormProps = {}) => {
       }
     }
   })
+
+  // Hydrate form when company data is fetched in edit mode
+  useEffect(() => {
+    if (isEditing && company) {
+      form.setFieldValue("name", company.name || "")
+      form.setFieldValue("email", company.email || "")
+      form.setFieldValue("phone", company.phone || "")
+      form.setFieldValue("usDot", company.usDot || "")
+    }
+  }, [isEditing, company, form])
 
   const resetForm = () => {
     form.reset()

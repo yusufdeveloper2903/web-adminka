@@ -73,8 +73,10 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
 
         // Close drawer on success
         closeDrawer()
-
-        // Do not auto-reset; keep values persisted until user explicitly clears
+        // After successful creation, reset to initial values and clear persisted store
+        if (!isEditing) {
+          resetForm()
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -92,7 +94,7 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
       if (state.values) setNewUserData(state.values)
     })
     return unsubscribe
-  }, [isEditing, form])
+  }, [isEditing, form, setNewUserData])
 
   // Snapshot on unmount
   useEffect(() => {

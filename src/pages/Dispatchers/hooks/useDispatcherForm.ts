@@ -67,8 +67,10 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
 
         // Close drawer on success
         closeDrawer()
-
-        // Do not auto-reset; keep values persisted until user explicitly clears
+        // After successful creation, reset to initial values and clear persisted store
+        if (!isEditing) {
+          resetForm()
+        }
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -86,7 +88,7 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
       if (state.values) setNewDispatcherData(state.values)
     })
     return unsubscribe
-  }, [isEditing, form])
+  }, [isEditing, form, setNewDispatcherData])
 
   // Snapshot latest values on unmount in create mode
   useEffect(() => {
@@ -96,7 +98,7 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
         if (latest) setNewDispatcherData(latest)
       }
     }
-  }, [isEditing, form])
+  }, [isEditing, form, setNewDispatcherData])
 
   const resetForm = () => {
     if (!isEditing) {
