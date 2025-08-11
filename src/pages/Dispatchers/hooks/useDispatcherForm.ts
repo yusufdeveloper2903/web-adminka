@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form"
+import { useEffect } from "react"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
+import { useDrawerStore, useDispatchersStore } from "@/store"
 import { useCreateDispatcherMutation, useUpdateDispatcherMutation } from "@/hooks/dispatchers"
 import type { IDispatcherData, IDispatcherResponse } from "@/types"
 
@@ -22,12 +23,22 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
 
   const isEditing = !!dispatcher
 
+  const { newDispatcherData, setNewDispatcherData, resetNewDispatcherData } = useDispatchersStore()
+
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    teamId: ""
+  }
+
   const form = useForm({
-    defaultValues: {
-      firstName: dispatcher?.firstName || "",
-      lastName: dispatcher?.lastName || "",
-      teamId: dispatcher?.teamId?.toString() || ""
-    },
+    defaultValues: isEditing
+      ? {
+          firstName: dispatcher?.firstName || "",
+          lastName: dispatcher?.lastName || "",
+          teamId: dispatcher?.teamId?.toString() || ""
+        }
+      : { ...initialValues, ...newDispatcherData },
     validators: {
       onChange: dispatcherFormSchema
     },
@@ -57,10 +68,7 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation/update
-        if (!isEditing) {
-          resetForm()
-        }
+        // Do not auto-reset; keep values persisted until user explicitly clears
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -71,7 +79,29 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
     }
   })
 
+  // Persist changes in create mode with cleanup
+  useEffect(() => {
+    if (isEditing) return
+    const unsubscribe = form.store.subscribe((state: any) => {
+      if (state.values) setNewDispatcherData(state.values)
+    })
+    return unsubscribe
+  }, [isEditing, form])
+
+  // Snapshot latest values on unmount in create mode
+  useEffect(() => {
+    return () => {
+      if (!isEditing) {
+        const latest = (form as any)?.state?.values
+        if (latest) setNewDispatcherData(latest)
+      }
+    }
+  }, [isEditing, form])
+
   const resetForm = () => {
+    if (!isEditing) {
+      resetNewDispatcherData()
+    }
     form.reset()
   }
 

@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form"
+import { useEffect } from "react"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
+import { useDrawerStore, useDispatchersStore } from "@/store"
 import { useCreateTeamMutation, useUpdateTeamMutation } from "@/hooks/teams"
 import type { ITeamData, ITeamResponse } from "@/types"
 
@@ -20,10 +21,12 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
 
   const isEditing = !!team
 
+  const { newTeamData, setNewTeamData, resetNewTeamData } = useDispatchersStore()
+
+  const initialValues = { name: "" }
+
   const form = useForm({
-    defaultValues: {
-      name: team?.name || ""
-    },
+    defaultValues: isEditing ? { name: team?.name || "" } : { ...initialValues, ...newTeamData },
     validators: {
       onChange: teamFormSchema
     },
@@ -51,10 +54,7 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation/update
-        if (!isEditing) {
-          resetForm()
-        }
+        // Do not auto-reset; keep values persisted until user explicitly clears
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -65,7 +65,29 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
     }
   })
 
+  // Persist changes in create mode
+  useEffect(() => {
+    if (isEditing) return
+    const unsubscribe = form.store.subscribe((state: any) => {
+      if (state.values) setNewTeamData(state.values)
+    })
+    return unsubscribe
+  }, [isEditing, form])
+
+  // Snapshot on unmount
+  useEffect(() => {
+    return () => {
+      if (!isEditing) {
+        const latest = (form as any)?.state?.values
+        if (latest) setNewTeamData(latest)
+      }
+    }
+  }, [isEditing, form, setNewTeamData])
+
   const resetForm = () => {
+    if (!isEditing) {
+      resetNewTeamData()
+    }
     form.reset()
   }
 

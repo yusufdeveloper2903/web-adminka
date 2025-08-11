@@ -1,17 +1,31 @@
 import { create } from "zustand"
-import type { IUsersFiltersRequest } from "@/types"
+import type { IUsersFiltersRequest, IUserData } from "@/types"
+
+type NewUserData = Required<Pick<IUserData, "firstName" | "lastName" | "email" | "role">> & { phone: string }
 
 interface IUsersStore {
   filters: IUsersFiltersRequest
   setFilters: (filters: Partial<IUsersFiltersRequest>) => void
   resetFilters: () => void
   setSorting: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
+  // Persistent form state for new user
+  newUserData: NewUserData
+  setNewUserData: (data: Partial<NewUserData>) => void
+  resetNewUserData: () => void
 }
 
 const initialFilters: IUsersFiltersRequest = {
   keyword: "",
   sortName: undefined,
   sortDir: undefined
+}
+
+const initialNewUserData: NewUserData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  role: "OWNER"
 }
 
 export const useUsersStore = create<IUsersStore>((set) => ({
@@ -28,5 +42,9 @@ export const useUsersStore = create<IUsersStore>((set) => ({
         sortName: sortName || undefined,
         sortDir: sortDir || undefined
       }
-    }))
+    })),
+  // New user form persistence
+  newUserData: initialNewUserData,
+  setNewUserData: (data) => set((state) => ({ newUserData: { ...state.newUserData, ...data } })),
+  resetNewUserData: () => set({ newUserData: initialNewUserData })
 }))

@@ -41,8 +41,8 @@ const initialFormValues = {
   startDateTime: "",
   endDateTime: "",
   startOdometer: "",
-  endOdometer: "",
-};
+  endOdometer: ""
+}
 
 export const useTripForm = (editMode: boolean = false) => {
   const { closeDrawer } = useDrawerStore()
@@ -137,8 +137,6 @@ export const useTripForm = (editMode: boolean = false) => {
 
         // Close drawer on success
         closeDrawer()
-
-
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -154,12 +152,12 @@ export const useTripForm = (editMode: boolean = false) => {
     if (!editMode) {
       const unsubscribe = form.store.subscribe((state: any) => {
         if (state.values) {
-          setNewTripData(state.values);
+          setNewTripData(state.values)
         }
-      });
-      return unsubscribe;
+      })
+      return unsubscribe
     }
-  }, [form, setNewTripData, editMode]);
+  }, [form, setNewTripData, editMode])
 
   // Sync stops to store only in non-edit mode
   useEffect(() => {
@@ -173,25 +171,25 @@ export const useTripForm = (editMode: boolean = false) => {
     return () => {
       if (!editMode) {
         try {
-          const latest = (form as any)?.state?.values;
-          if (latest) setNewTripData(latest);
+          const latest = (form as any)?.state?.values
+          if (latest) setNewTripData(latest)
           if (stops) setNewTripStops(stops)
         } catch {
           // no-op
         }
       }
-    };
-  }, [editMode, form, setNewTripData, setNewTripStops, stops]);
+    }
+  }, [editMode, form, setNewTripData, setNewTripStops, stops])
 
   const resetForm = () => {
     // When resetting, also clear the persisted state in the store
     if (!editMode) {
-      resetNewTripData();
-      resetNewTripStops();
+      resetNewTripData()
+      resetNewTripStops()
     }
-    form.reset();
-    setStops([]);
-  };
+    form.reset()
+    setStops([])
+  }
 
   return {
     form,

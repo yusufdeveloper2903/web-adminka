@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form"
+import { useEffect } from "react"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
+import { useDrawerStore, useShopsStore } from "@/store"
 import { useCreateShopMutation, useUpdateShopMutation } from "@/hooks/shops"
 import type { IShopData, IShopResponse } from "@/types"
 
@@ -23,13 +24,24 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
 
   const isEditing = !!shop
 
+  const { newShopData, setNewShopData, resetNewShopData } = useShopsStore()
+
+  const initialValues = {
+    name: "",
+    location: "",
+    latitude: 0,
+    longitude: 0
+  }
+
   const form = useForm({
-    defaultValues: {
-      name: shop?.name || "",
-      location: shop?.location || "",
-      latitude: shop?.latitude || 0,
-      longitude: shop?.longitude || 0
-    },
+    defaultValues: isEditing
+      ? {
+          name: shop?.name || "",
+          location: shop?.location || "",
+          latitude: shop?.latitude || 0,
+          longitude: shop?.longitude || 0
+        }
+      : { ...initialValues, ...newShopData },
     validators: {
       onChange: shopFormSchema
     },
@@ -60,10 +72,7 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation
-        if (!isEditing) {
-          resetForm()
-        }
+        // Do not auto-reset; keep values persisted until user explicitly clears
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -74,7 +83,29 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
     }
   })
 
+  // Persist changes in create mode
+  useEffect(() => {
+    if (isEditing) return
+    const unsubscribe = form.store.subscribe((state: any) => {
+      if (state.values) setNewShopData(state.values)
+    })
+    return unsubscribe
+  }, [isEditing, form])
+
+  // Snapshot on unmount
+  useEffect(() => {
+    return () => {
+      if (!isEditing) {
+        const latest = (form as any)?.state?.values
+        if (latest) setNewShopData(latest)
+      }
+    }
+  }, [isEditing, form, setNewShopData])
+
   const resetForm = () => {
+    if (!isEditing) {
+      resetNewShopData()
+    }
     form.reset()
   }
 

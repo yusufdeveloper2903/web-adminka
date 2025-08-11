@@ -19,11 +19,10 @@ interface TripFilters {
   loadNumber?: string
 }
 
-
-// This is a simplified version of the form data, 
+// This is a simplified version of the form data,
 // you might need to adjust it to match your actual form fields.
 interface NewTripData {
-  [key: string]: any;
+  [key: string]: any
 }
 
 interface TripsViewState {
@@ -60,8 +59,8 @@ const initialFilters: TripFilters = {
   loadNumber: undefined
 }
 
-const initialNewTripData: NewTripData = {};
-const initialNewTripStops: ITripStopResponse[] = [];
+const initialNewTripData: NewTripData = {}
+const initialNewTripStops: ITripStopResponse[] = []
 
 export const useTripsStore = create<TripsViewState>((set) => ({
   view: "table",
@@ -96,8 +95,7 @@ export const useTripsStore = create<TripsViewState>((set) => ({
       }
     })),
   newTripData: initialNewTripData,
-  setNewTripData: (data) => 
-    set((state) => ({ newTripData: { ...state.newTripData, ...data } })),
+  setNewTripData: (data) => set((state) => ({ newTripData: { ...state.newTripData, ...data } })),
   resetNewTripData: () => set({ newTripData: initialNewTripData }),
   newTripStops: initialNewTripStops,
   setNewTripStops: (stops) => set({ newTripStops: stops }),

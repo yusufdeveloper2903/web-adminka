@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form"
+import { useEffect } from "react"
 import { z } from "zod"
-import { useDrawerStore } from "@/store"
+import { useDrawerStore, useUsersStore } from "@/store"
 import { useCreateUserMutation, useUpdateUserMutation } from "@/hooks/users"
 import type { IUserData, IUserResponse } from "@/types"
 
@@ -24,14 +25,26 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
 
   const isEditing = !!user
 
+  const { newUserData, setNewUserData, resetNewUserData } = useUsersStore()
+
+  const initialValues = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    role: "OWNER" as const
+  }
+
   const form = useForm({
-    defaultValues: {
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
-      email: user?.email || "",
-      phone: user?.phone || "",
-      role: user?.role || "OWNER"
-    },
+    defaultValues: isEditing
+      ? {
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+          email: user?.email || "",
+          phone: user?.phone || "",
+          role: (user?.role as any) || "OWNER"
+        }
+      : { ...initialValues, ...newUserData },
     validators: {
       onChange: userFormSchema as any
     },
@@ -61,10 +74,7 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful creation
-        if (!isEditing) {
-          resetForm()
-        }
+        // Do not auto-reset; keep values persisted until user explicitly clears
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -75,7 +85,29 @@ export const useUserForm = ({ user }: UseUserFormProps = {}) => {
     }
   })
 
+  // Persist changes in create mode
+  useEffect(() => {
+    if (isEditing) return
+    const unsubscribe = form.store.subscribe((state: any) => {
+      if (state.values) setNewUserData(state.values)
+    })
+    return unsubscribe
+  }, [isEditing, form])
+
+  // Snapshot on unmount
+  useEffect(() => {
+    return () => {
+      if (!isEditing) {
+        const latest = (form as any)?.state?.values
+        if (latest) setNewUserData(latest)
+      }
+    }
+  }, [isEditing, form])
+
   const resetForm = () => {
+    if (!isEditing) {
+      resetNewUserData()
+    }
     form.reset()
   }
 

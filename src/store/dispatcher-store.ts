@@ -10,11 +10,29 @@ interface IDispatchersFilters {
   teamId?: string
 }
 
+type NewDispatcherData = {
+  firstName: string
+  lastName: string
+  teamId: string
+}
+
+type NewTeamData = {
+  name: string
+}
+
 interface DispatchersState {
   filters: IDispatchersFilters
   setFilters: (filters: Partial<IDispatchersFilters>) => void
   resetFilters: () => void
   setSorting: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
+  // Persistent form state for new dispatcher
+  newDispatcherData: NewDispatcherData
+  setNewDispatcherData: (data: Partial<NewDispatcherData>) => void
+  resetNewDispatcherData: () => void
+  // Persistent form state for new team
+  newTeamData: NewTeamData
+  setNewTeamData: (data: Partial<NewTeamData>) => void
+  resetNewTeamData: () => void
 }
 
 const initialState: IDispatchersFilters = {
@@ -24,6 +42,16 @@ const initialState: IDispatchersFilters = {
   sortDir: undefined,
   // Legacy field
   teamId: undefined
+}
+
+const initialNewDispatcherData: NewDispatcherData = {
+  firstName: "",
+  lastName: "",
+  teamId: ""
+}
+
+const initialNewTeamData: NewTeamData = {
+  name: ""
 }
 
 export const useDispatchersStore = create<DispatchersState>((set) => ({
@@ -47,5 +75,13 @@ export const useDispatchersStore = create<DispatchersState>((set) => ({
         sortName: sortName || undefined,
         sortDir: sortDir || undefined
       }
-    }))
+    })),
+  // New dispatcher form persistence
+  newDispatcherData: initialNewDispatcherData,
+  setNewDispatcherData: (data) => set((state) => ({ newDispatcherData: { ...state.newDispatcherData, ...data } })),
+  resetNewDispatcherData: () => set({ newDispatcherData: initialNewDispatcherData }),
+  // New team form persistence
+  newTeamData: initialNewTeamData,
+  setNewTeamData: (data) => set((state) => ({ newTeamData: { ...state.newTeamData, ...data } })),
+  resetNewTeamData: () => set({ newTeamData: initialNewTeamData })
 }))
