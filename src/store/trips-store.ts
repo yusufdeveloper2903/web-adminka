@@ -1,4 +1,4 @@
-import type { ISelectOption } from "@/types"
+import type { ISelectOption, ITripStopResponse } from "@/types"
 import { create } from "zustand"
 
 type TripsView = "table" | "map"
@@ -19,6 +19,13 @@ interface TripFilters {
   loadNumber?: string
 }
 
+
+// This is a simplified version of the form data, 
+// you might need to adjust it to match your actual form fields.
+interface NewTripData {
+  [key: string]: any;
+}
+
 interface TripsViewState {
   view: TripsView
   setView: (view: TripsView) => void
@@ -28,6 +35,13 @@ interface TripsViewState {
   setFilters: (newFilters: Partial<TripFilters>) => void
   resetFilters: () => void
   setSorting: (sortName: string | null, sortDir: "asc" | "desc" | null) => void
+  newTripData: NewTripData
+  setNewTripData: (data: Partial<NewTripData>) => void
+  resetNewTripData: () => void
+  // Persisted stops for New Trip form
+  newTripStops: ITripStopResponse[]
+  setNewTripStops: (stops: ITripStopResponse[]) => void
+  resetNewTripStops: () => void
 }
 
 const initialFilters: TripFilters = {
@@ -45,6 +59,9 @@ const initialFilters: TripFilters = {
   driverId: undefined,
   loadNumber: undefined
 }
+
+const initialNewTripData: NewTripData = {};
+const initialNewTripStops: ITripStopResponse[] = [];
 
 export const useTripsStore = create<TripsViewState>((set) => ({
   view: "table",
@@ -77,5 +94,12 @@ export const useTripsStore = create<TripsViewState>((set) => ({
         sortName: sortName || undefined,
         sortDir: sortDir || undefined
       }
-    }))
+    })),
+  newTripData: initialNewTripData,
+  setNewTripData: (data) => 
+    set((state) => ({ newTripData: { ...state.newTripData, ...data } })),
+  resetNewTripData: () => set({ newTripData: initialNewTripData }),
+  newTripStops: initialNewTripStops,
+  setNewTripStops: (stops) => set({ newTripStops: stops }),
+  resetNewTripStops: () => set({ newTripStops: initialNewTripStops })
 }))

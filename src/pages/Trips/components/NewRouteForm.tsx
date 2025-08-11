@@ -5,6 +5,7 @@ import { useStopManagement } from "../hooks/useStopManagement"
 import TripFormFields from "./TripFormFields"
 import { useEffect } from "react"
 import { useTripByIdQuery } from "@/hooks/trips"
+import type { TripStatus } from "@/types"
 
 interface NewRouteFormProps {
   editMode?: boolean
@@ -36,7 +37,7 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
       form.setFieldValue("truckId", tripData.truck.id.toString())
       form.setFieldValue("dispatcherId", tripData.dispatcher.id.toString())
       form.setFieldValue("loadNumber", tripData.loadNumber)
-      form.setFieldValue("tripStatus", tripData.tripStatus)
+      form.setFieldValue("tripStatus", tripData.tripStatus as TripStatus)
       form.setFieldValue("startDateTime", tripData.startDateTime)
       form.setFieldValue("endDateTime", tripData.endDateTime)
       form.setFieldValue("startOdometer", tripData.startOdometer?.toString() || "")

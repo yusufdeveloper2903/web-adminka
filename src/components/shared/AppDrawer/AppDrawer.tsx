@@ -28,7 +28,7 @@ const AppDrawer = () => {
   // width: "sm:max-w-full"
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && closeDrawer()}>
+    <Sheet open={isOpen} onOpenChange={() => {}}>
       <SheetContent
         className={`custom-sheet-content overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
         side="right"
@@ -41,11 +41,9 @@ const AppDrawer = () => {
                 {headerActions?.map((action) => (
                   <div key={action.id}>{action.node}</div>
                 ))}
-                <SheetClose asChild>
-                  <Button variant="ghost">
-                    <XIcon className="size-6" />
-                  </Button>
-                </SheetClose>
+                <Button variant="ghost" onClick={closeDrawer}>
+                  <XIcon className="size-6" />
+                </Button>
               </div>
             </SheetTitle>
           )}

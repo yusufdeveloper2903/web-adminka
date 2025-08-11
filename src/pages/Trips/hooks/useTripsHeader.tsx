@@ -341,7 +341,8 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     isPeriodActive,
     handlePeriodChange,
     dateFilterOptions,
-    handleDateRangeChange
+    handleDateRangeChange,
+    isMapSubmitLoading
   ])
 
   return { filters, view, setView }

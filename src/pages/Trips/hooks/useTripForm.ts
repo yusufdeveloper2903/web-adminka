@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore, useTripsStore } from "@/store"
 import { useCreateTripMutation, useUpdateTripMutation } from "@/hooks/trips"
-import type { ITripStopResponse, ICreateTripRequest, TripStatus } from "@/types"
+import type { ITripStopResponse, TripStatus } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
 import { cleanObject } from "@/lib"
@@ -33,10 +33,30 @@ const tripFormSchema = z
     }
   )
 
+const initialFormValues = {
+  truckId: "",
+  dispatcherId: "",
+  loadNumber: "",
+  tripStatus: "UPCOMING" as TripStatus,
+  startDateTime: "",
+  endDateTime: "",
+  startOdometer: "",
+  endOdometer: "",
+};
+
 export const useTripForm = (editMode: boolean = false) => {
   const { closeDrawer } = useDrawerStore()
-  const { selectedTripId } = useTripsStore()
-  const [stops, setStops] = useState<ITripStopResponse[]>([])
+  const {
+    selectedTripId,
+    newTripData,
+    setNewTripData,
+    resetNewTripData,
+    newTripStops,
+    setNewTripStops,
+    resetNewTripStops
+  } = useTripsStore()
+  // Initialize stops from store only in non-edit mode
+  const [stops, setStops] = useState<ITripStopResponse[]>(!editMode ? newTripStops : [])
 
   const createTripMutation = useCreateTripMutation()
   const updateTripMutation = useUpdateTripMutation()
@@ -44,16 +64,7 @@ export const useTripForm = (editMode: boolean = false) => {
   // Format datetime for backend
 
   const form = useForm({
-    defaultValues: {
-      truckId: "",
-      dispatcherId: "",
-      loadNumber: "",
-      tripStatus: "UPCOMING",
-      startDateTime: "",
-      endDateTime: "",
-      startOdometer: "",
-      endOdometer: ""
-    },
+    defaultValues: !editMode ? { ...initialFormValues, ...newTripData } : initialFormValues,
     validators: {
       onChange: tripFormSchema as any
     },
@@ -124,8 +135,10 @@ export const useTripForm = (editMode: boolean = false) => {
         // Close drawer on success
         closeDrawer()
 
-        // Reset form after successful operation
-        resetForm()
+        // Close drawer on success
+        closeDrawer()
+
+
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation errors:", error.errors)
@@ -136,10 +149,49 @@ export const useTripForm = (editMode: boolean = false) => {
     }
   })
 
+  // Subscribe to form changes and update the store only when not in edit mode
+  useEffect(() => {
+    if (!editMode) {
+      const unsubscribe = form.store.subscribe((state: any) => {
+        if (state.values) {
+          setNewTripData(state.values);
+        }
+      });
+      return unsubscribe;
+    }
+  }, [form, setNewTripData, editMode]);
+
+  // Sync stops to store only in non-edit mode
+  useEffect(() => {
+    if (!editMode) {
+      setNewTripStops(stops)
+    }
+  }, [stops, editMode, setNewTripStops])
+
+  // On unmount, snapshot the latest values to store (for safety)
+  useEffect(() => {
+    return () => {
+      if (!editMode) {
+        try {
+          const latest = (form as any)?.state?.values;
+          if (latest) setNewTripData(latest);
+          if (stops) setNewTripStops(stops)
+        } catch {
+          // no-op
+        }
+      }
+    };
+  }, [editMode, form, setNewTripData, setNewTripStops, stops]);
+
   const resetForm = () => {
-    form.reset()
-    setStops([])
-  }
+    // When resetting, also clear the persisted state in the store
+    if (!editMode) {
+      resetNewTripData();
+      resetNewTripStops();
+    }
+    form.reset();
+    setStops([]);
+  };
 
   return {
     form,
