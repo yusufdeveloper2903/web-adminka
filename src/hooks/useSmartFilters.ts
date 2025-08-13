@@ -111,19 +111,8 @@ export const useSmartFilters = ({
   )
 
   // Auto-set truck and driver when load is selected and vehicle info is available
-  // Also clear truck and driver when load is cleared
   useEffect(() => {
-    if (!filters.load?.value && (filters.truck || filters.driver)) {
-      // Clear truck and driver when load is cleared
-      setFilters({
-        truck: undefined,
-        truckId: undefined,
-        driver: undefined,
-        driverId: undefined
-      })
-      return
-    }
-
+    // Only auto-set when load is selected, vehicle info is available, and neither truck nor driver is manually selected
     if (filters.load?.value && vehicleInfo && !filters.truck && !filters.driver) {
       const updates: Partial<SmartFilters> = {}
       const toastMessages: string[] = []
@@ -171,7 +160,7 @@ export const useSmartFilters = ({
         }
       }
     }
-  }, [filters.load?.value, vehicleInfo, filters.truck, filters.driver, setFilters])
+  }, [filters.load?.value, vehicleInfo, setFilters, filters.truck, filters.driver])
 
   return {
     truckOptions,

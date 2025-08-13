@@ -80,9 +80,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
               onChange={(option: SingleValue<{ value: string; label: string }>) => {
                 setFilters({
                   load: option || undefined,
-                  loadNumber: option?.value || undefined,
-                  // Clear truck and driver when load changes to trigger re-filtering
-                  ...(option && { truck: undefined, truckId: undefined, driver: undefined, driverId: undefined })
+                  loadNumber: option?.value || undefined
                 })
               }}
             />

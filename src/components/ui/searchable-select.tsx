@@ -54,9 +54,9 @@ const ClearIndicator = (props: any) => {
 // Custom LoadingIndicator to override react-select's default
 const LoadingIndicator = () => null // Completely hide loading indicator
 
-// Custom Option component with smooth animations
+// Custom Option component with smooth animations and ellipsis
 const Option = (props: any) => {
-  const { index } = props
+  const { index, data } = props
 
   return (
     <div
@@ -66,6 +66,7 @@ const Option = (props: any) => {
           animationDelay: `${(index % 5) * 0.05}s` // Stagger last 5 options
         } as React.CSSProperties
       }
+      title={data?.label} // Show full text on hover
     >
       <components.Option {...props} />
     </div>
@@ -231,7 +232,7 @@ const SearchableSelect = ({
                 : "border-input",
             className
           ),
-        container: () => `min-w-[160px] ${fullWidth ? "auto" : "max-w-[200px]"}`, // Fixed min/max width
+        container: () => `min-w-[160px] ${fullWidth ? "w-full" : "max-w-[220px]"}`, // Fixed min/max width
         placeholder: () => "text-muted-foreground text-xs truncate",
         input: () => "text-foreground text-xs flex-1 min-w-0",
         valueContainer: () => "flex items-center py-0 flex-1 min-w-0 overflow-hidden",
@@ -246,7 +247,7 @@ const SearchableSelect = ({
           "text-muted-foreground hover:text-foreground cursor-pointer p-0 w-4 h-4 flex items-center justify-center",
         menu: () =>
           cn(
-            "relative min-w-[8rem] mt-0.5 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg",
+            "relative min-w-[160px] max-w-[300px] mt-0.5 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg",
             "animate-in fade-in-0 zoom-in-95 duration-200 ease-out",
             "backdrop-blur-sm !z-[999]"
           ),
@@ -255,7 +256,7 @@ const SearchableSelect = ({
         option: ({ isFocused, isSelected }) =>
           cn(
             "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-            "transition-all duration-150 ease-in-out",
+            "transition-all duration-150 ease-in-out truncate max-w-full",
             "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
             isFocused && "bg-accent text-accent-foreground transform scale-[0.99]",
             isSelected && "bg-accent text-accent-foreground font-medium"
