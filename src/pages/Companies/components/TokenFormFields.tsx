@@ -1,13 +1,16 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Key, Shield } from "lucide-react"
+import { useCompanyByIdQuery } from "@/hooks/companies"
 
 interface TokenFormFieldsProps {
-  form: any // TanStack form instance
+  form: any
+  companyId: number
 }
 
-const TokenFormFields = ({ form }: TokenFormFieldsProps) => {
-  // Helper function to get error message from field
+const TokenFormFields = ({ form, companyId }: TokenFormFieldsProps) => {
+  const { data: company } = useCompanyByIdQuery(companyId)
+
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
 
@@ -35,7 +38,7 @@ const TokenFormFields = ({ form }: TokenFormFieldsProps) => {
               <div className="relative">
                 <Key className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
-                  placeholder={"Enter Samsara token"}
+                  placeholder={company?.samsaraToken || "Enter Samsara token"}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -60,7 +63,7 @@ const TokenFormFields = ({ form }: TokenFormFieldsProps) => {
               <div className="relative">
                 <Shield className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
-                  placeholder={"Enter GLE token"}
+                  placeholder={company?.gleToken || "Enter GLE token"}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}

@@ -17,7 +17,7 @@ const TokenForm = ({ companyId, onClose }: TokenFormWrapperProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <TokenFormFields form={form} />
+      <TokenFormFields form={form} companyId={companyId}/>
 
       <div className="flex justify-end space-x-3 border-t pt-4">
         <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>

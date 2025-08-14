@@ -21,8 +21,8 @@ export const useTokenForm = ({ companyId }: UseTokenFormProps) => {
 
   const form = useForm({
     defaultValues: {
-      samsaraToken: company?.samsaraToken || "",
-      gleToken: company?.gleToken || ""
+      samsaraToken: "",
+      gleToken: ""
     },
     validators: {
       onChange: tokenFormSchema as any

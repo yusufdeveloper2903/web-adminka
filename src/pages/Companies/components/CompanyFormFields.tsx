@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Mail, Phone, Truck } from "lucide-react"
+import { Mail, Truck } from "lucide-react"
 import { InputMask } from "@/components/shared"
 
 interface CompanyFormFieldsProps {
