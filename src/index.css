@@ -85,9 +85,6 @@ h1 {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 @theme {
@@ -309,7 +306,8 @@ h1 {
 }
 
 /* Hover states */
-.date-range-picker .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_range_start):not(.rdp-day_range_end):not(.rdp-day_range_middle) {
+.date-range-picker
+  .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_range_start):not(.rdp-day_range_end):not(.rdp-day_range_middle) {
   background-color: hsl(var(--accent)) !important;
   color: hsl(var(--accent-foreground)) !important;
 }
@@ -327,7 +325,7 @@ h1 {
 .date-range-picker .rdp-day_range_end {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
-}/* Custo
+} /* Custo
 m Scrollbar Styles */
 .custom-scrollbar {
   scrollbar-width: thin;
