@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/searchable-select"
-import { DateTimePicker } from "@/components/ui/date-picker"
+import { DateTimePicker } from "@/components/ui/date-time-picker"
 import { useMemo, useState, useEffect } from "react"
 import { utcToCentralString, centralStringToUTC } from "@/lib"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"

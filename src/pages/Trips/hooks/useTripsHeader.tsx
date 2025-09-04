@@ -9,7 +9,7 @@ import { cn } from "@/lib"
 
 import { RotateCcw } from "lucide-react"
 import { SearchableSelect } from "@/components/ui"
-import { DateRangePicker } from "@/components/ui/date-picker"
+import { DateRangePicker } from "@/components/ui/date-range-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { SingleValue } from "react-select"
 import dayjs from "dayjs"
