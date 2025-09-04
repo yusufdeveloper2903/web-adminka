@@ -105,11 +105,13 @@ export const useTripForm = (editMode: boolean = false) => {
 
         // Only add datetime fields if they have valid values
         if (validatedData.startDateTime && validatedData.startDateTime.trim() !== "") {
-          tripData.startDateTime = dayjs(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT)
+          // validatedData.startDateTime is already UTC (converted in TripFormFields via centralStringToUTC)
+          // Format it as UTC for backend without shifting to local timezone
+          tripData.startDateTime = dayjs.utc(validatedData.startDateTime).format(BACKEND_DATETIME_FORMAT)
         }
 
         if (validatedData.endDateTime && validatedData.endDateTime.trim() !== "") {
-          tripData.endDateTime = dayjs(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT)
+          tripData.endDateTime = dayjs.utc(validatedData.endDateTime).format(BACKEND_DATETIME_FORMAT)
         }
 
         // Only add odometer fields if they have values

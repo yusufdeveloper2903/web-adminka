@@ -1,145 +1,127 @@
+"use client"
+
 import * as React from "react"
-import { CalendarIcon } from "lucide-react"
-import dayjs from "dayjs"
+import { ChevronDownIcon } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { UI_DATETIME_FORMAT, MIN_DATE } from "@/constants"
+// We keep value composition timezone-agnostic to avoid TZ shifts.
+import dayjs from "dayjs"
+import { DEFAULT_START_TIME, UI_DATETIME_FORMAT } from "@/constants/time-formats"
 
-interface DateTimePickerProps {
-  value?: string // datetime-local format
-  onChange: (value: string) => void
+export interface DateTimePickerProps {
+  value?: string // expected format: YYYY-MM-DDTHH:mm (local/CT string without timezone)
+  onChange?: (value: string) => void
   placeholder?: string
-  disabled?: boolean
   className?: string
+  disabled?: boolean
 }
 
 export function DateTimePicker({
   value,
   onChange,
   placeholder = "Select date and time",
-  disabled = false,
-  className
+  className,
+  disabled
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false)
 
-  // Parse value safely - NO internal state
-  const currentDateTime = value ? dayjs(value) : null
-  const selectedDate = currentDateTime?.toDate()
-  // Fix: Use actual time from value, not DEFAULT_START_TIME
-  const timeValue = value ? dayjs(value).format("HH:mm") : "09:00"
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      console.log("Selected date from calendar:", date)
-      console.log("Current time value:", timeValue)
-
-      // Use UTC methods to avoid timezone issues with react-day-picker
-      const year = date.getUTCFullYear()
-      const month = date.getUTCMonth() + 1 // getUTCMonth() returns 0-11
-      const day = date.getUTCDate()
-
-      console.log("UTC date parts:", { year, month, day })
-
-      // Use current time or default
-      const [hours, minutes] = timeValue.split(":")
-
-      // Create datetime string manually to avoid timezone conversion
-      const dateTimeString = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hours}:${minutes}`
-
-      console.log("Manual datetime string:", dateTimeString)
-
-      onChange(dateTimeString)
+  // Parse incoming value into date, hour and minute WITHOUT timezone interpretation
+  const initial = React.useMemo(() => {
+    if (!value) {
+      const [dh, dm] = DEFAULT_START_TIME.split(":")
+      return { date: undefined as Date | undefined, hour: dh ?? "09", minute: dm ?? "00" }
     }
-  }
-
-  const handleTimeChange = (time: string) => {
-    if (selectedDate) {
-      // Extract date parts manually to avoid timezone issues
-      const year = selectedDate.getFullYear()
-      const month = selectedDate.getMonth() + 1
-      const day = selectedDate.getDate()
-
-      const [hours, minutes] = time.split(":")
-
-      // Create datetime string manually
-      const dateTimeString = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}T${hours}:${minutes}`
-
-      onChange(dateTimeString)
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+    if (!m) {
+      const [dh, dm] = DEFAULT_START_TIME.split(":")
+      return { date: undefined as Date | undefined, hour: dh ?? "09", minute: dm ?? "00" }
     }
-  }
+    const [, y, mo, d, hh, mm] = m
+    const dateOnly = new Date(Number(y), Number(mo) - 1, Number(d))
+    return { date: dateOnly, hour: hh, minute: mm }
+  }, [value])
+
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(initial.date)
+  const [hour, setHour] = React.useState<string>(initial.hour)
+  const [minute, setMinute] = React.useState<string>(initial.minute)
+
+  React.useEffect(() => {
+    // Keep internal state in sync if external value changes
+    setSelectedDate(initial.date)
+    setHour(initial.hour)
+    setMinute(initial.minute)
+  }, [initial])
+
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const emitChange = React.useCallback(
+    (nextDate: Date | undefined, nextHour: string, nextMinute: string) => {
+      if (!onChange) return
+      if (!nextDate) {
+        onChange("")
+        return
+      }
+      const y = nextDate.getFullYear()
+      const m = pad(nextDate.getMonth() + 1)
+      const d = pad(nextDate.getDate())
+      onChange(`${y}-${m}-${d}T${nextHour}:${nextMinute}`)
+    },
+    [onChange]
+  )
+
+  const displayText = React.useMemo(() => {
+    if (!selectedDate) return placeholder
+    const y = selectedDate.getFullYear()
+    const m = pad(selectedDate.getMonth() + 1)
+    const d = pad(selectedDate.getDate())
+    // Use dayjs only for nicer UI formatting, not for value composition
+    return dayjs(`${y}-${m}-${d}T${hour}:${minute}`).format(UI_DATETIME_FORMAT)
+  }, [selectedDate, hour, minute, placeholder])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("w-full justify-start text-left font-normal", !value && "text-muted-foreground", className)}
+          className={"w-full justify-between font-normal " + (className ? className : "")}
           disabled={disabled}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? dayjs(value).format(UI_DATETIME_FORMAT) : <span>{placeholder}</span>}
+          {displayText}
+          <ChevronDownIcon />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <div className="space-y-3 p-3">
+      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <div className="flex flex-col">
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={handleDateSelect}
-            disabled={(date) => date < new Date(MIN_DATE)}
-            defaultMonth={selectedDate || new Date()}
+            captionLayout="dropdown"
+            onSelect={(d) => {
+              setSelectedDate(d)
+              emitChange(d, hour, minute)
+            }}
           />
-          <div className="flex items-center gap-2 border-t pt-2">
-            <label htmlFor="time" className="text-sm font-medium">
-              Time:
-            </label>
-            <div className="flex w-full items-center gap-2">
-              <div className="relative flex-1">
-                <select
-                  value={timeValue.split(":")[0]}
-                  onChange={(e) => {
-                    const minutes = timeValue.split(":")[1] || "00"
-                    handleTimeChange(`${e.target.value.padStart(2, "0")}:${minutes}`)
-                  }}
-                  className="border-input focus-visible:ring-ring h-9 w-full cursor-pointer appearance-none rounded-md border bg-transparent pr-8 pl-3 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={i.toString().padStart(2, "0")}>
-                      {i.toString().padStart(2, "0")}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <svg className="text-muted-foreground h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-              <span className="text-muted-foreground text-sm font-medium">:</span>
-              <div className="relative flex-1">
-                <select
-                  value={timeValue.split(":")[1] || "00"}
-                  onChange={(e) => {
-                    const hours = timeValue.split(":")[0] || "00"
-                    handleTimeChange(`${hours}:${e.target.value}`)
-                  }}
-                  className="border-input focus-visible:ring-ring h-9 w-full cursor-pointer appearance-none rounded-md border bg-transparent pr-8 pl-3 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <option key={i} value={i.toString().padStart(2, "0")}>
-                      {i.toString().padStart(2, "0")}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <svg className="text-muted-foreground h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+          {/* Native time input at the bottom of the calendar */}
+          <div className="flex items-center gap-3 border-t p-3">
+            <span className="text-muted-foreground text-sm">Time</span>
+            <Input
+              type="time"
+              lang="en-GB" /* Hint browsers to use 24-hour format */
+              step={60} /* minutes granularity, no seconds */
+              value={`${hour}:${minute}`}
+              onChange={(e) => {
+                const [h, m] = e.target.value.split(":")
+                const hh = (h ?? "00").padStart(2, "0")
+                const mm = (m ?? "00").padStart(2, "0")
+                setHour(hh)
+                setMinute(mm)
+                emitChange(selectedDate, hh, mm)
+              }}
+              className="w-28"
+              disabled={!selectedDate || disabled}
+            />
           </div>
         </div>
       </PopoverContent>

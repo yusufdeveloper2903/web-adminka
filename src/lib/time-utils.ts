@@ -1,6 +1,7 @@
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import { INPUT_DATETIME_LOCAL_FORMAT } from "@/constants/time-formats"
 
 // Enable dayjs plugins
 dayjs.extend(utc)
@@ -10,7 +11,7 @@ dayjs.extend(timezone)
 const convertUTCToCentral = (utcDateTime: string | Date) => {
   try {
     return dayjs.utc(utcDateTime).tz("America/Chicago")
-  } catch (error) {
+  } catch {
     // Fallback to manual offset calculation
     const utcDate = dayjs.utc(utcDateTime)
     const month = utcDate.month() + 1
@@ -33,17 +34,24 @@ export const utcToCentralDate = (utcDateTime: string | Date): Date => {
 
 // Convert Central Time to UTC string (for backend)
 export const centralToUTC = (centralDateTime: Date | string): string => {
-  return dayjs(centralDateTime).utc().format()
+  // Interpret input as America/Chicago (CT) and convert to UTC
+  // Handles strings without timezone like "YYYY-MM-DDTHH:mm"
+  const ct =
+    typeof centralDateTime === "string"
+      ? dayjs.tz(centralDateTime, "America/Chicago")
+      : dayjs(centralDateTime).tz("America/Chicago")
+  return ct.utc().format()
 }
 
 // Convert UTC string to Central Time string (for form display)
 export const utcToCentralString = (utcDateTime: string): string => {
   if (!utcDateTime) return ""
-  return convertUTCToCentral(utcDateTime).format("YYYY-MM-DDTHH:mm")
+  return convertUTCToCentral(utcDateTime).format(INPUT_DATETIME_LOCAL_FORMAT)
 }
 
 // Convert Central Time string to UTC string (for backend submission)
 export const centralStringToUTC = (centralDateTime: string): string => {
   if (!centralDateTime) return ""
-  return dayjs(centralDateTime).utc().format()
+  // Parse as CT then convert to UTC to avoid off-by-one date issues
+  return dayjs.tz(centralDateTime, "America/Chicago").utc().format()
 }
