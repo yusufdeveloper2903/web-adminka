@@ -83,14 +83,6 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
         // Skip truck specifications to avoid API errors
         // HERE API truck mode is sufficient for routing
-        console.log("🚛 [MAP COMPONENT] Using basic truck transport mode")
-
-        console.log(`🚛 [MAP COMPONENT] Route calculation with settings:`, {
-          routingMode: `${routingMode} (${routeSettings.routingMode})`,
-          transportMode: `${transportMode} (trailer: ${routeSettings.hasTrailer})`,
-          distanceUnit: routeSettings.distanceUnit,
-          truckSpecs: routeSettings.hasTrailer ? "With 53ft trailer restrictions" : "Car routing"
-        })
 
         // Add intermediate waypoints if any
         if (intermediate.length > 0) {
@@ -99,10 +91,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
           )
         }
 
-        console.log("Routing parameters:", routingParameters)
-
         const result = await router.calculateRoute(routingParameters)
-        console.log("Routing result:", result)
 
         return result.routes || null
       } catch (error) {
@@ -140,12 +129,15 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
     const color = getMarkerColor(stopType, orderIndex || index)
     const label = String.fromCharCode(65 + index) // A, B, C, etc.
 
-    return new H.map.DomIcon(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px" title="Stop ${label}: ${stopType}">
+    return new H.map.Icon(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" title="Stop ${label}: ${stopType}">
         <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
         <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
       </svg>`,
-      { size: { w: 30, h: 40 } }
+      {
+        size: { w: 30, h: 40 },
+        anchor: { x: 15, y: 40 } // Anchor point at bottom center of marker
+      }
     )
   }, [])
 
@@ -308,8 +300,6 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
             // Add click event to alternative routes for switching
             if (routeIndex > 0) {
               routeLine.addEventListener("tap", () => {
-                console.log(`Alternative route ${routeIndex} clicked, switching to main route`)
-
                 // Calculate metrics for the new main route
                 const newMainRouteMetrics = calculateRouteMetrics(route, 0)
                 setHereRouteData(newMainRouteMetrics)
@@ -376,7 +366,7 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         // Add markers for stops with interactive tooltips
         processedStops.forEach((stop, index) => {
           try {
-            const marker = new H.map.DomMarker(
+            const marker = new H.map.Marker(
               { lat: stop.latitude, lng: stop.longitude },
               {
                 icon: createMarkerIcon(stop.stopType, index, stop.orderIndex),
@@ -475,7 +465,6 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
 
             // Add click event for custom tooltip using DOM overlay
             marker.addEventListener("tap", (evt: any) => {
-              console.log("Marker clicked:", index, stop.stopType, stop)
               evt.stopPropagation() // Prevent map click
 
               try {
@@ -564,8 +553,6 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
                     tooltip.remove()
                   }
                 }, 10_000)
-
-                console.log("Custom tooltip created successfully at position:", { x: tooltipX, y: tooltipY })
               } catch (error) {
                 console.error("Error creating custom tooltip:", error instanceof Error ? error.message : String(error))
               }
@@ -624,21 +611,21 @@ export const useHereRouting = (mapInstance: React.RefObject<H.Map | null>) => {
         routeGroupRef.current = null
       }
 
-      // Fallback: remove any remaining route-related objects
-      const objects = map.getObjects()
-      const objectsToRemove = objects.filter((obj: any) => {
-        return (
-          obj instanceof H.map.Group ||
-          obj instanceof H.map.Polyline ||
-          (obj instanceof H.map.DomMarker && obj.getData() !== "truck")
-        )
+      // More aggressive cleanup - remove ALL objects except truck marker
+      const allObjects = map.getObjects()
+      const objectsToRemove = allObjects.filter((obj: any) => {
+        const isMarker = obj instanceof H.map.Marker || obj instanceof H.map.DomMarker
+        const isTruckMarker = isMarker && obj.getData && obj.getData() === "truck"
+
+        // Keep only truck marker, remove everything else
+        return !isTruckMarker
       })
 
       if (objectsToRemove.length > 0) {
         map.removeObjects(objectsToRemove)
       }
 
-      // Clear references
+      // Clear all references
       routePolylinesRef.current = []
     } catch (error) {
       console.warn("Error removing route objects:", error instanceof Error ? error.message : String(error))

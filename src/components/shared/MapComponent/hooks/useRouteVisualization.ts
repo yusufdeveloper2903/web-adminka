@@ -28,11 +28,14 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
             : "#6b7280" // gray for SHOP
 
     return new H.map.Icon(
-      `<svg width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+      `<svg width="30" height="40" viewBox="0 0 384 512">
         <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
         <text x="192" y="280" font-family="Arial" font-size="200" text-anchor="middle" fill="#FFF">${index + 1}</text>
       </svg>`,
-      { size: { w: 30, h: 40 } }
+      {
+        size: { w: 30, h: 40 },
+        anchor: { x: 15, y: 40 } // Anchor point at bottom center of marker
+      }
     )
   }, [])
 
@@ -75,7 +78,6 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
 
       // Handle backend trip data with polylines
       if (currentTripData) {
-        console.log("Drawing trip routes from backend data:", currentTripData)
         drawTripRoutes(currentTripData)
         return
       }
@@ -87,20 +89,13 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
       }
 
       try {
-        // Start loading state
-        console.log("Calculating route for stops:", validStops)
-
         // Calculate route using HERE API - inspired by Vue project
         const routes = await calculateRoute(validStops)
 
         if (routes && routes.length > 0) {
-          console.log("Routes calculated successfully:", routes)
-
           // Draw routes on map - inspired by Vue project's drawRoutes function
           await drawRoutes(routes, validStops)
         } else {
-          console.warn("No routes calculated, falling back to simple markers")
-
           // Fallback: just show markers without route line
           const map = mapInstance.current
           const routeGroup = new H.map.Group()
@@ -143,6 +138,7 @@ export const useRouteVisualization = (mapInstance: React.RefObject<H.Map | null>
     routeStops,
     currentRoute,
     currentTripData,
+    currentTripData?.id, // Force re-render when trip ID changes
     mapInstance,
     calculateRoute,
     drawRoutes,

@@ -24,7 +24,6 @@ const RouteLoadingOverlay = ({ isVisible }: RouteLoadingOverlayProps) => {
         {/* Animated route icon */}
         <div className="relative">
           <Route className="h-8 w-8 text-blue-500" />
-          <Loader2 className="absolute -top-1 -right-1 h-4 w-4 animate-spin text-blue-600" />
         </div>
 
         {/* Loading text */}

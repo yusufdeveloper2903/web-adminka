@@ -112,6 +112,9 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     `
   }, [])
 
+  // Extract trip ID for tracking changes
+  const currentTripId = currentTripData?.id || routeData?.tripStops?.[0]?.id || null
+
   // Memoize the visualization handler to prevent infinite loops
   const handleVisualization = useCallback(async () => {
     // Only proceed if mapType is provided (for specific visualization)
@@ -119,19 +122,15 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
       return
     }
 
+    // ALWAYS clear existing routes first to prevent mixing
+    removeRouteObjects()
+
     // Check if we have any data to visualize
     const hasRouteData = memoizedRouteData && (memoizedRouteData.tripStops?.length || memoizedRouteData.polyline)
     const hasStoreData = (currentTripData || currentRoute) && isRouteVisible
 
     if (!hasRouteData && !hasStoreData) {
-      // Clear existing routes
-      removeRouteObjects()
       return
-    }
-
-    // Only log when actually drawing routes
-    if (hasRouteData || hasStoreData) {
-      console.log(`Drawing ${mapType} route with data:`, { routeData: memoizedRouteData, hasStoreData })
     }
 
     try {
@@ -153,7 +152,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             longitude: stop.longitude,
             stopType: stop.stopType as any
           }))
-          console.log("HERE map stops from routeData:", stops)
 
           // Only set calculating state for HERE maps with real API calls
           setMapLoading("here", true)
@@ -163,7 +161,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
 
           // Calculate and draw route using HERE API
           const routes = await calculateRoute(stops)
-          console.log("HERE API routes result:", routes?.length || 0, "routes")
 
           // Ensure minimum loading time
           const elapsedTime = Date.now() - startTime
@@ -173,10 +170,8 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           }
 
           if (routes && routes.length > 0) {
-            console.log("Using HERE API routes")
             await drawRoutes(routes, stops)
           } else {
-            console.warn("HERE API failed, using fallback route drawing")
             // Fallback: draw simple line between stops
             const map = mapInstance.current
             const routeGroup = new H.map.Group()
@@ -211,29 +206,25 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
             })
 
             // Add markers with labels - FALLBACK VERSION
-            console.log("Drawing fallback markers for", processedStops.length, "stops")
             processedStops.forEach((stop, index) => {
-              console.log(`Adding marker ${index + 1}:`, stop.stopType, stop.address.substring(0, 50))
-
               const getMarkerColor = (stopType: string, orderIndex: number) => {
                 switch (stopType) {
                   case "START":
-                    return "#4285F4" // Ko'k - boshlash nuqtasi
+                    return "#4285F4"
                   case "PICKUP":
-                    // Bir nechta PICKUP bo'lsa, har xil yashil ranglar
-                    if (orderIndex === 1) return "#469946" // To'q yashil - birinchi pickup
-                    if (orderIndex === 2) return "#66BB6A" // Ochiq yashil - ikkinchi pickup
-                    return "#81C784" // Eng ochiq yashil - uchinchi pickup
+                    if (orderIndex === 1) return "#469946"
+                    if (orderIndex === 2) return "#66BB6A"
+                    return "#81C784"
                   case "DELIVERY":
-                    return "#FF4646" // Qizil - tushirish
+                    return "#FF4646"
                   case "SHOP":
-                    return "#9C27B0" // Binafsha - do'kon/servis
+                    return "#9C27B0"
                   case "TRAILER":
-                    return "#FF9800" // Orange - trailer
+                    return "#FF9800"
                   case "HOME":
-                    return "#795548" // Jigarrang - uy
+                    return "#795548"
                   default:
-                    return "#757575" // Kulrang - noma'lum
+                    return "#757575"
                 }
               }
 
@@ -241,21 +232,24 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
               const label = String.fromCharCode(65 + index) // A, B, C, etc.
 
               try {
-                const marker = new H.map.DomMarker(
+                const marker = new H.map.Marker(
                   { lat: stop.latitude, lng: stop.longitude },
                   {
-                    icon: new H.map.DomIcon(
-                      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512" style="margin-left: -15px; margin-top: -40px">
+                    icon: new H.map.Icon(
+                      `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="40" viewBox="0 0 384 512">
                           <path fill="${color}" d="M192 0C86.4 0 0 86.4 0 192c0 76.8 25.6 99.2 172.8 310.4a24 24 0 0 0 38.4 0C358.4 291.2 384 268.8 384 192 384 86.4 297.6 0 192 0z"/>
                           <text x="192" y="280" font-family="Arial" font-size="250" text-anchor="middle" fill="#FFF">${label}</text>
-                        </svg>`
+                        </svg>`,
+                      {
+                        size: { w: 30, h: 40 },
+                        anchor: { x: 15, y: 40 } // Anchor point at bottom center of marker
+                      }
                     )
                   }
                 )
 
                 // Add hover effect for cursor pointer
                 marker.addEventListener("pointerenter", () => {
-                  console.log("Fallback marker hover enter:", index, stop.stopType)
                   try {
                     const map = mapInstance.current
                     if (map) {
@@ -274,7 +268,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                 })
 
                 marker.addEventListener("pointerleave", () => {
-                  console.log("Fallback marker hover leave:", index, stop.stopType)
                   try {
                     const map = mapInstance.current
                     if (map) {
@@ -294,7 +287,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
 
                 // Add click event for custom tooltip using DOM overlay (fallback version)
                 marker.addEventListener("tap", (evt: any) => {
-                  console.log("Fallback marker clicked:", index, stop.stopType, stop)
                   evt.stopPropagation() // Prevent map click
 
                   try {
@@ -581,6 +573,7 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
     mapInstance,
     memoizedRouteData,
     currentTripData,
+    currentTripId, // Force cleanup when trip changes
     currentRoute,
     isRouteVisible,
     removeRouteObjects,
