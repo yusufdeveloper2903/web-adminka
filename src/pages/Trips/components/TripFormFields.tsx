@@ -178,8 +178,7 @@ const TripFormFields = ({
     isFetchingNextPage: isFetchingNextTrucksPage
   } = useTrucksInfiniteQuery({
     keyword: truckSearchKeyword,
-    active: true,
-    size: 20
+    active: true
   })
 
   // Fetch dispatchers with search
@@ -190,8 +189,7 @@ const TripFormFields = ({
     isFetchingNextPage: isFetchingNextDispatchersPage
   } = useDispatchersInfiniteQuery({
     keyword: dispatcherSearchKeyword,
-    active: true,
-    size: 20
+    active: true
   })
 
   // Convert trucks data to SearchableSelect options

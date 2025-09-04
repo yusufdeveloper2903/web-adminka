@@ -24,7 +24,6 @@ const DispatchersPage = () => {
     hasNextPage: hasNextDispatchersPage
   } = useDispatchersInfiniteQuery(
     {
-      size: 20,
       keyword: globalDispatchersFilters.keyword,
       teamId: globalDispatchersFilters.teamId ? Number(globalDispatchersFilters.teamId) : undefined,
       sortName: globalDispatchersFilters.sortName,
@@ -43,7 +42,6 @@ const DispatchersPage = () => {
     hasNextPage: hasNextTeamsPage
   } = useTeamsInfiniteQuery(
     {
-      size: 20,
       keyword: teamKeyword,
       sortName: globalDispatchersFilters.sortName,
       sortDir: globalDispatchersFilters.sortDir

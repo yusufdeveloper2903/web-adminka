@@ -10,8 +10,7 @@ const TrucksPage = () => {
   const { filters, setSorting } = useTrucksStore()
 
   const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useTrucksInfiniteQuery({
-    ...cleanObject(filters),
-    size: 20
+    ...cleanObject(filters)
   })
 
   // Memoized data from API

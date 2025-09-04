@@ -1,7 +1,7 @@
 import type { IBaseFiltersRequest, IPaginatedResponse } from "@/types"
 
 // Default pagination size - global setting
-export const DEFAULT_PAGE_SIZE = 20
+export const DEFAULT_PAGE_SIZE = 50
 
 // Generic function to get next page parameter for infinite queries
 export const getNextPageParam = <T>(

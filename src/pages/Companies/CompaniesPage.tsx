@@ -9,11 +9,9 @@ import { cleanObject } from "@/lib"
 const CompaniesPage = () => {
   const { filters, setSorting } = useCompaniesStore()
 
-  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useCompaniesInfiniteQuery({
-      ...cleanObject(filters),
-      size: 20
-    })
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useCompaniesInfiniteQuery({
+    ...cleanObject(filters)
+  })
 
   // Memoized data from API
   const flatData = useMemo(() => {

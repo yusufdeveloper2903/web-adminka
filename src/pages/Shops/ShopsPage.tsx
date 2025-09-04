@@ -9,11 +9,9 @@ import { cleanObject } from "@/lib"
 const ShopsPage = () => {
   const { filters, setSorting } = useShopsStore()
 
-  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage, isFetchingNextPage } =
-    useShopsInfiniteQuery({
-      ...cleanObject(filters),
-      size: 20
-    })
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useShopsInfiniteQuery({
+    ...cleanObject(filters)
+  })
 
   // Memoized data from API
   const flatData = useMemo(() => {

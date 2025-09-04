@@ -24,8 +24,7 @@ const DispatcherFormFields = ({ form }: DispatcherFormFieldsProps) => {
     isFetchingNextPage
   } = useTeamsInfiniteQuery({
     keyword: teamSearchKeyword,
-    active: true,
-    size: 20
+    active: true
   })
 
   // Convert teams data to SearchableSelect options
