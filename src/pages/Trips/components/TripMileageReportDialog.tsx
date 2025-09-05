@@ -49,11 +49,11 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
       trl: samsaraStats?.trl,
       totalMiles: samsaraStats?.totalMiles,
       totalOdometers: samsaraStats?.totalOdometers,
-      differences: (Number(samsaraStats?.totalMiles) - Number(hereStats?.totalMiles)).toFixed(1) || 0
+      differences: Number((Number(samsaraStats?.totalMiles) - Number(hereStats?.totalMiles)).toFixed(1)) || 0
     }
 
     const gleData = {
-      no: 2,
+      no: 3,
       system: "GLE",
       miles: gleStats?.miles,
       totalEmpty: gleStats?.totalEmpty,
@@ -61,7 +61,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
       trl: gleStats?.trl,
       totalMiles: gleStats?.totalMiles,
       totalOdometers: gleStats?.totalOdometers,
-      differences: Number(gleStats?.totalMiles) - Number(hereStats?.totalMiles) || 0
+      differences: Number((Number(gleStats?.totalMiles) - Number(hereStats?.totalMiles)).toFixed(1)) || 0
     }
 
     return [hereData, samsaraData, gleData]
