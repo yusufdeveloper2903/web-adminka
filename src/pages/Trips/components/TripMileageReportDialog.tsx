@@ -159,19 +159,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         ),
         enableSorting: false
       },
-      {
-        accessorKey: "totalOdometers",
-        header: "TOTAL ODOMETERS",
-        meta: {
-          className: "min-w-[120px] w-[15%] text-left"
-        },
-        cell: ({ row }) => (
-          <span className="font-bold text-blue-600">
-            {row.original.totalOdometers == null ? "-" : row.original.totalOdometers}
-          </span>
-        ),
-        enableSorting: false
-      },
+
       {
         accessorKey: "differences",
         header: "DIFFERENCES",
@@ -188,6 +176,19 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
             </span>
           )
         },
+        enableSorting: false
+      },
+      {
+        accessorKey: "totalOdometers",
+        header: "TOTAL ODOMETERS",
+        meta: {
+          className: "min-w-[120px] w-[15%] text-left"
+        },
+        cell: ({ row }) => (
+          <span className="font-bold text-blue-600">
+            {row.original.totalOdometers == null ? "-" : row.original.totalOdometers}
+          </span>
+        ),
         enableSorting: false
       }
     ],
