@@ -29,6 +29,8 @@ interface TripFormFieldsProps {
     totalMiles: number
     totalDuration: number
   }
+  // Initial data for edit mode
+  initialTruck?: ITruckResponse
 }
 
 interface TruckOption extends SearchableSelectOption {
@@ -50,7 +52,8 @@ const TripFormFields = ({
   onLocationSelect,
   onAddStop,
   isCalculatingRoute = false,
-  mileStats
+  mileStats,
+  initialTruck
 }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
@@ -194,16 +197,32 @@ const TripFormFields = ({
 
   // Convert trucks data to SearchableSelect options
   const truckOptions: TruckOption[] = useMemo(() => {
-    if (!trucksData?.pages) return []
+    const options: TruckOption[] = []
 
-    return trucksData.pages
-      .flatMap((page) => page.content)
-      .map((truck) => ({
-        value: truck.id.toString(),
-        label: truck.unitNumber,
-        data: truck
-      }))
-  }, [trucksData])
+    // Add trucks from API data
+    if (trucksData?.pages) {
+      const apiTrucks = trucksData.pages
+        .flatMap((page) => page.content)
+        .map((truck) => ({
+          value: truck.id.toString(),
+          label: truck.unitNumber,
+          data: truck
+        }))
+      options.push(...apiTrucks)
+    }
+
+    // Add current truck from props if not already in options (for edit mode)
+    const currentTruckId = form?.state?.values?.truckId
+    if (currentTruckId && initialTruck && !options.find((opt) => opt.value === currentTruckId)) {
+      options.unshift({
+        value: initialTruck.id.toString(),
+        label: initialTruck.unitNumber,
+        data: initialTruck
+      })
+    }
+
+    return options
+  }, [trucksData, form?.state?.values?.truckId, initialTruck])
 
   // Convert dispatchers data to SearchableSelect options
   const dispatcherOptions: DispatcherOption[] = useMemo(() => {

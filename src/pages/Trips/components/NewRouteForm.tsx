@@ -30,18 +30,16 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
     isCalculatingRoute
   } = useStopManagement(stops, setStops, editMode)
 
-  console.log("tripData.truck", tripData?.truck)
-
   // Populate form with tripData when in edit mode
   useEffect(() => {
     if (editMode && tripData) {
-      // Populate form fields
-      form.setFieldValue("truckId", tripData.truck.id.toString())
-      form.setFieldValue("dispatcherId", tripData.dispatcher.id.toString())
-      form.setFieldValue("loadNumber", tripData.loadNumber)
+      // Populate form fields with safe access
+      form.setFieldValue("truckId", tripData.truck?.id?.toString() || "")
+      form.setFieldValue("dispatcherId", tripData.dispatcher?.id?.toString() || "")
+      form.setFieldValue("loadNumber", tripData.loadNumber || "")
       form.setFieldValue("tripStatus", tripData.tripStatus as TripStatus)
-      form.setFieldValue("startDateTime", tripData.startDateTime)
-      form.setFieldValue("endDateTime", tripData.endDateTime)
+      form.setFieldValue("startDateTime", tripData.startDateTime || "")
+      form.setFieldValue("endDateTime", tripData.endDateTime || "")
       form.setFieldValue("startOdometer", tripData.startOdometer?.toString() || "")
       form.setFieldValue("endOdometer", tripData.endOdometer?.toString() || "")
 
@@ -79,6 +77,7 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
           onLocationSelect={handleLocationSelect}
           onAddStop={handleAddStop}
           isCalculatingRoute={isCalculatingRoute}
+          initialTruck={editMode && tripData?.truck ? tripData.truck : undefined}
         />
 
         {/* Show validation errors */}
