@@ -12,7 +12,7 @@ import { cleanObject } from "@/lib"
 const tripFormSchema = z
   .object({
     truckId: z.string().min(1, "Truck is required"),
-    dispatcherId: z.string().min(1, "Dispatcher is required"),
+    dispatcherId: z.string().optional(),
     loadNumber: z.string().min(1, "Load Number is required"),
     tripStatus: z.string().min(1, "Trip status is required"),
     startDateTime: z.string().optional(),
@@ -97,7 +97,7 @@ export const useTripForm = (editMode: boolean = false) => {
         // Build tripData object conditionally
         const tripData: any = {
           truckId: parseInt(validatedData.truckId),
-          dispatcherId: parseInt(validatedData.dispatcherId),
+          dispatcherId: parseInt(validatedData.dispatcherId as string),
           loadNumber: validatedData.loadNumber,
           tripStatus: validatedData.tripStatus as TripStatus,
           tripStops: filteredStops
