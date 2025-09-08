@@ -88,15 +88,8 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
   // Calculate updated stops with real distances
   const updatedStops = useMemo(() => {
     if (!routeData || !stops.length) {
-      console.log("🚫 No route data or stops:", { hasRouteData: !!routeData, stopsLength: stops.length })
       return stops
     }
-
-    console.log("🧮 Calculating distances with route data:", {
-      totalDistance: routeData.totalDistance,
-      sectionsCount: routeData.sections.length,
-      stopsCount: stops.length
-    })
 
     return stops.map((stop, index) => {
       if (index === 0) {
@@ -115,7 +108,6 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
 
       if (!section) {
         // Fallback if no section data
-        console.log("⚠️ No section data for stop", index, "sectionIndex:", sectionIndex)
         return {
           ...stop,
           distance: 0,
@@ -137,12 +129,6 @@ export const useRouteCalculation = ({ stops, enabled = true, transportMode = "tr
         totalDistance: cumulativeDistance, // Total distance from start
         duration: section.duration // Duration from previous stop
       }
-
-      console.log(`📍 Stop ${index} (${stop.address}):`, {
-        distance: section.distance,
-        totalDistance: cumulativeDistance,
-        duration: section.duration
-      })
 
       return updatedStop
     })

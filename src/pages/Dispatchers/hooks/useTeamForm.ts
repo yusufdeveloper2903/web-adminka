@@ -38,8 +38,6 @@ export const useTeamForm = ({ team }: UseTeamFormProps = {}) => {
           name: validatedData.name
         }
 
-        console.log("Team data for backend:", teamData)
-
         if (isEditing && team) {
           // Update team
           await updateTeamMutation.mutateAsync({

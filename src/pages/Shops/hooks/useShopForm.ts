@@ -56,8 +56,6 @@ export const useShopForm = ({ shop }: UseShopFormProps = {}) => {
           longitude: validatedData.longitude
         }
 
-        console.log("Shop data for backend:", shopData)
-
         if (isEditing && shop) {
           // Update shop
           await updateShopMutation.mutateAsync({

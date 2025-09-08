@@ -26,17 +26,13 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
 
     // HERE API expects each waypoint as separate 'via' parameter
     // Format: via=lat1,lng1&via=lat2,lng2&via=lat3,lng3
-    limitedWaypoints.forEach((wp, index) => {
+    limitedWaypoints.forEach((wp) => {
       searchParams.append("via", `${wp.lat},${wp.lng}`)
-      console.log(`HERE Routing: Added waypoint ${index + 1}: ${wp.lat},${wp.lng}`)
     })
-
-    console.log(`HERE Routing: Total ${limitedWaypoints.length} waypoints added`)
   }
 
   // Add truck specifications if provided
   if (params.truck) {
-    console.log("HERE Routing: Truck params:", params.truck)
     if (params.truck.weight) {
       searchParams.append("truck[grossWeight]", Math.round(params.truck.weight).toString())
     }
@@ -50,8 +46,6 @@ const fetchHereRouting = async (params: HereRoutingParams): Promise<HereRoutingR
       searchParams.append("truck[length]", params.truck.length.toString())
     }
   }
-
-  console.log("🌐 [QUERY HOOK] HERE Routing: Final URL:", `https://router.hereapi.com/v8/routes?${searchParams}`)
 
   const response = await fetch(`https://router.hereapi.com/v8/routes?${searchParams}`, {
     headers: {

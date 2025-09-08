@@ -64,9 +64,7 @@ const TripsPage = () => {
   // Lazy loading for map view with smart preloading
   const mapView = useLazyView(view, "map", {
     loadingDelay: 200, // Show loading for 200ms for better UX
-    preload: false, // Don't preload by default to avoid initial performance hit
-    onLoadStart: () => console.log("🗺️ Map loading started..."),
-    onLoadComplete: () => console.log("✅ Map loaded successfully!")
+    preload: false // Don't preload by default to avoid initial performance hit
   })
 
   // Handle map view submit

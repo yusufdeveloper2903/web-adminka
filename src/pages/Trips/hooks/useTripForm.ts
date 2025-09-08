@@ -123,8 +123,6 @@ export const useTripForm = (editMode: boolean = false) => {
           tripData.endOdometer = parseFloat(validatedData.endOdometer)
         }
 
-        console.log("Trip data for backend:", tripData)
-
         // Use appropriate mutation based on mode
         if (editMode && selectedTripId) {
           // Update existing trip

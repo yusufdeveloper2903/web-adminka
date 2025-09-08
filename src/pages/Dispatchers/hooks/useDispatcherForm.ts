@@ -52,8 +52,6 @@ export const useDispatcherForm = ({ dispatcher }: UseDispatcherFormProps = {}) =
           teamId: parseInt(validatedData.teamId)
         }
 
-        console.log("Dispatcher data for backend:", dispatcherData)
-
         if (isEditing && dispatcher) {
           // Update dispatcher
           await updateDispatcherMutation.mutateAsync({

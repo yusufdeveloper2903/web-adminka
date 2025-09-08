@@ -374,11 +374,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                           tooltip.remove()
                         }
                       }, 10000)
-
-                      console.log("Fallback custom tooltip created successfully at position:", {
-                        x: tooltipX,
-                        y: tooltipY
-                      })
                     } else {
                       console.error("No map available for fallback tooltip")
                     }
@@ -391,18 +386,14 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                 })
 
                 routeGroup.addObject(marker)
-                console.log(`Successfully added marker ${label}`)
               } catch (error) {
                 console.error(`Error adding marker ${label}:`, error instanceof Error ? error.message : String(error))
               }
             })
 
-            // Add route line connecting all stops - FALLBACK VERSION
-            console.log("Drawing fallback route line connecting", stops.length, "stops")
             try {
               const lineString = new H.geo.LineString()
               stops.forEach((stop, index) => {
-                console.log(`Adding point ${index + 1} to route:`, stop.latitude, stop.longitude)
                 lineString.pushPoint(Number(stop.latitude), Number(stop.longitude))
               })
 
@@ -415,7 +406,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
                 }
               })
               routeGroup.addObject(routeLine)
-              console.log("Successfully added fallback route line")
             } catch (error) {
               console.error("Error adding fallback route line:", error instanceof Error ? error.message : String(error))
             }
@@ -434,7 +424,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
         } else if (currentRoute && currentRoute.tripStops.length > 0) {
           // Use stops from newly created route
           stops = currentRoute.tripStops
-          console.log("HERE map stops from new route:", stops)
 
           // Set calculating state for new routes
           setMapLoading("here", true)
@@ -458,7 +447,6 @@ export const useMapSpecificVisualization = ({ mapInstance, mapType, routeData }:
           setMapLoading(mapType as "samsara" | "gle", true)
 
           // Use polyline from routeData prop
-          console.log(`Drawing ${mapType.toUpperCase()} polyline ONLY (no route calculation)`)
           const map = mapInstance.current
           const routeGroup = new H.map.Group()
 

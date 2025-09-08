@@ -52,8 +52,6 @@ export const useTruckForm = ({ truck }: UseTruckFormProps = {}) => {
           homeLongitude: validatedData.homeLongitude || undefined
         }
 
-        console.log("Truck data for backend:", truckData)
-
         if (isEditing && truck) {
           // Update truck
           await updateTruckMutation.mutateAsync({
