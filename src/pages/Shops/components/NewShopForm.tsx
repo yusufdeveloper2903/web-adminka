@@ -6,23 +6,14 @@ import type { IShopResponse } from "@/types"
 
 interface NewShopFormProps {
   shop?: IShopResponse
-  onClose?: () => void
 }
 
-const NewShopForm = ({ shop, onClose }: NewShopFormProps) => {
+const NewShopForm = ({ shop }: NewShopFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useShopForm({ shop })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -54,7 +45,7 @@ const NewShopForm = ({ shop, onClose }: NewShopFormProps) => {
           </Button>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

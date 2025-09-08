@@ -6,23 +6,14 @@ import type { IDispatcherResponse } from "@/types"
 
 interface NewDispatcherFormProps {
   dispatcher?: IDispatcherResponse
-  onClose?: () => void
 }
 
-const NewDispatcherForm = ({ dispatcher, onClose }: NewDispatcherFormProps) => {
+const NewDispatcherForm = ({ dispatcher }: NewDispatcherFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useDispatcherForm({ dispatcher })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -54,7 +45,7 @@ const NewDispatcherForm = ({ dispatcher, onClose }: NewDispatcherFormProps) => {
           </Button>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

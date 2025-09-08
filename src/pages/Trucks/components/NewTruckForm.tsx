@@ -6,24 +6,15 @@ import type { ITruckResponse } from "@/types"
 
 interface NewTruckFormProps {
   truck?: ITruckResponse
-  onClose?: () => void
   isViewMode?: boolean
 }
 
-const NewTruckForm = ({ truck, onClose, isViewMode = false }: NewTruckFormProps) => {
+const NewTruckForm = ({ truck, isViewMode = false }: NewTruckFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useTruckForm({ truck })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -56,7 +47,7 @@ const NewTruckForm = ({ truck, onClose, isViewMode = false }: NewTruckFormProps)
             </Button>
 
             <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button type="button" variant="outline" onClick={closeDrawer}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>

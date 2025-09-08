@@ -9,7 +9,7 @@ import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
 
 const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   return [
     {
@@ -77,7 +77,7 @@ const useTeamsColumns = (): ColumnDef<ITeamResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit Team: ${team.name}`,
-                  content: <NewTeamForm team={team} onClose={closeDrawer} />
+                  content: <NewTeamForm team={team} />
                 })
               }}
             >

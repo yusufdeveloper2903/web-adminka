@@ -9,7 +9,7 @@ import { NewUserForm } from "../components"
 import { formatUTCToCentral } from "@/lib"
 
 const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   return [
     {
@@ -109,7 +109,7 @@ const useUsersColumns = (): ColumnDef<IUserResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit User: ${user.firstName}`,
-                  content: <NewUserForm user={user} onClose={closeDrawer} />
+                  content: <NewUserForm user={user} />
                 })
               }}
             >

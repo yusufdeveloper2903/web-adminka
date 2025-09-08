@@ -9,7 +9,7 @@ import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
 
 const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   return [
     {
@@ -109,7 +109,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit Truck: ${truck.unitNumber}`,
-                  content: <NewTruckForm truck={truck} onClose={closeDrawer} />
+                  content: <NewTruckForm truck={truck} />
                 })
               }}
             >
@@ -121,7 +121,7 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `View Truck: ${truck.id}`,
-                  content: <NewTruckForm truck={truck} onClose={closeDrawer} isViewMode />
+                  content: <NewTruckForm truck={truck} isViewMode />
                 })
               }}
             >

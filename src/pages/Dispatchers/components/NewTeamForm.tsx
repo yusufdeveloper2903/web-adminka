@@ -6,23 +6,14 @@ import type { ITeamResponse } from "@/types"
 
 interface NewTeamFormProps {
   team?: ITeamResponse
-  onClose?: () => void
 }
 
-const NewTeamForm = ({ team, onClose }: NewTeamFormProps) => {
+const NewTeamForm = ({ team }: NewTeamFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useTeamForm({ team })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -54,7 +45,7 @@ const NewTeamForm = ({ team, onClose }: NewTeamFormProps) => {
           </Button>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

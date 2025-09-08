@@ -9,7 +9,7 @@ import { NewCompanyForm, TokenForm } from "../components"
 import { formatUTCToCentral } from "@/lib"
 
 const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
   return [
     {
       accessorKey: "No",
@@ -109,7 +109,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit Company: ${company.name}`,
-                  content: <NewCompanyForm companyId={company.id} onClose={closeDrawer} />
+                  content: <NewCompanyForm companyId={company.id} />
                 })
               }}
             >
@@ -121,7 +121,7 @@ const useCompaniesColumns = (): ColumnDef<ICompanyResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Update API Tokens: ${company.name}`,
-                  content: <TokenForm companyId={company.id} onClose={closeDrawer} />
+                  content: <TokenForm companyId={company.id} />
                 })
               }}
             >

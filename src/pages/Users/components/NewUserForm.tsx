@@ -6,23 +6,14 @@ import type { IUserResponse } from "@/types"
 
 interface NewUserFormProps {
   user?: IUserResponse
-  onClose?: () => void
 }
 
-const NewUserForm = ({ user, onClose }: NewUserFormProps) => {
+const NewUserForm = ({ user }: NewUserFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useUserForm({ user })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -54,7 +45,7 @@ const NewUserForm = ({ user, onClose }: NewUserFormProps) => {
           </Button>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

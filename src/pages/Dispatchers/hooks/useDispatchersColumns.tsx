@@ -9,7 +9,7 @@ import { formatUTCToCentral } from "@/lib"
 import { NewDispatcherForm } from "../components"
 
 const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   return [
     {
@@ -82,7 +82,7 @@ const useDispatchersColumns = (): ColumnDef<IDispatcherResponse>[] => {
             onClick={() => {
               setDrawerConfig({
                 title: `Edit Dispatcher: ${dispatcher.firstName} ${dispatcher.lastName}`,
-                content: <NewDispatcherForm dispatcher={dispatcher} onClose={closeDrawer} />
+                content: <NewDispatcherForm dispatcher={dispatcher} />
               })
             }}
             title="Edit Dispatcher"

@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button"
 import { useTokenForm } from "../hooks/useTokenForm"
 import { TokenFormFields } from "."
+import { useDrawerStore } from "@/store"
 
 interface TokenFormWrapperProps {
   companyId: number
-  onClose: () => void
 }
 
-const TokenForm = ({ companyId, onClose }: TokenFormWrapperProps) => {
+const TokenForm = ({ companyId }: TokenFormWrapperProps) => {
+  const { closeDrawer } = useDrawerStore()
+
   const { form, isSubmitting } = useTokenForm({ companyId })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,10 +19,10 @@ const TokenForm = ({ companyId, onClose }: TokenFormWrapperProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <TokenFormFields form={form} companyId={companyId}/>
+      <TokenFormFields form={form} companyId={companyId} />
 
       <div className="flex justify-end space-x-3 border-t pt-4">
-        <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+        <Button type="button" variant="outline" onClick={closeDrawer} disabled={isSubmitting}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>

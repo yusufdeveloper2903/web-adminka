@@ -9,7 +9,7 @@ import { TABLE_UI_FORMAT } from "@/constants"
 import { formatUTCToCentral } from "@/lib"
 
 const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
-  const { setConfig: setDrawerConfig, closeDrawer } = useDrawerStore()
+  const { setConfig: setDrawerConfig } = useDrawerStore()
 
   return [
     {
@@ -96,7 +96,7 @@ const useShopsColumns = (): ColumnDef<IShopResponse>[] => {
               onClick={() => {
                 setDrawerConfig({
                   title: `Edit Shop: ${shop.name}`,
-                  content: <NewShopForm shop={shop} onClose={closeDrawer} />
+                  content: <NewShopForm shop={shop} />
                 })
               }}
             >

@@ -5,23 +5,14 @@ import CompanyFormFields from "./CompanyFormFields"
 
 interface NewCompanyFormProps {
   companyId: number
-  onClose?: () => void
 }
 
-const NewCompanyForm = ({ companyId, onClose }: NewCompanyFormProps) => {
+const NewCompanyForm = ({ companyId }: NewCompanyFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const { form, resetForm, isSubmitting, isEditing } = useCompanyForm({ companyId })
 
   const handleClearForm = () => {
     resetForm()
-  }
-
-  const handleClose = () => {
-    if (onClose) {
-      onClose()
-    } else {
-      closeDrawer()
-    }
   }
 
   return (
@@ -53,7 +44,7 @@ const NewCompanyForm = ({ companyId, onClose }: NewCompanyFormProps) => {
           </Button>
 
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>

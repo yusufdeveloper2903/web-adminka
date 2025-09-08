@@ -30,6 +30,8 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
     isCalculatingRoute
   } = useStopManagement(stops, setStops, editMode)
 
+  console.log("tripData.truck", tripData?.truck)
+
   // Populate form with tripData when in edit mode
   useEffect(() => {
     if (editMode && tripData) {
