@@ -1,10 +1,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { DataTable } from "@/components/shared"
-import { useMemo } from "react"
+import { useMemo, useState, useRef, useEffect } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useTripReportSummaryQuery } from "@/hooks/trips"
 import { useRouteStore } from "@/store"
 import type { IdentifierType } from "@/types"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Check } from "lucide-react"
+import { toast } from "sonner"
+import { useUpdatePayableMileageMutation } from "@/hooks/trips"
 interface TripMileageReportDialogProps {
   isOpen: boolean
   onClose: () => void
@@ -17,9 +22,11 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
     {
       truckId: currentTripData?.truckId as number,
       driverId: currentTripData?.driverId,
-      number: currentTripData?.identifierType === "TRAILER_NUMBER" ? currentTripData?.trailerNumber as string : currentTripData?.loadNumber as string,
+      number:
+        currentTripData?.identifierType === "TRAILER_NUMBER"
+          ? (currentTripData?.trailerNumber as string)
+          : (currentTripData?.loadNumber as string),
       identifierType: currentTripData?.identifierType as IdentifierType
-
     },
     !!currentTripData?.truckId && (!!currentTripData?.loadNumber || !!currentTripData?.trailerNumber)
   )
@@ -33,12 +40,14 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
     const hereData = {
       no: 1,
       system: "HERE",
+      tripId: currentTripData?.id,
       miles: hereStats?.miles,
       totalEmpty: hereStats?.totalEmpty,
       pu: hereStats?.pu,
       trl: hereStats?.trl,
       totalMiles: hereStats?.totalMiles,
       totalOdometers: hereStats?.totalOdometers,
+      payableMileage: hereStats?.payableMileage,
       differences: 0 // HERE is baseline
     }
 
@@ -86,8 +95,21 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
     samsaraStats?.totalEmpty,
     samsaraStats?.totalMiles,
     samsaraStats?.totalOdometers,
-    samsaraStats?.trl
+    samsaraStats?.trl,
+    hereStats?.payableMileage
   ])
+
+  const payableMileageRef = useRef<number | "">("")
+  const [, forceRerender] = useState(0)
+  const [isSaving, setIsSaving] = useState<boolean>(false)
+  const { mutateAsync: updatePayableMileage } = useUpdatePayableMileageMutation()
+
+  // Initialize/keep controlled value from backend when data arrives
+  useEffect(() => {
+    const serverValue = (hereStats as any)?.payableMileage
+    payableMileageRef.current = serverValue != null ? Number(serverValue) : ""
+    forceRerender((x) => x + 1)
+  }, [hereStats])
 
   // Define columns
   const columns: ColumnDef<any>[] = useMemo(
@@ -130,24 +152,7 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
         ),
         enableSorting: false
       },
-      {
-        accessorKey: "pu",
-        header: "PU",
-        meta: {
-          className: "min-w-[80px] w-[12%] text-left"
-        },
-        cell: ({ row }) => <span className="font-medium">{row.original.pu == null ? "-" : row.original.pu}</span>,
-        enableSorting: false
-      },
-      {
-        accessorKey: "trl",
-        header: "TRL",
-        meta: {
-          className: "min-w-[80px] w-[12%] text-left"
-        },
-        cell: ({ row }) => <span className="font-medium">{row.original.trl == null ? "-" : row.original.trl}</span>,
-        enableSorting: false
-      },
+
       {
         accessorKey: "totalMiles",
         header: "TOTAL MILES",
@@ -192,16 +197,76 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
           </span>
         ),
         enableSorting: false
+      },
+      {
+        accessorKey: "payableMileage",
+        header: "PAYABLE MILEAGE",
+        meta: {
+          className: "min-w-[180px] w-[20%] text-left"
+        },
+        cell: ({ row }) => {
+          return row.original.tripId ? (
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                value={payableMileageRef.current}
+                onChange={(e) => {
+                  const v = e.target.value
+                  payableMileageRef.current = v === "" ? "" : Number(v)
+                  forceRerender((x) => x + 1)
+                }}
+                className="h-6 w-full"
+              />
+              <Button
+                type="button"
+                className="h-6 px-2"
+                disabled={
+                  isSaving ||
+                  payableMileageRef.current === "" ||
+                  payableMileageRef.current == null ||
+                  Number.isNaN(Number(payableMileageRef.current))
+                }
+                onClick={async () => {
+                  const tripId = row.original.tripId as number | undefined
+                  const payableMileage = Number(payableMileageRef.current)
+                  if (!tripId) {
+                    toast.error("Trip ID not found")
+                    return
+                  }
+                  try {
+                    setIsSaving(true)
+                    await updatePayableMileage({ tripId, payableMileage })
+                  } catch (error: any) {
+                    toast.error(error?.response?.data?.message || "Error updating payable mileage")
+                  } finally {
+                    setIsSaving(false)
+                  }
+                }}
+                title="Save"
+              >
+                <Check className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <span className="font-medium">-</span>
+          )
+        },
+        enableSorting: false
       }
     ],
-    []
+    [isSaving, updatePayableMileage]
   )
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[85vh] overflow-hidden pb-6 sm:max-w-6xl">
         <DialogHeader>
-          <DialogTitle>Mileage Report - {currentTripData?.loadNumber}</DialogTitle>
+          <DialogTitle>
+            Mileage Report -{" "}
+            {currentTripData?.identifierType === "LOAD_NUMBER"
+              ? currentTripData?.loadNumber
+              : currentTripData?.trailerNumber}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -213,8 +278,12 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
               <span className="font-medium">{currentTripData?.driverName}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Load Number:</span>
-              <span className="font-medium">{currentTripData?.loadNumber}</span>
+              <span className="text-muted-foreground"> Number:</span>
+              <span className="font-medium">
+                {currentTripData?.identifierType === "LOAD_NUMBER"
+                  ? currentTripData?.loadNumber
+                  : currentTripData?.trailerNumber}
+              </span>
             </div>
           </div>
 

@@ -235,6 +235,7 @@ interface ITripSummary {
   trl: number
   totalMiles: number
   totalOdometers: number | null
+  payableMileage: number | null
 }
 
 export interface ILoadNumberResponse {
