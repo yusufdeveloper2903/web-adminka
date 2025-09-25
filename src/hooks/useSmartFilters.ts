@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from "react"
 import { toast } from "sonner"
-import { useTripVehicleInfoByLoadNumber } from "@/hooks/trips"
+import { useTripVehicleInfoByIdentifierNumber, useTripIdentifierNumbersQuery } from "@/hooks/trips"
+import type { IdentifierType } from "@/types"
 import { useTrucksInfiniteQuery } from "@/hooks/trucks"
 import { useDriversInfiniteQuery } from "@/hooks/drivers"
-import { useLoadNumbersQuery } from "@/hooks/trips"
-import type { IDriverResponse, ITruckResponse, ILoadNumberResponse } from "@/types"
+import type { IDriverResponse, ITruckResponse, IIdentifierNumberItem } from "@/types"
 
 interface SelectOption {
   value: string
@@ -15,6 +15,7 @@ interface SmartFilters {
   truck?: SelectOption
   driver?: SelectOption
   load?: SelectOption
+  trailer?: SelectOption
   truckId?: string
   driverId?: string
   loadNumber?: string
@@ -26,6 +27,7 @@ interface UseSmartFiltersProps {
   truckSearch: string
   driverSearch: string
   loadSearch: string
+  trailerSearch: string
 }
 
 export const useSmartFilters = ({
@@ -33,10 +35,20 @@ export const useSmartFilters = ({
   setFilters,
   truckSearch,
   driverSearch,
-  loadSearch
+  loadSearch,
+  trailerSearch
 }: UseSmartFiltersProps) => {
-  // Get vehicle info by load number when load is selected
-  const { data: vehicleInfo } = useTripVehicleInfoByLoadNumber(filters.load?.value || "", !!filters.load?.value)
+  // Get vehicle info by identifier (load or trailer) when either is selected
+  const selectedIdentifierNumber = filters.load?.value || filters.trailer?.value || ""
+  const selectedIdentifierType: IdentifierType = filters.load?.value
+    ? "LOAD_NUMBER"
+    : filters.trailer?.value
+    ? "TRAILER_NUMBER"
+    : "LOAD_NUMBER"
+  const { data: vehicleInfo } = useTripVehicleInfoByIdentifierNumber(
+    { number: selectedIdentifierNumber, identifierType: selectedIdentifierType },
+    !!selectedIdentifierNumber
+  )
 
   // Regular queries for when no load is selected
   const {
@@ -58,11 +70,18 @@ export const useSmartFilters = ({
     fetchNextPage: fetchNextLoad,
     hasNextPage: hasNextLoadPage,
     isLoading: isLoadsLoading
-  } = useLoadNumbersQuery({ keyword: loadSearch })
+  } = useTripIdentifierNumbersQuery({ keyword: loadSearch, type: "LOAD_NUMBER" })
 
-  // Truck options - use vehicle info if load selected, otherwise regular data
+  const {
+    data: trailersData,
+    fetchNextPage: fetchNextTrailer,
+    hasNextPage: hasNextTrailerPage,
+    isLoading: isTrailersLoading
+  } = useTripIdentifierNumbersQuery({ keyword: trailerSearch, type: "TRAILER_NUMBER" })
+
+  // Truck options - use vehicle info if load/trailer selected, otherwise regular data
   const truckOptions = useMemo(() => {
-    if (filters.load?.value && vehicleInfo?.trucks) {
+    if ((filters.load?.value || filters.trailer?.value) && vehicleInfo?.trucks) {
       return vehicleInfo.trucks.map((truck) => ({
         value: truck.id.toString(),
         label: truck.unitNumber
@@ -77,11 +96,11 @@ export const useSmartFilters = ({
         }))
       ) ?? []
     )
-  }, [filters.load?.value, vehicleInfo?.trucks, regularTrucksData])
+  }, [filters.load?.value, filters.trailer?.value, vehicleInfo?.trucks, regularTrucksData])
 
-  // Driver options - use vehicle info if load selected, otherwise regular data
+  // Driver options - use vehicle info if load/trailer selected, otherwise regular data
   const driverOptions = useMemo(() => {
-    if (filters.load?.value && vehicleInfo?.drivers) {
+    if ((filters.load?.value || filters.trailer?.value) && vehicleInfo?.drivers) {
       return vehicleInfo.drivers.map((driver) => ({
         value: driver.id.toString(),
         label: `${driver.firstName} ${driver.lastName}`.trim()
@@ -96,24 +115,36 @@ export const useSmartFilters = ({
         }))
       ) ?? []
     )
-  }, [filters.load?.value, vehicleInfo?.drivers, regularDriversData])
+  }, [filters.load?.value, filters.trailer?.value, vehicleInfo?.drivers, regularDriversData])
 
   // Load options
   const loadOptions = useMemo(
     () =>
       loadsData?.pages.flatMap((page) =>
-        page.content.map((load: ILoadNumberResponse) => ({
-          value: load.loadNumber,
-          label: load.loadNumber
+        page.content.map((item: IIdentifierNumberItem) => ({
+          value: item.identifierValue,
+          label: item.identifierValue
         }))
       ) ?? [],
     [loadsData]
   )
 
-  // Auto-set truck and driver when load is selected and vehicle info is available
+  // Trailer options
+  const trailerOptions = useMemo(
+    () =>
+      trailersData?.pages.flatMap((page) =>
+        page.content.map((item: IIdentifierNumberItem) => ({
+          value: item.identifierValue,
+          label: item.identifierValue
+        }))
+      ) ?? [],
+    [trailersData]
+  )
+
+  // Auto-set truck and driver when load/trailer is selected and vehicle info is available
   useEffect(() => {
-    // Only auto-set when load is selected, vehicle info is available, and neither truck nor driver is manually selected
-    if (filters.load?.value && vehicleInfo && !filters.truck && !filters.driver) {
+    // Only auto-set when identifier is selected, vehicle info is available, and neither truck nor driver is manually selected
+    if ((filters.load?.value || filters.trailer?.value) && vehicleInfo && !filters.truck && !filters.driver) {
       const updates: Partial<SmartFilters> = {}
       const toastMessages: string[] = []
 
@@ -160,12 +191,13 @@ export const useSmartFilters = ({
         }
       }
     }
-  }, [filters.load?.value, vehicleInfo, setFilters, filters.truck, filters.driver])
+  }, [filters.load?.value, filters.trailer?.value, vehicleInfo, setFilters, filters.truck, filters.driver])
 
   return {
     truckOptions,
     driverOptions,
     loadOptions,
+    trailerOptions,
     // Regular query controls
     fetchNextTruck,
     hasNextTruckPage,
@@ -175,6 +207,9 @@ export const useSmartFilters = ({
     isDriversLoading,
     fetchNextLoad,
     hasNextLoadPage,
-    isLoadsLoading
+    isLoadsLoading,
+    fetchNextTrailer,
+    hasNextTrailerPage,
+    isTrailersLoading
   }
 }

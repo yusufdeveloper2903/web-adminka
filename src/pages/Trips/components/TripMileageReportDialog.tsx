@@ -4,7 +4,7 @@ import { useMemo } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useTripReportSummaryQuery } from "@/hooks/trips"
 import { useRouteStore } from "@/store"
-
+import type { IdentifierType } from "@/types"
 interface TripMileageReportDialogProps {
   isOpen: boolean
   onClose: () => void
@@ -17,9 +17,11 @@ const TripMileageReportDialog = ({ isOpen, onClose }: TripMileageReportDialogPro
     {
       truckId: currentTripData?.truckId as number,
       driverId: currentTripData?.driverId,
-      loadNumber: currentTripData?.loadNumber as string
+      number: currentTripData?.identifierType === "TRAILER_NUMBER" ? currentTripData?.trailerNumber as string : currentTripData?.loadNumber as string,
+      identifierType: currentTripData?.identifierType as IdentifierType
+
     },
-    !!currentTripData?.truckId && !!currentTripData?.loadNumber
+    !!currentTripData?.truckId && (!!currentTripData?.loadNumber || !!currentTripData?.trailerNumber)
   )
 
   const { hereStats, samsaraStats, gleStats } = tripReportData || {}

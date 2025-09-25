@@ -32,6 +32,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
   const [truckSearch, setTruckSearch] = useState("")
   const [driverSearch, setDriverSearch] = useState("")
   const [loadSearch, setLoadSearch] = useState("")
+  const [trailerSearch, setTrailerSearch] = useState("")
 
   // Date filter options
   const dateFilterOptions = useMemo(
@@ -111,6 +112,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     truckOptions,
     driverOptions,
     loadOptions,
+    trailerOptions,
     fetchNextTruck,
     hasNextTruckPage,
     isTrucksLoading,
@@ -119,13 +121,17 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     isDriversLoading,
     fetchNextLoad,
     hasNextLoadPage,
-    isLoadsLoading
+    isLoadsLoading,
+    fetchNextTrailer,
+    hasNextTrailerPage,
+    isTrailersLoading
   } = useSmartFilters({
     filters,
     setFilters,
     truckSearch,
     driverSearch,
-    loadSearch
+    loadSearch,
+    trailerSearch
   })
 
   useEffect(() => {
@@ -179,8 +185,33 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               onChange={(option: SingleValue<{ value: string; label: string }>) =>
                 setFilters({
                   load: option ? option : undefined,
-                  // Clear truck and driver when load changes
-                  ...(option && { truck: undefined, driver: undefined })
+                  // Clear truck, driver and trailer when load changes
+                  ...(option && { truck: undefined, driver: undefined, trailer: undefined })
+                })
+              }
+              className="!min-h-8"
+            />
+          )
+        },
+        {
+          id: "trailer-filter",
+          node: (
+            <SearchableSelect
+              options={trailerOptions}
+              placeholder="Trailer"
+              isLoading={isTrailersLoading}
+              onDebouncedInputChange={setTrailerSearch}
+              onFetchNextPage={() => {
+                fetchNextTrailer()
+              }}
+              hasNextPage={hasNextTrailerPage}
+              isClearable
+              value={filters.trailer || null}
+              onChange={(option: SingleValue<{ value: string; label: string }>) =>
+                setFilters({
+                  trailer: option ? option : undefined,
+                  // Clear truck, driver and load when trailer changes
+                  ...(option && { truck: undefined, driver: undefined, load: undefined })
                 })
               }
               className="!min-h-8"
@@ -276,6 +307,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
               disabled={
                 !filters.driver &&
                 !filters.load &&
+                !filters.trailer &&
                 !filters.truck &&
                 !filters.dateFilterType &&
                 !filters.fromDate &&
@@ -300,7 +332,9 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <Button
               size="sm"
               onClick={onMapSubmit}
-              disabled={!filters.truck || !filters.load || isLoading || isMapSubmitLoading}
+              disabled={
+                !filters.truck || (!filters.load && !filters.trailer) || isLoading || isMapSubmitLoading
+              }
             >
               {isMapSubmitLoading ? "Loading..." : "Submit"}
             </Button>
@@ -321,9 +355,13 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
     truckOptions,
     driverOptions,
     loadOptions,
+    trailerOptions,
     isTrucksLoading,
     isDriversLoading,
     isLoadsLoading,
+    fetchNextTrailer,
+    hasNextTrailerPage,
+    isTrailersLoading,
     hasNextTruckPage,
     hasNextDriverPage,
     hasNextLoadPage,

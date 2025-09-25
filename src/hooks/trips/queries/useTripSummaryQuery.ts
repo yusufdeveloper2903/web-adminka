@@ -11,6 +11,6 @@ export const useTripSummaryQuery = (params: ITripSummaryRequest, enabled: boolea
   return useQuery({
     queryKey: ["trip-summary", params],
     queryFn: () => fetchTripSummary(params),
-    enabled: enabled && !!params.truckId && !!params.loadNumber
+    enabled: enabled && !!params.truckId && !!params.number
   })
 }

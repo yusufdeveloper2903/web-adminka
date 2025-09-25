@@ -11,6 +11,6 @@ export const useTripReportSummaryQuery = (params: ITripSummaryRequest, enabled: 
   return useQuery({
     queryKey: ["trip-report-summary", params],
     queryFn: () => fetchTripReportSummary(params),
-    enabled: enabled && !!params.truckId && !!params.loadNumber
+    enabled: enabled && !!params.truckId && !!params.number
   })
 }

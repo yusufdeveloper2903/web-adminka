@@ -12,6 +12,7 @@ import { useGlobalSettingByType } from "@/hooks/global-setting"
 import { formatDuration, metersToMiles } from "@/lib/distance-utils"
 import TripReportDialog from "./TripReportDialog"
 import { toast } from "sonner"
+import type { IdentifierType } from "@/types"
 
 interface TripMapData {
   id: string
@@ -27,7 +28,9 @@ interface TripData {
   truckId: number
   driverId?: number
   loadNumber: string
-}
+  trailerNumber: string
+  identifierType: IdentifierType
+} 
 
 interface TripsMapViewProps {
   isVisible: boolean
@@ -64,7 +67,8 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
     {
       truckId: effectiveTripData?.truckId || 0,
       driverId: effectiveTripData?.driverId,
-      loadNumber: effectiveTripData?.loadNumber || ""
+      number: effectiveTripData?.identifierType === "TRAILER_NUMBER" ? effectiveTripData?.trailerNumber as string : effectiveTripData?.loadNumber as string,
+      identifierType: effectiveTripData?.identifierType
     },
     // Only fetch when we have tripData (from submit) or selectedTripId (from table row click)
     !!tripData || (!!effectiveTripData && !!selectedTripId)

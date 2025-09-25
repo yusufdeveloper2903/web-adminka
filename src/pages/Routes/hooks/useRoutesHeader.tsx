@@ -15,10 +15,12 @@ interface RouteFilters {
   truck?: SelectOption
   driver?: SelectOption
   load?: SelectOption
+  trailer?: SelectOption
   // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
   loadNumber?: string
+  trailerNumber?: string
 }
 
 interface UseRoutesHeaderProps {
@@ -35,12 +37,14 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
   const [truckSearch, setTruckSearch] = useState("")
   const [driverSearch, setDriverSearch] = useState("")
   const [loadSearch, setLoadSearch] = useState("")
+  const [trailerSearch, setTrailerSearch] = useState("")
 
   // Use smart filters hook
   const {
     truckOptions,
     driverOptions,
     loadOptions,
+    trailerOptions,
     fetchNextTruck,
     hasNextTruckPage,
     isTrucksLoading,
@@ -49,16 +53,20 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
     isDriversLoading,
     fetchNextLoad,
     hasNextLoadPage,
-    isLoadsLoading
+    isLoadsLoading,
+    fetchNextTrailer,
+    hasNextTrailerPage,
+    isTrailersLoading
   } = useSmartFilters({
     filters,
     setFilters,
     truckSearch,
     driverSearch,
-    loadSearch
+    loadSearch,
+    trailerSearch
   })
 
-  const canSubmit = filters.truck && filters.load
+  const canSubmit = !!filters.truck && (!!filters.load || !!filters.trailer)
 
   useEffect(() => {
     setHeaderConfig({
@@ -80,7 +88,30 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
               onChange={(option: SingleValue<{ value: string; label: string }>) => {
                 setFilters({
                   load: option || undefined,
-                  loadNumber: option?.value || undefined
+                  loadNumber: option?.value || undefined,
+                  ...(option && { trailer: undefined, truck: undefined, driver: undefined })
+                })
+              }}
+            />
+          )
+        },
+        {
+          id: "trailer-filter",
+          node: (
+            <SearchableSelect
+              options={trailerOptions}
+              placeholder="Trailer"
+              isLoading={isTrailersLoading}
+              onDebouncedInputChange={setTrailerSearch}
+              onFetchNextPage={fetchNextTrailer}
+              hasNextPage={hasNextTrailerPage}
+              isClearable
+              value={filters.trailer || null}
+              onChange={(option: SingleValue<{ value: string; label: string }>) => {
+                setFilters({
+                  trailer: option || undefined,
+                  trailerNumber: option?.value || undefined,
+                  ...(option && { load: undefined, truck: undefined, driver: undefined })
                 })
               }}
             />
@@ -137,7 +168,7 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
               onClick={() => {
                 resetFilters()
               }}
-              disabled={!filters.load && !filters.truck}
+              disabled={!filters.load && !filters.trailer && !filters.truck}
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
@@ -168,18 +199,23 @@ const useRoutesHeader = ({ filters, setFilters, resetFilters, onSubmit, isLoadin
     truckOptions,
     driverOptions,
     loadOptions,
+    trailerOptions,
     isTrucksLoading,
     isDriversLoading,
     isLoadsLoading,
+    isTrailersLoading,
     setTruckSearch,
     setDriverSearch,
     setLoadSearch,
+    setTrailerSearch,
     fetchNextTruck,
     hasNextTruckPage,
     fetchNextDriver,
     hasNextDriverPage,
     fetchNextLoad,
     hasNextLoadPage,
+    fetchNextTrailer,
+    hasNextTrailerPage,
     isLoading
   ])
 }

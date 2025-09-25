@@ -7,6 +7,7 @@ interface TripFilters {
   truck?: ISelectOption
   driver?: ISelectOption
   load?: ISelectOption
+  trailer?: ISelectOption
   sortName?: string
   sortDir?: string
   // Date filters
@@ -17,6 +18,7 @@ interface TripFilters {
   truckId?: string
   driverId?: string
   loadNumber?: string
+  trailerNumber?: string
 }
 
 // This is a simplified version of the form data,
@@ -47,6 +49,7 @@ const initialFilters: TripFilters = {
   truck: undefined,
   driver: undefined,
   load: undefined,
+  trailer: undefined,
   sortName: undefined,
   sortDir: undefined,
   // Date filters
@@ -56,7 +59,8 @@ const initialFilters: TripFilters = {
   // Legacy fields
   truckId: undefined,
   driverId: undefined,
-  loadNumber: undefined
+  loadNumber: undefined,
+  trailerNumber: undefined
 }
 
 const initialNewTripData: NewTripData = {}
@@ -81,6 +85,9 @@ export const useTripsStore = create<TripsViewState>((set) => ({
       }
       if ("load" in newFilters) {
         updatedFilters.loadNumber = newFilters.load?.value || undefined
+      }
+      if ("trailer" in newFilters) {
+        updatedFilters.trailerNumber = newFilters.trailer?.value || undefined
       }
 
       return { filters: updatedFilters }

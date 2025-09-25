@@ -52,6 +52,7 @@ export interface ITripsFiltersRequest extends IBaseFiltersRequest {
   truckId?: string
   driverId?: string
   loadNumber?: string
+  trailerNumber?: string
   fromDate?: string // MM/DD/YYYY format
   toDate?: string // MM/DD/YYYY format
 }
@@ -66,10 +67,12 @@ export interface ITripListResponse {
   companyId: number
   companyName: string
   loadNumber: string
+  trailerNumber: string | null
   dispatcherName: string
   miles: number
   totalEmpty: number
   pu: number
+  identifierType: IdentifierType
   trl: number
   totalMiles: number
   totalOdometers: number | null
@@ -157,7 +160,8 @@ export type IUpdateTripRequest = ITripData
 export interface ITripSummaryRequest {
   truckId: number
   driverId?: number
-  loadNumber: string
+  number: string
+  identifierType?: IdentifierType
 }
 
 export interface ITripSummaryResponse {
@@ -232,6 +236,21 @@ export interface ILoadNumberResponse {
 }
 
 export type ILoadNumbersResponse = IPaginatedResponse<ILoadNumberResponse>
+
+// Identifier numbers (Load/Trailer) unified API
+export type IdentifierType = "LOAD_NUMBER" | "TRAILER_NUMBER"
+
+export interface IIdentifierNumbersRequest extends IBaseFiltersRequest {
+  type: IdentifierType
+}
+
+export interface IIdentifierNumberItem {
+  tripId: number
+  identifierValue: string
+  identifierType: IdentifierType
+}
+
+export type IIdentifierNumbersResponse = IPaginatedResponse<IIdentifierNumberItem>
 
 // Trip Info Response (GET /trips/info/{id})
 export interface ITripInfoResponse {

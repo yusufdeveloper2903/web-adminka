@@ -6,7 +6,7 @@ import { DataTable } from "@/components/shared"
 import { useTripsStore, useRouteStore } from "@/store"
 import { cleanObject, cn } from "@/lib/utils"
 import { useTripsInfiniteQuery } from "@/hooks/trips"
-import type { ITripsFiltersRequest } from "@/types"
+import type { ITripsFiltersRequest, IdentifierType } from "@/types"
 import { TripsMapView } from "./components"
 
 const TripsPage = () => {
@@ -22,7 +22,9 @@ const TripsPage = () => {
 
   useEffect(() => {
     setShouldFetchMapTrip(false)
-  }, [filters.truck, filters.driver, filters.load])
+  }, [filters.truck, filters.driver, filters.load, filters.trailer])
+
+  // Exclusivity handled in header filters' onChange handlers
 
   useEffect(() => {
     return () => {
@@ -33,7 +35,7 @@ const TripsPage = () => {
 
   const queryFilters: ITripsFiltersRequest = useMemo(() => {
     // Extract only API-compatible fields (exclude option objects)
-    const { truck, driver, load, dateFilterType, ...apiFilters } = filters
+    const { truck, driver, load, trailer, dateFilterType, ...apiFilters } = filters
 
     // For custom date filters, only include dates if both are present
     if (dateFilterType === "custom") {
@@ -69,18 +71,20 @@ const TripsPage = () => {
 
   // Handle map view submit
   const handleMapSubmit = useCallback(() => {
-    if (filters.truck && filters.driver && filters.load) {
+    if (filters.truck && filters.driver && (filters.load || filters.trailer)) {
       setShouldFetchMapTrip(true)
     }
-  }, [filters.truck, filters.driver, filters.load])
+  }, [filters.truck, filters.driver, filters.load, filters.trailer])
 
   // Prepare trip data for map view when submit is clicked
   const mapTripData =
-    shouldFetchMapTrip && filters.truck && filters.driver && filters.load
+    shouldFetchMapTrip && filters.truck && filters.driver && (filters.load || filters.trailer)
       ? {
           truckId: Number(filters.truck.value),
           driverId: Number(filters.driver.value),
-          loadNumber: filters.load.value
+          loadNumber: filters.load?.value || "",
+          trailerNumber: filters.trailer?.value || "",
+          identifierType: (filters.load ? "LOAD_NUMBER" : "TRAILER_NUMBER") as IdentifierType
         }
       : undefined
 

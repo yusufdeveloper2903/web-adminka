@@ -14,10 +14,12 @@ interface RouteFilters {
   truck?: SelectOption
   driver?: SelectOption
   load?: SelectOption
+  trailer?: SelectOption
   // Legacy fields for API compatibility
   truckId?: string
   driverId?: string
   loadNumber?: string
+  trailerNumber?: string
 }
 
 const RoutesPage = () => {
@@ -47,18 +49,20 @@ const RoutesPage = () => {
   }
 
   const handleSubmit = () => {
-    if (filters.truck && filters.load) {
+    if (filters.truck && (filters.load || filters.trailer)) {
       setShouldFetchTrip(true)
     }
   }
 
   // Prepare trip data for TripsMapView when submit is clicked
   const tripData =
-    shouldFetchTrip && filters.truck && filters.load
+    shouldFetchTrip && filters.truck && (filters.load || filters.trailer)
       ? {
           truckId: Number(filters.truck.value),
           driverId: filters.driver ? Number(filters.driver.value) : undefined,
-          loadNumber: filters.load.value
+          loadNumber: filters.load?.value || "",
+          trailerNumber: filters.trailer?.value || "",
+          identifierType: (filters.load ? "LOAD_NUMBER" : "TRAILER_NUMBER") as any
         }
       : undefined
 
@@ -67,7 +71,9 @@ const RoutesPage = () => {
     {
       truckId: tripData?.truckId || 0,
       driverId: tripData?.driverId,
-      loadNumber: tripData?.loadNumber || ""
+      number:
+        (tripData?.identifierType === "TRAILER_NUMBER" ? tripData?.trailerNumber : tripData?.loadNumber) || "",
+      identifierType: tripData?.identifierType
     },
     !!tripData
   )

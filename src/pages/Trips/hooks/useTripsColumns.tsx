@@ -100,10 +100,15 @@ const useTripsColumns = () => {
       },
 
       {
-        accessorKey: "loadNumber",
-        header: "Load Number",
+        id: "loadTrailer",
+        header: "Load/Trailer",
         meta: {
-          className: "min-w-[115px] w-[8%] text-left"
+          className: "min-w-[150px] w-[12%] text-left"
+        },
+        cell: ({ row }) => {
+          const { loadNumber, trailerNumber, identifierType } = row.original
+          const value = identifierType === "TRAILER_NUMBER" ? trailerNumber ?? "" : loadNumber
+          return <span className="font-medium">{value}</span>
         },
         enableSorting: false
       },
