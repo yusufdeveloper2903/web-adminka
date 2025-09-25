@@ -19,7 +19,8 @@ export enum StopType {
 export enum TripStatus {
   UPCOMING = "UPCOMING",
   IN_TRANSIT = "IN TRANSIT",
-  COMPLETED = "COMPLETED"
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED"
 }
 
 // Trip Stop DTOs
@@ -284,4 +285,16 @@ export interface ITripVehicleByLoadNumberResponse {
     firstName: string
     lastName: string
   }[]
+}
+
+// Change Trip Status DTOs
+export interface IChangeTripStatusRequest {
+  id: number
+  tripStatus: TripStatus | string
+}
+
+export interface IChangeTripStatusResponse {
+  id: number
+  tripStatus: string
+  message: string
 }

@@ -18,7 +18,7 @@ export const ENTITY_ERROR_MESSAGES = {
     ALREADY_EXISTS: "Trip with this load number already exists.",
     CREATE_SUCCESS: "Trip created successfully!",
     UPDATE_SUCCESS: "Trip updated successfully!",
-    STATUS_SUCCESS: (active: boolean) => `Trip ${active ? "activated" : "deactivated"} successfully!`
+    STATUS_SUCCESS: (active: boolean) => `Trip ${active ? "activated" : "canceled"} successfully!`,
   },
   truck: {
     INVALID_DATA: "Invalid truck data. Please check your input and try again.",
@@ -159,13 +159,23 @@ export const createMutationConfig = <TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   entityType: keyof typeof ENTITY_ERROR_MESSAGES,
   operation: "create" | "update" | "status",
-  onSuccessCallback?: (data: TData, variables: TVariables) => void
+  onSuccessCallback?: (data: TData, variables: TVariables) => void,
+  options?: { statusDefaultActive?: boolean }
 ) => {
   return {
     mutationFn,
     onSuccess: (data: TData, variables: TVariables) => {
       // Handle success message
-      handleMutationSuccess(entityType, operation, data as any)
+      if (operation === "status") {
+        const defaultActive = options?.statusDefaultActive ?? true
+        const payload: any = {
+          ...(data as any),
+          active: (data as any)?.active ?? defaultActive
+        }
+        handleMutationSuccess(entityType, operation, payload)
+      } else {
+        handleMutationSuccess(entityType, operation, data as any)
+      }
 
       // Call custom success callback if provided
       if (onSuccessCallback) {

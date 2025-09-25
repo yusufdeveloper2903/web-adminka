@@ -636,18 +636,46 @@ const TripFormFields = ({
                     }
                   }}
                 >
-                  <SelectTrigger
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""} ${selectValue ? TRIP_STATUS_OPTIONS.find((opt) => opt.value === selectValue)?.className : ""}`}
-                  >
-                    <SelectValue placeholder="Select trip status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TRIP_STATUS_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <span className={option.className}>{option.label}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+                  {(() => {
+                    const options = (() => {
+                      const base = [...TRIP_STATUS_OPTIONS]
+                      if (selectValue === "CANCELLED" || currentTripStatus === "CANCELLED") {
+                        if (!base.find((o) => o.value === "CANCELLED")) {
+                          base.push({ value: "CANCELLED" as any, label: "Cancelled", className: "text-red-600" })
+                        }
+                      }
+                      return base
+                    })()
+
+                    return (
+                      <SelectTrigger
+                        className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""} ${selectValue ? options.find((opt) => opt.value === selectValue)?.className : ""}`}
+                      >
+                        <SelectValue placeholder="Select trip status" />
+                      </SelectTrigger>
+                    )
+                  })()}
+                  {(() => {
+                    const options = (() => {
+                      const base = [...TRIP_STATUS_OPTIONS]
+                      if (selectValue === "CANCELLED" || currentTripStatus === "CANCELLED") {
+                        if (!base.find((o) => o.value === "CANCELLED")) {
+                          base.push({ value: "CANCELLED" as any, label: "Cancelled", className: "text-red-600" })
+                        }
+                      }
+                      return base
+                    })()
+
+                    return (
+                      <SelectContent>
+                        {options.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            <span className={option.className}>{option.label}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    )
+                  })()}
                 </Select>
                 {field.state.meta.errors.length > 0 && (
                   <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>

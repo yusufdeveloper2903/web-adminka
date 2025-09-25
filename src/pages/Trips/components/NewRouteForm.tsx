@@ -4,7 +4,7 @@ import { useTripForm } from "../hooks/useTripForm"
 import { useStopManagement } from "../hooks/useStopManagement"
 import TripFormFields from "./TripFormFields"
 import { useEffect } from "react"
-import { useTripByIdQuery } from "@/hooks/trips"
+import { useTripByIdQuery, useChangeTripStatusMutation } from "@/hooks/trips"
 import type { TripStatus } from "@/types"
 
 interface NewRouteFormProps {
@@ -30,6 +30,8 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
     isCalculatingRoute
   } = useStopManagement(stops, setStops, editMode)
 
+  const changeTripStatusMutation = useChangeTripStatusMutation()
+
   // Populate form with tripData when in edit mode
   useEffect(() => {
     if (editMode && tripData) {
@@ -38,7 +40,10 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
       form.setFieldValue("dispatcherId", tripData.dispatcher?.id?.toString() || "")
       // Map backend identifier fields
       form.setFieldValue("identifierType", tripData.identifierType)
-      form.setFieldValue("identifierValue", tripData.identifierType  === "LOAD_NUMBER" ? tripData.loadNumber : tripData.trailerNumber)
+      form.setFieldValue(
+        "identifierValue",
+        tripData.identifierType === "LOAD_NUMBER" ? tripData.loadNumber : tripData.trailerNumber
+      )
       form.setFieldValue("tripStatus", tripData.tripStatus as TripStatus)
       form.setFieldValue("startDateTime", tripData.startDateTime || "")
       form.setFieldValue("endDateTime", tripData.endDateTime || "")
@@ -55,6 +60,19 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
   const handleDeleteTrip = () => {
     resetForm()
     resetStopForm()
+  }
+
+  const handleCancelLoad = async () => {
+    if (!selectedTripId) return
+    try {
+      await changeTripStatusMutation.mutateAsync({ id: selectedTripId, tripStatus: "CANCELLED" })
+      // Optionally reflect in local form
+      form.setFieldValue("tripStatus", "CANCELLED" as unknown as TripStatus)
+      // Close dialog on success
+      closeDrawer()
+    } catch {
+      // no-op; error handling handled globally
+    }
   }
 
   return (
@@ -94,9 +112,16 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
 
         {/* Bottom buttons */}
         <div className="flex justify-between border-t pt-4">
-          <Button type="button" variant="destructive" onClick={handleDeleteTrip}>
-            Clear Form
-          </Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="default" onClick={handleDeleteTrip}>
+              Clear Form
+            </Button>
+            {editMode && (tripData?.tripStatus == "IN_TRANSIT" || tripData?.tripStatus == "UPCOMING") && (
+              <Button type="button" variant="destructive" onClick={handleCancelLoad} disabled={!selectedTripId}>
+                Cancel Load
+              </Button>
+            )}
+          </div>
 
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={closeDrawer}>
