@@ -116,7 +116,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
         // HERE Trip - uses backend trip data
         {
           id: "here",
-          title: `HERE Trip - ${tripSummaryData.loadNumber}`,
+          title: `HERE Trip - ${effectiveTripData?.identifierType === "TRAILER_NUMBER" ? tripSummaryData?.trailerNumber : tripSummaryData?.loadNumber}`,
           totalMiles: baseMiles, // Backend calculated miles
           hours: baseHours, // Backend calculated hours
           coordinates: centerCoords
@@ -124,7 +124,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
         // Samsara Trip - uses samsaraLocation data with comparison to HERE
         {
           id: "samsara",
-          title: `Samsara Trip - ${tripSummaryData.loadNumber}`,
+          title: `Samsara Trip -${effectiveTripData?.identifierType === "TRAILER_NUMBER" ? tripSummaryData?.trailerNumber : tripSummaryData?.loadNumber}`,
           totalMiles: tripSummaryData.samsaraLocation ? metersToMiles(tripSummaryData.samsaraLocation.distance) : 0,
           hours: tripSummaryData.samsaraLocation
             ? parseFloat(formatDuration(tripSummaryData.samsaraLocation.duration))
@@ -140,7 +140,7 @@ const TripsMapView = ({ isVisible, mapOnly = false, tripData }: TripsMapViewProp
         // GLE Trip - uses gleLocation data with comparison to HERE
         {
           id: "gle",
-          title: `GLE Trip - ${tripSummaryData.loadNumber}`,
+          title: `GLE Trip - ${effectiveTripData?.identifierType === "TRAILER_NUMBER" ? tripSummaryData?.trailerNumber : tripSummaryData?.loadNumber}`,
           totalMiles: tripSummaryData.gleLocation ? metersToMiles(tripSummaryData.gleLocation.distance) : 0,
           hours: tripSummaryData.gleLocation ? parseFloat(formatDuration(tripSummaryData.gleLocation.duration)) : 0,
           coordinates: centerCoords,

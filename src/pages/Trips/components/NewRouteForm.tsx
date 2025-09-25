@@ -36,7 +36,9 @@ const NewRouteForm = ({ editMode = false }: NewRouteFormProps) => {
       // Populate form fields with safe access
       form.setFieldValue("truckId", tripData.truck?.id?.toString() || "")
       form.setFieldValue("dispatcherId", tripData.dispatcher?.id?.toString() || "")
-      form.setFieldValue("loadNumber", tripData.loadNumber || "")
+      // Map backend identifier fields
+      form.setFieldValue("identifierType", tripData.identifierType)
+      form.setFieldValue("identifierValue", tripData.identifierType  === "LOAD_NUMBER" ? tripData.loadNumber : tripData.trailerNumber)
       form.setFieldValue("tripStatus", tripData.tripStatus as TripStatus)
       form.setFieldValue("startDateTime", tripData.startDateTime || "")
       form.setFieldValue("endDateTime", tripData.endDateTime || "")

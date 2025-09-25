@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form"
 import { z } from "zod"
 import { useDrawerStore, useTripsStore } from "@/store"
 import { useCreateTripMutation, useUpdateTripMutation } from "@/hooks/trips"
-import type { ITripStopResponse, TripStatus } from "@/types"
+import type { ITripStopResponse, TripStatus, IdentifierType } from "@/types"
 import { BACKEND_DATETIME_FORMAT } from "@/constants"
 import dayjs from "dayjs"
 import { cleanObject } from "@/lib"
@@ -12,8 +12,10 @@ import { cleanObject } from "@/lib"
 const tripFormSchema = z
   .object({
     truckId: z.string().min(1, "Truck is required"),
+    driverId: z.string().min(1, "Driver is required"),
     dispatcherId: z.string().optional(),
-    loadNumber: z.string().min(1, "Load Number is required"),
+    identifierType: z.string().min(1, "Identifier type is required"),
+    identifierValue: z.string().min(1, "Number is required"),
     tripStatus: z.string().min(1, "Trip status is required"),
     startDateTime: z.string().optional(),
     endDateTime: z.string().optional(),
@@ -35,8 +37,10 @@ const tripFormSchema = z
 
 const initialFormValues = {
   truckId: "",
+  driverId: "",
   dispatcherId: "",
-  loadNumber: "",
+  identifierType: "LOAD_NUMBER" as IdentifierType,
+  identifierValue: "",
   tripStatus: "UPCOMING" as TripStatus,
   startDateTime: "",
   endDateTime: "",
@@ -98,10 +102,17 @@ export const useTripForm = (editMode: boolean = false) => {
         const tripData: any = {
           truckId: parseInt(validatedData.truckId),
           dispatcherId: parseInt(validatedData.dispatcherId as string),
-          loadNumber: validatedData.loadNumber,
+          identifierType: validatedData.identifierType as IdentifierType,
+          identifierValue: validatedData.identifierValue,
           tripStatus: validatedData.tripStatus as TripStatus,
           tripStops: filteredStops
         }
+
+        // Include driverId only if provided
+        if (validatedData.driverId && validatedData.driverId.trim() !== "") {
+          tripData.driverId = parseInt(validatedData.driverId)
+        }
+        
 
         // Only add datetime fields if they have valid values
         if (validatedData.startDateTime && validatedData.startDateTime.trim() !== "") {

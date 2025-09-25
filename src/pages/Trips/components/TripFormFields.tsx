@@ -4,9 +4,10 @@ import { SearchableSelect, type SearchableSelectOption } from "@/components/ui/s
 import { DateTimePicker } from "@/components/ui/date-time-picker"
 import { useMemo, useState, useEffect } from "react"
 import { utcToCentralString, centralStringToUTC } from "@/lib"
-import { useTrucksInfiniteQuery } from "@/hooks/trucks"
+import { useTrucksInfiniteQuery, useTruckDriverInfoQuery } from "@/hooks/trucks"
+import { useDriversInfiniteQuery } from "@/hooks/drivers"
 import { useDispatchersInfiniteQuery } from "@/hooks/dispatchers"
-import type { ITruckResponse, IDispatcherResponse, ITripStopResponse } from "@/types"
+import type { ITruckResponse, IDispatcherResponse, ITripStopResponse, IDriverResponse } from "@/types"
 import StopsTable from "./StopsTable"
 import AddStopForm from "./AddStopForm"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -41,6 +42,10 @@ interface DispatcherOption extends SearchableSelectOption {
   data: IDispatcherResponse
 }
 
+interface DriverOption extends SearchableSelectOption {
+  data: IDriverResponse
+}
+
 const TripFormFields = ({
   form,
   stops,
@@ -57,8 +62,11 @@ const TripFormFields = ({
 }: TripFormFieldsProps) => {
   const [truckSearchKeyword, setTruckSearchKeyword] = useState("")
   const [dispatcherSearchKeyword, setDispatcherSearchKeyword] = useState("")
+  const [driverSearchKeyword, setDriverSearchKeyword] = useState("")
   const [showDateTimeSection, setShowDateTimeSection] = useState(false)
   const [currentTripStatus, setCurrentTripStatus] = useState("")
+  const [currentIdentifierType, setCurrentIdentifierType] = useState("")
+  const [selectedTruckIdState, setSelectedTruckIdState] = useState<number | undefined>(undefined)
 
   // Robust trip status tracking with multiple fallbacks
   useEffect(() => {
@@ -173,6 +181,55 @@ const TripFormFields = ({
     setShowDateTimeSection(shouldShow)
   }, [currentTripStatus])
 
+  // Robust identifier type tracking with multiple fallbacks
+  useEffect(() => {
+    const getIdentifierType = () => {
+      return (
+        form?.state?.values?.identifierType ||
+        form?.getFieldValue?.("identifierType") ||
+        form?.state?.fieldMeta?.identifierType?.value ||
+        ""
+      )
+    }
+
+    const initialType = getIdentifierType()
+    if (initialType) {
+      setCurrentIdentifierType(initialType)
+    }
+
+    let unsubscribe: (() => void) | undefined
+    try {
+      if (form?.store?.subscribe) {
+        unsubscribe = form.store.subscribe(() => {
+          const newType = getIdentifierType()
+          if (newType && newType !== currentIdentifierType) {
+            setCurrentIdentifierType(newType)
+          }
+        })
+      }
+    } catch (error) {
+      console.warn("Form subscription failed (identifierType):", error)
+    }
+
+    return () => {
+      if (unsubscribe) {
+        try {
+          unsubscribe()
+        } catch (error) {
+          console.warn("Form unsubscribe failed (identifierType):", error)
+        }
+      }
+    }
+  }, [form, currentIdentifierType])
+
+  // Safety check to keep local state in sync
+  useEffect(() => {
+    const fieldValue = form?.state?.values?.identifierType
+    if (fieldValue && fieldValue !== currentIdentifierType) {
+      setCurrentIdentifierType(fieldValue)
+    }
+  }, [form?.state?.values?.identifierType, currentIdentifierType])
+
   // Fetch trucks with search
   const {
     data: trucksData,
@@ -181,6 +238,17 @@ const TripFormFields = ({
     isFetchingNextPage: isFetchingNextTrucksPage
   } = useTrucksInfiniteQuery({
     keyword: truckSearchKeyword,
+    active: true
+  })
+
+  // Fetch drivers with search
+  const {
+    data: driversData,
+    fetchNextPage: fetchNextDriversPage,
+    hasNextPage: hasNextDriversPage,
+    isFetchingNextPage: isFetchingNextDriversPage
+  } = useDriversInfiniteQuery({
+    keyword: driverSearchKeyword,
     active: true
   })
 
@@ -194,6 +262,28 @@ const TripFormFields = ({
     keyword: dispatcherSearchKeyword,
     active: true
   })
+
+  // Selected truck id from the form (number or undefined)
+  const selectedTruckId = useMemo(() => {
+    if (selectedTruckIdState !== undefined) return selectedTruckIdState
+    const val = form?.state?.values?.truckId
+    return val ? Number(val) : undefined
+  }, [selectedTruckIdState, form?.state?.values?.truckId])
+
+  // Keep local state synced if truckId changes from outside
+  useEffect(() => {
+    const unsubscribe = form?.store?.subscribe?.(() => {
+      const val = form?.state?.values?.truckId
+      setSelectedTruckIdState(val ? Number(val) : undefined)
+    })
+    return unsubscribe
+  }, [form])
+
+  // Fetch drivers bound to selected truck (if any)
+  const { data: truckDriverInfo } = useTruckDriverInfoQuery(
+    selectedTruckId,
+    !!selectedTruckId
+  )
 
   // Convert trucks data to SearchableSelect options
   const truckOptions: TruckOption[] = useMemo(() => {
@@ -237,6 +327,28 @@ const TripFormFields = ({
       }))
   }, [dispatchersData])
 
+  // Convert drivers data to SearchableSelect options
+  const driverOptions: DriverOption[] = useMemo(() => {
+    // If truck selected, prefer its drivers
+    if (selectedTruckId && truckDriverInfo?.drivers) {
+      return truckDriverInfo.drivers.map((d) => ({
+        value: d.id.toString(),
+        label: `${d.firstName} ${d.lastName}`,
+        data: d as unknown as IDriverResponse
+      }))
+    }
+
+    if (!driversData?.pages) return []
+
+    return driversData.pages
+      .flatMap((page: any) => page.content)
+      .map((driver: IDriverResponse) => ({
+        value: driver.id.toString(),
+        label: `${driver.firstName} ${driver.lastName}`,
+        data: driver
+      }))
+  }, [selectedTruckId, truckDriverInfo, driversData])
+
   // Helper function to get error message from field
   const getErrorMessage = (field: any): string => {
     if (field.state.meta.errors.length === 0) return ""
@@ -257,9 +369,9 @@ const TripFormFields = ({
     <>
       {/* Section 1: Truck, Load Number, Dispatcher */}
       <div className="rounded-lg border p-4">
-        {/* First row - Truck and Load Number (50% each) */}
-        <section className="mb-4 flex justify-between gap-4">
-          <div className="w-1/2 space-y-2">
+        {/* First row - Truck, Driver, Identifier Type, Number */}
+        <section className="mb-4 grid grid-cols-12 gap-4">
+          <div className="col-span-4 space-y-2">
             <Label htmlFor="truckId">Truck</Label>
             <form.Field
               name="truckId"
@@ -270,7 +382,13 @@ const TripFormFields = ({
                     options={truckOptions}
                     value={truckOptions.find((option) => option.value === field.state.value) || null}
                     onChange={(selectedOption: any) => {
-                      field.handleChange(selectedOption?.value || "")
+                      const nextVal = selectedOption?.value || ""
+                      field.handleChange(nextVal)
+                      setSelectedTruckIdState(nextVal ? Number(nextVal) : undefined)
+                      // Clear driver if truck changed
+                      if (form?.setFieldValue) {
+                        form.setFieldValue("driverId", "")
+                      }
                     }}
                     onDebouncedInputChange={(debouncedValue: string) => {
                       setTruckSearchKeyword(debouncedValue)
@@ -300,18 +418,38 @@ const TripFormFields = ({
             />
           </div>
 
-          <div className="w-1/2 space-y-2">
-            <Label htmlFor="loadNumber">Load Number</Label>
+          <div className="col-span-4 space-y-2">
+            <Label htmlFor="driverId">Driver</Label>
             <form.Field
-              name="loadNumber"
+              name="driverId"
               children={(field: any) => (
                 <div>
-                  <Input
-                    placeholder="Enter Load Number"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
+                  <SearchableSelect
+                    fullWidth
+                    options={driverOptions}
+                    value={driverOptions.find((option) => option.value === field.state.value) || null}
+                    onChange={(selectedOption: any) => {
+                      field.handleChange(selectedOption?.value || "")
+                    }}
+                    onDebouncedInputChange={(debouncedValue: string) => {
+                      setDriverSearchKeyword(debouncedValue)
+                    }}
+                    onMenuScrollToBottom={() => {
+                      if (hasNextDriversPage && !isFetchingNextDriversPage) {
+                        fetchNextDriversPage()
+                      }
+                    }}
+                    placeholder="Search and select driver..."
+                    isClearable
+                    isSearchable
+                    error={field.state.meta.errors.length > 0}
+                    className="w-full"
+                    debounceMs={300}
+                    noOptionsMessage={({ inputValue }: { inputValue: string }) =>
+                      inputValue ? `No drivers found for "${inputValue}"` : "No drivers available"
+                    }
+                    loadingMessage={() => "Loading drivers..."}
+                    isLoading={isFetchingNextDriversPage}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
@@ -320,9 +458,51 @@ const TripFormFields = ({
               )}
             />
           </div>
+
+          {/* Identifier Type */}
+          <div className="col-span-4 space-y-2">
+            <Label htmlFor="identifierType">Identifier Type</Label>
+            <form.Field
+              name="identifierType"
+              children={(field: any) => (
+                <div>
+                  {(() => {
+                    const selectValue = field.state.value || field.state.meta?.initialValue || currentIdentifierType || ""
+                    return (
+                      <Select
+                        key={`identifierType-${selectValue || "empty"}`}
+                        value={selectValue || undefined}
+                        onValueChange={(value) => {
+                          if (!value || value === "") return
+                          if (value === selectValue) return
+                          field.handleChange(value)
+                          setCurrentIdentifierType(value)
+                          if (field.handleBlur) field.handleBlur()
+                        }}
+                      >
+                        <SelectTrigger className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="LOAD_NUMBER">LOAD_NUMBER</SelectItem>
+                          <SelectItem value="TRAILER_NUMBER">TRAILER_NUMBER</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )
+                  })()}
+                  {field.state.meta.errors.length > 0 && (
+                    
+                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
+          
         </section>
 
-        {/* Second row - Dispatcher and Trip Status (50% each) */}
+        {/* Second row - Dispatcher and Identifier Value (50% each) */}
         <section className="flex justify-between gap-4">
           <div className="w-1/2 space-y-2 pr-2">
             <Label htmlFor="dispatcherId">Dispatcher</Label>
@@ -356,6 +536,26 @@ const TripFormFields = ({
                     }
                     loadingMessage={() => "Loading dispatchers..."}
                     isLoading={isFetchingNextDispatchersPage}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+          <div className="w-1/2 space-y-2">
+            <Label htmlFor="identifierValue">Number</Label>
+            <form.Field
+              name="identifierValue"
+              children={(field: any) => (
+                <div>
+                  <Input
+                    placeholder="Enter Number"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className={`w-full ${field.state.meta.errors.length > 0 ? "border-red-500" : ""}`}
                   />
                   {field.state.meta.errors.length > 0 && (
                     <div className="mt-1 text-sm text-red-500">{getErrorMessage(field)}</div>

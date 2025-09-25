@@ -45,3 +45,14 @@ export type ICreateTruckRequest = ITruckData
 
 // Update Truck Request (PUT /api/v1/trucks/{id})
 export type IUpdateTruckRequest = ITruckData
+
+// GET /api/v1/trucks/driver-info/{id}
+export interface ITruckDriverInfoResponse {
+  truckId: number
+  unitNumber: string
+  drivers: Array<{
+    id: number
+    firstName: string
+    lastName: string
+  }>
+}

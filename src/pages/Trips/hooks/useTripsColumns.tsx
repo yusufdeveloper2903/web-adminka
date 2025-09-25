@@ -37,7 +37,7 @@ const useTripsColumns = () => {
 
       // Open drawer with edit form
       setDrawerConfig({
-        title: `Edit Trip: ${trip.loadNumber}`,
+        title: `Edit Trip: ${trip.identifierType === "LOAD_NUMBER" ? trip.loadNumber : trip.trailerNumber}`,
         content: <NewRouteForm editMode={true} />,
         width: "sm:max-w-5xl",
         headerActions: [
@@ -107,7 +107,7 @@ const useTripsColumns = () => {
         },
         cell: ({ row }) => {
           const { loadNumber, trailerNumber, identifierType } = row.original
-          const value = identifierType === "TRAILER_NUMBER" ? trailerNumber ?? "" : loadNumber
+          const value = identifierType === "TRAILER_NUMBER" ? (trailerNumber ?? "") : loadNumber
           return <span className="font-medium">{value}</span>
         },
         enableSorting: false

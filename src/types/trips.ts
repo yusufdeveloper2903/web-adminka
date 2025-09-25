@@ -92,7 +92,10 @@ export interface ITripListResponse {
 export interface ITripDetailResponse {
   id: number
   loadNumber: string
+  trailerNumber: string
   tripStatus: string
+  identifierType: IdentifierType
+  identifierValue: string
   startDateTime: string
   endDateTime: string
   startOdometer: number | null
@@ -140,8 +143,10 @@ export type ITripsResponse = IPaginatedResponse<ITripListResponse>
 // Base Trip Data (common fields for create/update)
 export interface ITripData {
   truckId: number
+  driverId?: number
   dispatcherId: number
-  loadNumber: string
+  identifierType: IdentifierType
+  identifierValue: string
   startDateTime: string
   endDateTime: string
   startOdometer: number
@@ -171,6 +176,8 @@ export interface ITripSummaryResponse {
   driverId: number
   driverName: string
   loadNumber: string
+  trailerNumber: string
+  identifierType: IdentifierType
   mileStats: {
     id: number
     miles: number
