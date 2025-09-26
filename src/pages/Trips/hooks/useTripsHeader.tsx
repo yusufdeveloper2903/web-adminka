@@ -332,9 +332,7 @@ const useTripsHeader = ({ isLoading, totalDBRowCount, refetch, onMapSubmit }: Us
             <Button
               size="sm"
               onClick={onMapSubmit}
-              disabled={
-                !filters.truck || (!filters.load && !filters.trailer) || isLoading || isMapSubmitLoading
-              }
+              disabled={!filters.truck || (!filters.load && !filters.trailer) || isLoading || isMapSubmitLoading}
             >
               {isMapSubmitLoading ? "Loading..." : "Submit"}
             </Button>

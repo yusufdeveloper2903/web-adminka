@@ -6,7 +6,7 @@ import type { ITripListResponse } from "@/types"
 import { useDrawerStore, useRouteStore, useTripsStore } from "@/store"
 import { NewRouteForm, RouteSettingsPopover } from "../components"
 import TripMileageReportDialog from "../components/TripMileageReportDialog"
-import { formatUTCToCentral, formatThousands } from "@/lib"
+import { formatUTCToCentral, formatThousands, getInitalsLetter } from "@/lib"
 import { TABLE_UI_FORMAT } from "@/constants"
 
 const useTripsColumns = () => {
@@ -94,7 +94,17 @@ const useTripsColumns = () => {
         accessorKey: "companyName",
         header: "Company",
         meta: {
-          className: "min-w-[120px] w-[8%] text-left"
+          className: "min-w-[60px] w-[6%] text-left"
+        },
+        cell: ({ row }) => {
+          const name = row.original.companyName || ""
+          const initials = getInitalsLetter(name)
+
+          return (
+            <span className="font-medium" title={name}>
+              {initials}
+            </span>
+          )
         },
         enableSorting: false
       },
@@ -103,7 +113,7 @@ const useTripsColumns = () => {
         id: "loadTrailer",
         header: "Load/Trailer",
         meta: {
-          className: "min-w-[150px] w-[12%] text-left"
+          className: "min-w-[80px] w-[8%] text-left"
         },
         cell: ({ row }) => {
           const { loadNumber, trailerNumber, identifierType } = row.original
@@ -164,6 +174,17 @@ const useTripsColumns = () => {
           className: "min-w-[115px] w-[7%] bg-gray-table dark:bg-gray-800 text-left"
         },
         cell: ({ row }) => <span className="font-medium text-blue-600">{formatThousands(row.original.totalMiles)}</span>
+      },
+
+      {
+        accessorKey: "payableMileage",
+        header: (<div className="!text-gray-900 dark:!text-gray-100">Payable Mileage</div>) as any,
+        meta: {
+          className: "min-w-[125px] w-[8%] bg-gray-table dark:bg-gray-800 text-left"
+        },
+        cell: ({ row }) => (
+          <span className="font-medium">{row.original.payableMileage ?? ""}</span>
+        )
       },
 
       {

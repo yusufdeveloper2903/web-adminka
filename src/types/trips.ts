@@ -77,6 +77,7 @@ export interface ITripListResponse {
   trl: number
   totalMiles: number
   totalOdometers: number | null
+  payableMileage?: number | null
   pickupLocation: string | null
   pickupLatitude: number | null
   pickupLongitude: number | null

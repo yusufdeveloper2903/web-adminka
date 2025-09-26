@@ -1,8 +1,10 @@
 import { Button, Input, SearchableSelect } from "@/components/ui"
+import { AssignForm } from "../components"
 import { useDriversInfiniteQuery } from "@/hooks/drivers"
+// import { useUsersInfiniteQuery } from "@/hooks/users"
 import { useDrawerStore, useHeaderStore, useTrucksStore } from "@/store"
 import type { IDriverResponse, IPaginatedResponse } from "@/types"
-import { RotateCcw } from "lucide-react"
+import { Plus, RotateCcw } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import type { SingleValue } from "react-select"
 import { useDebounceValue } from "usehooks-ts"
@@ -21,6 +23,9 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
   // Local state for UI controls
   const [keyword, setKeyword] = useState(filters.keyword || "")
   const [driverSearch, setDriverSearch] = useState("")
+  // const [userSearch] = useState("")
+
+  // Drawer opens via setDrawerConfig like Shops page
 
   // Debounced value
   const [debouncedKeyword] = useDebounceValue(keyword, 500)
@@ -37,6 +42,8 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
     isLoading: isDriversLoading
   } = useDriversInfiniteQuery({ keyword: driverSearch })
 
+  // Preload users list inside AssignForm; no need to fetch here
+
   const driverOptions = useMemo(
     () =>
       driversData?.pages
@@ -48,32 +55,29 @@ const useTrucksHeader = ({ isLoading, totalDBRowCount, refetch }: UseTrucksHeade
     [driversData]
   )
 
+  // options for users are prepared in AssignForm
+
   useEffect(() => {
+    const addIcon = <Plus className="mr-2 h-4 w-4" />
     setConfig({
       title: "Trucks",
       metadata: `Total: ${totalDBRowCount} trucks`,
-      // FIXME: disabled temporary
-      // actions: [
-      //   {
-      //     id: "add-truck-button",
-      //     label: "Add Truck",
-      //     icon: addTruckIcon,
-      //     disabled: isLoading,
-      //     onClick: () =>
-      //       setDrawerConfig({
-      //         isOpen: true,
-      //         title: "Add New Truck",
-      //         content: <NewTruckForm />
-      //       })
-      //   },
-      //   {
-      //     id: "refresh_trips",
-      //     icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
-      //     onClick: () => refetch(),
-      //     variant: "outline",
-      //     disabled: isLoading
-      //   }
-      // ],
+      actions: [
+        {
+          id: "assign_button",
+          label: "Assign",
+          icon: addIcon,
+          onClick: () =>
+            setDrawerConfig({
+              title: "Assign",
+              content: <AssignForm />
+            }),
+          // primary ko'rinish
+          variant: "default",
+          // isLoading paytida ham enable
+          disabled: false
+        }
+      ],
       filters: [
         {
           id: "keyword-filter",

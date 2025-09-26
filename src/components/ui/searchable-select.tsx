@@ -1,10 +1,4 @@
-import Select, {
-  components,
-  type ActionMeta,
-  type MultiValue,
-  type Props as ReactSelectProps,
-  type SingleValue
-} from "react-select"
+import Select, { components, type MultiValue, type Props as ReactSelectProps, type SingleValue } from "react-select"
 import { ChevronDownIcon, XIcon, Loader2 } from "lucide-react"
 import { useDebounceValue } from "usehooks-ts"
 import { cn } from "@/lib/utils"
@@ -16,14 +10,18 @@ export interface SearchableSelectOption {
   data?: any
 }
 
-interface SearchableSelectProps
-  extends Omit<ReactSelectProps<SearchableSelectOption>, "styles" | "components" | "onChange"> {
+interface SearchableSelectProps<IsMulti extends boolean = false>
+  extends Omit<ReactSelectProps<SearchableSelectOption, IsMulti>, "styles" | "components" | "onChange"> {
   className?: string
   error?: boolean
   onDebouncedInputChange?: (value: string) => void
   debounceMs?: number
   onFetchNextPage?: () => void
-  onChange?: (value: SingleValue<SearchableSelectOption>) => void
+  onChange?: (
+    value: IsMulti extends true
+      ? MultiValue<SearchableSelectOption>
+      : SingleValue<SearchableSelectOption>
+  ) => void
   hasNextPage?: boolean
   fullWidth?: boolean
 }
@@ -157,7 +155,7 @@ const MenuList = (props: any) => {
   )
 }
 
-const SearchableSelect = ({
+const SearchableSelect = <IsMulti extends boolean = false>({
   className,
   error,
   onDebouncedInputChange,
@@ -168,7 +166,7 @@ const SearchableSelect = ({
   hasNextPage,
   fullWidth,
   ...props
-}: SearchableSelectProps) => {
+}: SearchableSelectProps<IsMulti>) => {
   const [inputValue, setInputValue] = useState("")
 
   // Ensure debounceMs has a default value
@@ -191,11 +189,12 @@ const SearchableSelect = ({
   }
 
   const handleChange = (
-    newValue: SingleValue<SearchableSelectOption> | MultiValue<SearchableSelectOption>,
-    actionMeta: ActionMeta<SearchableSelectOption>
+    newValue:
+      | (IsMulti extends true ? MultiValue<SearchableSelectOption> : never)
+      | (IsMulti extends false ? SingleValue<SearchableSelectOption> : never)
   ) => {
     if (onChange) {
-      onChange(newValue as SingleValue<SearchableSelectOption>)
+      onChange(newValue as any)
     }
   }
 
@@ -218,9 +217,11 @@ const SearchableSelect = ({
         Placeholder
       }}
       classNames={{
-        control: ({ isFocused }) =>
+        control: ({ isFocused, selectProps }) =>
           cn(
-            "flex w-full min-w-0 rounded-md !min-h-[36px] border dark:bg-input/30 px-2 overflow-hidden text-xs shadow-xs transition-colors h-6",
+            "flex w-full min-w-0 rounded-md border dark:bg-input/30 px-2 overflow-hidden text-xs shadow-xs transition-colors",
+            // Dynamic sizing for multi vs single
+            selectProps.isMulti ? "min-h-[44px] py-1" : "!min-h-[36px] h-9",
             "file:border-0 file:bg-transparent file:text-sm file:font-medium",
             "placeholder:text-muted-foreground",
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -234,10 +235,14 @@ const SearchableSelect = ({
           ),
         container: () => `min-w-[160px] ${fullWidth ? "w-full" : "max-w-[220px]"}`, // Fixed min/max width
         placeholder: () => "text-muted-foreground text-xs truncate",
-        input: () => "text-foreground text-xs flex-1 min-w-0",
-        valueContainer: () => "flex items-center py-0 flex-1 min-w-0 overflow-hidden",
+        input: () => "text-foreground text-xs flex-1 min-w-[2ch]",
+        valueContainer: ({ selectProps }) =>
+          cn(
+            "flex items-center py-0 flex-1 min-w-0 overflow-hidden",
+            selectProps.isMulti && "flex-wrap gap-1 py-1"
+          ),
         singleValue: () => "text-foreground text-xs truncate max-w-full",
-        multiValue: () => "bg-secondary text-secondary-foreground rounded px-1 py-0.5 text-xs",
+        multiValue: () => "bg-secondary/70 text-secondary-foreground rounded-sm px-1.5 py-0.5 text-[11px]",
         multiValueLabel: () => "text-secondary-foreground",
         multiValueRemove: () => "text-secondary-foreground hover:text-destructive",
         indicatorsContainer: () => "flex items-center flex-shrink-0", // Prevent shrinking
@@ -266,7 +271,7 @@ const SearchableSelect = ({
       className={cn("react-select-container", className)}
       onMenuScrollToBottom={handleMenuScrollToBottom}
       onInputChange={handleInputChange}
-      onChange={handleChange}
+      onChange={handleChange as any}
       menuShouldScrollIntoView={false}
       loadingMessage={() => null} // Disable default loading message
       noOptionsMessage={({ inputValue }) => (inputValue ? `No results for "${inputValue}"` : "No options")}

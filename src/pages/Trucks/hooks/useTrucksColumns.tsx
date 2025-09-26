@@ -37,6 +37,15 @@ const useTrucksColumns = (): ColumnDef<ITruckResponse>[] => {
       enableSorting: false
     },
     {
+      accessorKey: "assignUserName",
+      header: "Assigned User",
+      meta: {
+        className: "min-w-[100px] w-[10%]"
+      },
+      enableSorting: false
+    },
+    
+    {
       accessorKey: "companyName",
       header: "Company",
       meta: {

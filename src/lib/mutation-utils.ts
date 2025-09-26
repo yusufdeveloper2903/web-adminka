@@ -68,6 +68,14 @@ export const ENTITY_ERROR_MESSAGES = {
     UPDATE_SUCCESS: "User updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `User ${active ? "activated" : "deactivated"} successfully!`
   },
+  drivers: {
+    INVALID_DATA: "Invalid drivers data.",
+    NOT_FOUND: "Driver(s) not found.",
+    ALREADY_EXISTS: "Already assigned.",
+    CREATE_SUCCESS: "Created successfully!",
+    UPDATE_SUCCESS: "Assigned successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Drivers ${active ? "activated" : "deactivated"} successfully!`
+  },
   globalSetting: {
     INVALID_DATA: "Invalid global setting data. Please check your input and try again.",
     NOT_FOUND: "Global setting not found.",
