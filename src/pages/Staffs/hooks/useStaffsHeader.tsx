@@ -1,21 +1,21 @@
 import { Button, Input } from "@/components/ui"
-import { useDrawerStore, useHeaderStore, useUsersStore } from "@/store"
+import { useDrawerStore, useHeaderStore, useStaffsStore } from "@/store"
 import { Plus, RefreshCw, RotateCcw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useDebounceValue } from "usehooks-ts"
-import { NewUserForm } from "../components"
+import { NewStaffsForm } from "../components"
 import { cn } from "@/lib"
 
-interface UseUsersHeaderParams {
+interface UseStaffsHeaderParams {
   isLoading: boolean
   totalDBRowCount: number
   refetch: () => void
 }
 
-const useUsersHeader = ({ isLoading, totalDBRowCount, refetch }: UseUsersHeaderParams) => {
+const useStaffsHeader = ({ isLoading, totalDBRowCount, refetch }: UseStaffsHeaderParams) => {
   const { setConfig: setHeaderConfig, resetConfig: resetHeaderConfig } = useHeaderStore()
   const { setConfig: setDrawerConfig } = useDrawerStore()
-  const { filters, setFilters, resetFilters } = useUsersStore()
+  const { filters, setFilters, resetFilters } = useStaffsStore()
 
   // Local state for UI controls
   const [keyword, setKeyword] = useState(filters.keyword || "")
@@ -32,22 +32,22 @@ const useUsersHeader = ({ isLoading, totalDBRowCount, refetch }: UseUsersHeaderP
     const addIcon = <Plus className="mr-2 h-4 w-4" />
 
     setHeaderConfig({
-      title: "Users",
-      metadata: `Total: ${totalDBRowCount} users`,
+      title: "Staffs",
+      metadata: `Total: ${totalDBRowCount} staffs`,
       actions: [
         {
-          id: "add_user",
-          label: "Add User",
+          id: "add_staff",
+          label: "Add Staff",
           disabled: isLoading,
           icon: addIcon,
           onClick: () =>
             setDrawerConfig({
-              title: "Add New User",
-              content: <NewUserForm />
+              title: "Add New Staff",
+              content: <NewStaffsForm />
             })
         },
         {
-          id: "refresh_users",
+          id: "refresh_staffs",
           icon: <RefreshCw className={cn("h-4 w-4", { "animate-spin": isLoading })} />,
           onClick: () => refetch(),
           variant: "outline",
@@ -102,4 +102,4 @@ const useUsersHeader = ({ isLoading, totalDBRowCount, refetch }: UseUsersHeaderP
   ])
 }
 
-export default useUsersHeader
+export default useStaffsHeader

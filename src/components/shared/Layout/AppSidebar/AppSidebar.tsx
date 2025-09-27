@@ -9,8 +9,8 @@ import { AppSidebarFooter, AppSidebarNav } from "./components"
 const menuItems = {
   settings: [
     {
-      title: "Users",
-      url: "/users",
+      title: "Staffs",
+      url: "/staffs",
       icon: Users
     }
   ]

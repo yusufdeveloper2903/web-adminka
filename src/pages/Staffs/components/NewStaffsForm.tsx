@@ -1,16 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { useDrawerStore } from "@/store"
-import { useUserForm } from "../hooks/useUserForm"
-import UserFormFields from "./UserFormFields"
-import type { IUserResponse } from "@/types"
+import { useStaffsForm } from "../hooks/useStaffsForm"
+import StaffsFormFields from "./StaffsFormFields"
+// No props for now
 
-interface NewUserFormProps {
-  user?: IUserResponse
-}
-
-const NewUserForm = ({ user }: NewUserFormProps) => {
+const NewStaffsForm = () => {
   const { closeDrawer } = useDrawerStore()
-  const { form, resetForm, isSubmitting, isEditing } = useUserForm({ user })
+  // For now we only support creating staffs via POST /staffs/staffs/
+  const { form, resetForm, isSubmitting } = useStaffsForm()
 
   const handleClearForm = () => {
     resetForm()
@@ -26,8 +23,8 @@ const NewUserForm = ({ user }: NewUserFormProps) => {
         }}
         className="space-y-6"
       >
-        {/* User Form Fields */}
-        <UserFormFields form={form} />
+        {/* Staff Form Fields */}
+        <StaffsFormFields form={form} />
 
         {/* Show validation errors */}
         {form.state.errors && form.state.errors.length > 0 && (
@@ -48,9 +45,7 @@ const NewUserForm = ({ user }: NewUserFormProps) => {
             <Button type="button" variant="outline" onClick={closeDrawer}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (isEditing ? "Updating..." : "Creating...") : isEditing ? "Update User" : "Create User"}
-            </Button>
+            <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating..." : "Create Staff"}</Button>
           </div>
         </div>
       </form>
@@ -58,4 +53,4 @@ const NewUserForm = ({ user }: NewUserFormProps) => {
   )
 }
 
-export default NewUserForm
+export default NewStaffsForm

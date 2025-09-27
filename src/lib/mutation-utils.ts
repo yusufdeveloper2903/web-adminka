@@ -68,6 +68,14 @@ export const ENTITY_ERROR_MESSAGES = {
     UPDATE_SUCCESS: "User updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `User ${active ? "activated" : "deactivated"} successfully!`
   },
+  staff: {
+    INVALID_DATA: "Invalid staff data. Please check your input and try again.",
+    NOT_FOUND: "Staff not found.",
+    ALREADY_EXISTS: "Staff with this username already exists.",
+    CREATE_SUCCESS: "Staff created successfully!",
+    UPDATE_SUCCESS: "Staff updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Staff ${active ? "activated" : "deactivated"} successfully!`
+  },
   drivers: {
     INVALID_DATA: "Invalid drivers data.",
     NOT_FOUND: "Driver(s) not found.",

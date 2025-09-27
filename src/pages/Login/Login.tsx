@@ -52,7 +52,7 @@ const Login = () => {
             } catch (err) {
               console.error("Failed to persist auth response:", err)
             }
-            navigate({ to: "/users" })
+            navigate({ to: "/staffs" })
           },
           onError: (error) => {
             console.error("Login failed:", error)

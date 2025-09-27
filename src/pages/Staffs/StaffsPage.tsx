@@ -1,16 +1,17 @@
 import { useMemo } from "react"
-import useUsersHeader from "./hooks/useUsersHeader"
-import useUsersColumns from "./hooks/useUsersColumns"
+import useStaffsHeader from "./hooks/useStaffsHeader"
+import useStaffsColumns from "./hooks/useStaffsColumns"
 import { DataTable } from "@/components/shared"
-import { useUsersInfiniteQuery } from "@/hooks/users"
-import { useUsersStore } from "@/store"
+import { useStaffsInfiniteQuery } from "@/hooks"
+import { useStaffsStore } from "@/store"
 import { cleanObject } from "@/lib"
 
-const UsersPage = () => {
-  const { filters, setSorting } = useUsersStore()
+const StaffsPage = () => {
+  const { filters, setSorting } = useStaffsStore()
 
-  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useUsersInfiniteQuery({
-    ...cleanObject(filters)
+  const { data, fetchNextPage, isLoading, isFetching, refetch, hasNextPage } = useStaffsInfiniteQuery({
+    keyword: filters.keyword || undefined,
+    size: (filters as any).size
   })
 
   // Memoized data from API
@@ -21,14 +22,14 @@ const UsersPage = () => {
   const totalDBRowCount = data?.pages?.[0]?.totalElements ?? flatData.length
 
   // Header Configuration Hook
-  useUsersHeader({
+  useStaffsHeader({
     isLoading: isFetching,
     totalDBRowCount,
     refetch
   })
 
   // Columns
-  const columns = useUsersColumns()
+  const columns = useStaffsColumns()
 
   return (
     <DataTable
@@ -45,4 +46,4 @@ const UsersPage = () => {
   )
 }
 
-export default UsersPage
+export default StaffsPage

@@ -1,5 +1,5 @@
 export * from "./sidebar-store"
 export * from "./auth-store"
-export * from "./users-store"
+export * from "./staffs-store"
 export * from "./drawer-store"
 export * from "./header-store"

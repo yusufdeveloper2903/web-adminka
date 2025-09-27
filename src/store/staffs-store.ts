@@ -1,9 +1,10 @@
 import { create } from "zustand"
-import type { IUsersFiltersRequest, IUserData } from "@/types"
+import type { IUsersFiltersRequest } from "@/types"
+import type { IStaffCreateRequest } from "@/types/staffs"
 
-type NewUserData = Required<Pick<IUserData, "firstName" | "lastName" | "email" | "role">> & { phone: string }
+type NewUserData = IStaffCreateRequest
 
-interface IUsersStore {
+interface IStaffsStore {
   filters: IUsersFiltersRequest
   setFilters: (filters: Partial<IUsersFiltersRequest>) => void
   resetFilters: () => void
@@ -21,14 +22,13 @@ const initialFilters: IUsersFiltersRequest = {
 }
 
 const initialNewUserData: NewUserData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  role: "OWNER"
+  username: "",
+  first_name: "",
+  sur_name: "",
+  mid_name: ""
 }
 
-export const useUsersStore = create<IUsersStore>((set) => ({
+export const useStaffsStore = create<IStaffsStore>((set) => ({
   filters: initialFilters,
   setFilters: (newFilters) =>
     set((state) => ({

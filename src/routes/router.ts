@@ -1,4 +1,4 @@
-import { LoginPage, UsersPage } from "@/pages"
+import { LoginPage, StaffsPage } from "@/pages"
 import { createRoute, createRouter, redirect } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
 import { AuthenticatedRoute } from "./_authenticated"
@@ -18,30 +18,30 @@ const loginRoute = createRoute({
   component: LoginPage
 })
 
-// Index route - redirect to users if authenticated, otherwise to login
+// Index route - redirect to staffs if authenticated, otherwise to login
 const indexRoute = createRoute({
   path: "/",
   getParentRoute: () => RootRoute,
   beforeLoad: () => {
     const token = localStorage.getItem("access_token")
     if (token) {
-      throw redirect({ to: "/users" })
+      throw redirect({ to: "/staffs" })
     } else {
       throw redirect({ to: "/login" })
     }
   }
 })
 
-const usersRoute = createRoute({
-  path: "/users",
+const staffsRoute = createRoute({
+  path: "/staffs",
   getParentRoute: () => AppLayoutRoute,
-  component: UsersPage
+  component: StaffsPage
 })
 
 const routeTree = RootRoute.addChildren([
   indexRoute,
   loginRoute,
-  AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren([usersRoute])])
+  AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren([staffsRoute])])
 ])
 
 export const router = createRouter({ routeTree })
