@@ -1,13 +1,12 @@
 import { useLocation } from "@tanstack/react-router"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
-import { Car, Route as RouteIcon, BarChart3, Monitor, Store, Truck, Users, UserCheck, Building2 } from "lucide-react"
+import { Users } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
 import { useEffect } from "react"
 import { AppSidebarFooter, AppSidebarNav } from "./components"
 
 const menuItems = {
-  general: [] as any[],
   settings: [
     {
       title: "Users",
@@ -47,7 +46,7 @@ const AppSidebar = () => {
           )}
         >
           <div className={cn("relative h-[25px] w-24", !isOpen && "hidden")}>
-            <span className="absolute top-0 left-0 text-lg font-bold whitespace-nowrap text-white">GL MILER</span>
+            <span className="absolute top-0 left-0 text-lg font-bold whitespace-nowrap text-white">Web Adminka</span>
           </div>
           <SidebarTrigger className="h-[42px] w-[42px] !bg-transparent text-white hover:!bg-slate-600 hover:text-white" />
         </div>
@@ -55,8 +54,7 @@ const AppSidebar = () => {
 
       {/* Content */}
       <SidebarContent className={cn("py-4", isOpen ? "px-3" : "px-1")}>
-        <AppSidebarNav title="General" items={menuItems.general} isOpen={isOpen} location={location} />
-        <AppSidebarNav title="Settings" items={menuItems.settings} isOpen={isOpen} location={location} />
+        <AppSidebarNav items={menuItems.settings} isOpen={isOpen} location={location} />
       </SidebarContent>
 
       {/* Footer */}

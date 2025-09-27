@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
 import { User, Moon, Sun, LogOut } from "lucide-react"
@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ProfileDialog } from "./ProfileDialog"
 import LogoutDialog from "./LogoutDialog"
-import { useMeQuery } from "@/hooks/auth"
 
 type FooterProps = {
   isOpen: boolean
@@ -35,8 +34,25 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
   const { setTheme, theme } = useTheme()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+  const [displayName, setDisplayName] = useState<string>("")
 
-  const { data: currentUserData } = useMeQuery()
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("user_data") : null
+      if (raw) {
+        const u = JSON.parse(raw)
+        const first = u?.first_name ?? u?.firstName ?? ""
+        const last = u?.sur_name ?? u?.lastName ?? ""
+        const composed = `${first} ${last}`.trim()
+        const fallback = u?.username || u?.email || "User"
+        setDisplayName(composed || fallback)
+      } else {
+        setDisplayName("User")
+      }
+    } catch {
+      setDisplayName("User")
+    }
+  }, [])
 
   return (
     <>
@@ -45,14 +61,12 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
         <SidebarMenuItem>
           <FooterButton
             isOpen={isOpen}
-            tooltipText={`${currentUserData?.firstName} ${currentUserData?.lastName}`}
+            tooltipText={displayName}
             onClick={() => setShowProfileDialog(true)}
             className={cn("h-10 cursor-pointer !bg-white !text-black hover:!bg-gray-100", !isOpen && "justify-center")}
           >
             <User className="h-5 w-5" />
-            <span className={cn("font-medium transition-opacity", !isOpen && "hidden")}>
-              {`${currentUserData?.firstName} ${currentUserData?.lastName}`}
-            </span>
+            <span className={cn("font-medium transition-opacity", !isOpen && "hidden")}>{displayName}</span>
           </FooterButton>
         </SidebarMenuItem>
 

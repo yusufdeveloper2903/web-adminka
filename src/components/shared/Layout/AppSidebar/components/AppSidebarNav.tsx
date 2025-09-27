@@ -1,12 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent
-} from "@/components/ui/sidebar"
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarGroup, SidebarGroupContent } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
@@ -17,7 +10,6 @@ type MenuItem = {
 }
 
 type NavMenuProps = {
-  title: string
   items: MenuItem[]
   isOpen: boolean
   location: {
@@ -25,12 +17,9 @@ type NavMenuProps = {
   }
 }
 
-const AppSidebarNav = ({ title, items, isOpen, location }: NavMenuProps) => {
+const AppSidebarNav = ({ items, isOpen, location }: NavMenuProps) => {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="mb-2 px-2 text-xs font-semibold tracking-wider text-white uppercase">
-        {title}
-      </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu className="space-y-1">
           {items.map((item) =>
