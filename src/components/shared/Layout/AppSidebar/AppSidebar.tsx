@@ -7,49 +7,8 @@ import { useEffect } from "react"
 import { AppSidebarFooter, AppSidebarNav } from "./components"
 
 const menuItems = {
-  general: [
-    {
-      title: "Trips",
-      url: "/trips",
-      icon: Car
-    },
-    {
-      title: "Routes",
-      url: "/routes",
-      icon: RouteIcon
-    },
-    {
-      title: "Reports",
-      url: "/reports",
-      icon: BarChart3
-    },
-    {
-      title: "Trucks",
-      url: "/trucks",
-      icon: Truck
-    },
-    {
-      title: "Dispatchers",
-      url: "/dispatchers",
-      icon: UserCheck
-    },
-    {
-      title: "Shops",
-      url: "/shops",
-      icon: Store
-    },
-    {
-      title: "Companies",
-      url: "/companies",
-      icon: Building2
-    }
-  ],
+  general: [] as any[],
   settings: [
-    {
-      title: "System",
-      url: "/system",
-      icon: Monitor
-    },
     {
       title: "Users",
       url: "/users",

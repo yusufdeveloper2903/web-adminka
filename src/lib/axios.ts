@@ -33,7 +33,9 @@ api.interceptors.response.use(
 
     // Skip token refresh for authentication endpoints
     const isAuthEndpoint =
-      originalRequest.url?.includes("/authenticate") || originalRequest.url?.includes("/auth/refresh")
+      originalRequest.url?.includes("/authenticate") ||
+      originalRequest.url?.includes("/staffs/login") ||
+      originalRequest.url?.includes("/auth/refresh")
 
     // Handle 401 (Unauthorized) or 403 (Forbidden) - token expired or invalid
     if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthEndpoint) {
@@ -50,7 +52,9 @@ api.interceptors.response.use(
               refreshToken
             })
 
-            const { accessToken, refreshToken: newRefreshToken } = response.data.data
+            const payload: any = response.data.data
+            const accessToken = payload.accessToken ?? payload.access
+            const newRefreshToken = payload.refreshToken ?? payload.refresh
 
             // Update tokens in localStorage
             localStorage.setItem("access_token", accessToken)

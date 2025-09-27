@@ -1,8 +1,6 @@
 export { default as Layout } from "./Layout"
 export * from "./DataTable"
 export { default as AppDrawer } from "./AppDrawer"
-export * from "./MapComponent"
-export * from "./AutosuggestInput"
 export { default as InputMask } from "./InputMask"
 export * from "./ShimmerText"
 export * from "./StatusBadge"

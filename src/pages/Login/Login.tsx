@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { EyeIcon, EyeOffIcon, MailIcon, TruckIcon, LockIcon, LockOpenIcon } from "lucide-react"
+import { EyeIcon, EyeOffIcon, UserIcon, MailIcon, LockIcon } from "lucide-react"
 import { z } from "zod"
 import { useAuthenticateMutation, useResetPasswordInitMutation } from "@/hooks/auth"
 import type { IAuthenticateRequest } from "@/types"
@@ -22,7 +22,7 @@ const Login = () => {
 
   // Zod schema for validation
   const loginSchema = z.object({
-    email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+    username: z.string().min(1, "Username is required"),
     password: z.string().min(1, "Password is required")
   })
 
@@ -32,7 +32,7 @@ const Login = () => {
 
   const form = useForm({
     defaultValues: {
-      email: "",
+      username: "",
       password: ""
     },
     onSubmit: async ({ value }) => {
@@ -42,18 +42,23 @@ const Login = () => {
 
         // Authenticate user
         const credentials: IAuthenticateRequest = {
-          email: validatedData.email,
+          username: validatedData.username,
           password: validatedData.password
         }
 
         // Use mutate instead of mutateAsync to avoid handling the promise here
         authenticateMutation.mutate(credentials, {
-          onSuccess: () => {
-            // Navigate to trips page on success
-            navigate({ to: "/trips" })
+          onSuccess: (res) => {
+            try {
+              if (res) {
+                localStorage.setItem("auth_response", JSON.stringify(res))
+              }
+            } catch (err) {
+              console.error("Failed to persist auth response:", err)
+            }
+            navigate({ to: "/users" })
           },
           onError: (error) => {
-            // Additional error handling if needed
             console.error("Login failed:", error)
           }
         })
@@ -98,10 +103,10 @@ const Login = () => {
           {/* Brand Section */}
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0E416C] shadow-lg">
-              <TruckIcon className="h-8 w-8 text-white" />
+              <UserIcon className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">GL MILER</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Fleet Management System</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Web Adminka</h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400"> Management System</p>
           </div>
 
           <Card className="border-slate-200 bg-white/95 shadow-xl backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/95">
@@ -158,25 +163,25 @@ const Login = () => {
                     className="space-y-4"
                   >
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">
-                        Email Address
+                      <Label htmlFor="username" className="text-slate-700 dark:text-slate-300">
+                        Username
                       </Label>
                       <div className="relative">
                         <form.Field
-                          name="email"
+                          name="username"
                           children={(field) => {
-                            const emailResult = loginSchema.shape.email.safeParse(field.state.value)
-                            const hasError = field.state.meta.isTouched && !emailResult.success
+                            const usernameResult = loginSchema.shape.username.safeParse(field.state.value)
+                            const hasError = field.state.meta.isTouched && !usernameResult.success
 
                             return (
                               <>
-                                <MailIcon
+                                <UserIcon
                                   className={cn("absolute top-3.5 left-3 h-4 w-4 text-slate-400 dark:text-slate-500")}
                                 />
                                 <Input
-                                  id="email"
-                                  type="email"
-                                  placeholder="example@domain.com"
+                                  id="username"
+                                  type="text"
+                                  placeholder="Enter your username"
                                   value={field.state.value}
                                   onBlur={field.handleBlur}
                                   onChange={(e) => field.handleChange(e.target.value)}
@@ -185,7 +190,7 @@ const Login = () => {
                                 />
                                 {hasError && (
                                   <div className="mt-1 text-sm text-red-500">
-                                    {emailResult.success ? "" : emailResult.error.errors[0]?.message}
+                                    {usernameResult.success ? "" : usernameResult.error.errors[0]?.message}
                                   </div>
                                 )}
                               </>
@@ -349,7 +354,7 @@ const Login = () => {
           {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              © {new Date().getFullYear()} GL Miler. All rights reserved.
+              © {new Date().getFullYear()} Web Adminka. All rights reserved.
             </p>
           </div>
         </div>

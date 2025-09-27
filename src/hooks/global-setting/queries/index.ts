@@ -1,1 +1,0 @@
-export { useGlobalSettingByType } from "./useGlobalSettingByType"

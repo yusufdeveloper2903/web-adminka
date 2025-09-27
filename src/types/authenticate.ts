@@ -1,7 +1,7 @@
 import type { UserRoleType } from "./users"
 
 export interface IAuthenticateRequest {
-  email: string
+  username: string
   password: string
 }
 
