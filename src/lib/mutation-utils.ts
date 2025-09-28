@@ -68,6 +68,14 @@ export const ENTITY_ERROR_MESSAGES = {
     UPDATE_SUCCESS: "User updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `User ${active ? "activated" : "deactivated"} successfully!`
   },
+  task: {
+    INVALID_DATA: "Invalid task data. Please check your input and try again.",
+    NOT_FOUND: "Task not found.",
+    ALREADY_EXISTS: "Task with this number already exists.",
+    CREATE_SUCCESS: "Task created successfully!",
+    UPDATE_SUCCESS: "Task updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Task ${active ? "activated" : "deactivated"} successfully!`
+  },
   staff: {
     INVALID_DATA: "Invalid staff data. Please check your input and try again.",
     NOT_FOUND: "Staff not found.",

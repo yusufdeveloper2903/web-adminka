@@ -17,6 +17,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.1.0)
+      '@gotitinc/mathlive':
+        specifier: 0.98.6-hf3
+        version: 0.98.6-hf3
       '@here/maps-api-for-javascript':
         specifier: ^1.66.0
         version: 1.66.0
@@ -366,6 +369,14 @@ packages:
     resolution: {integrity: sha512-jYnje+JyZG5YThjHiF28oT4SIZLnYOcSBb6+SDaFIyzDVSkXQmQQYclJ2R+YxcdmK0AX6x1E5OQNtuh3jHDrUg==}
     engines: {node: '>=6.9.0'}
 
+  '@cortex-js/compute-engine@0.22.0':
+    resolution: {integrity: sha512-TPePa4bCbgZO/xh++3ZMNhJD7eLNTFxctbqHtIYbQjLLlUX585HaWeZqIptao4Xi59jZZtP3bPb19txTb251ZA==}
+    engines: {node: '>=16.14.2', npm: '>=8.5.0'}
+
+  '@cortex-js/compute-engine@0.29.1':
+    resolution: {integrity: sha512-bCpaGW+Th+6lrTEDom3mNInfu3hu2N79FpUuqdVyvhE1Np4O447O/1gsgqLAFqVjg58cGN0FCAxf8gXkQNF4CQ==}
+    engines: {node: '>=21.7.3', npm: '>=10.5.0'}
+
   '@date-fns/tz@1.2.0':
     resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
 
@@ -638,6 +649,10 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@gotitinc/mathlive@0.98.6-hf3':
+    resolution: {integrity: sha512-DqiHgx/5eh+C1euolOaw9ZtEhrfrk3CXtT6hSjE0ethXo5SOjP317T/o0CUzJNZasyRLLoNiGn3a1Jlee5BmjQ==}
+    engines: {node: '>=16.14.2', npm: '>=8.5.0'}
 
   '@here/maps-api-for-javascript@1.66.0':
     resolution: {integrity: sha512-55gpsJkr3C8+2SJvxeHmNsKaBVyA/op9pU+P8MzGz8xUcaf3MmAYDfnI3NgZW8OuljQRwrMg6vUY1epja+8uiQ==, tarball: https://repo.platform.here.com/artifactory/api/npm/maps-api-for-javascript/-/@here/maps-api-for-javascript-1.66.0.tgz}
@@ -1724,6 +1739,13 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
+  complex-esm@2.1.1-esm1:
+    resolution: {integrity: sha512-IShBEWHILB9s7MnfyevqNGxV0A1cfcSnewL/4uPFiSxkcQL4Mm3FxJ0pXMtCXuWLjYz3lRRyk6OfkeDZcjD6nw==}
+    engines: {node: '>=16.14.2', npm: '>=8.5.0'}
+
+  complex.js@2.4.2:
+    resolution: {integrity: sha512-qtx7HRhPGSCBtGiST4/WGHuW+zeaND/6Ld+db6PbrulIB1i2Ev/2UPiqcmpQNPSyfBKraC0EOvOKCB5dGZKt3g==}
+
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
@@ -1764,6 +1786,9 @@ packages:
     peerDependenciesMeta:
       supports-color:
         optional: true
+
+  decimal.js@10.6.0:
+    resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
   decode-formdata@0.9.0:
     resolution: {integrity: sha512-q5uwOjR3Um5YD+ZWPOF/1sGHVW9A5rCrRwITQChRXlmPkxDFBqCm4jNTIVdGHNH9OnR+V9MoZVgRhsFb+ARbUw==}
@@ -2233,6 +2258,9 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  mathlive@0.107.0:
+    resolution: {integrity: sha512-mi6iwBZc/2hi3ui5MedGu/L3XU1dwKWhdwMRZ2CtdSsxwVbRm1WDHKQssczjwxBb7Ae59kL5AMrZnF1XNPY67Q==}
 
   memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
@@ -3058,6 +3086,16 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
+  '@cortex-js/compute-engine@0.22.0':
+    dependencies:
+      complex.js: 2.4.2
+      decimal.js: 10.6.0
+
+  '@cortex-js/compute-engine@0.29.1':
+    dependencies:
+      complex-esm: 2.1.1-esm1
+      decimal.js: 10.6.0
+
   '@date-fns/tz@1.2.0': {}
 
   '@dnd-kit/accessibility@3.1.1(react@19.1.0)':
@@ -3288,6 +3326,10 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.10': {}
+
+  '@gotitinc/mathlive@0.98.6-hf3':
+    dependencies:
+      '@cortex-js/compute-engine': 0.22.0
 
   '@here/maps-api-for-javascript@1.66.0': {}
 
@@ -4400,6 +4442,10 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
+  complex-esm@2.1.1-esm1: {}
+
+  complex.js@2.4.2: {}
+
   concat-map@0.0.1: {}
 
   convert-source-map@1.9.0: {}
@@ -4433,6 +4479,8 @@ snapshots:
   debug@4.4.1:
     dependencies:
       ms: 2.1.3
+
+  decimal.js@10.6.0: {}
 
   decode-formdata@0.9.0: {}
 
@@ -4877,6 +4925,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.4
 
   math-intrinsics@1.1.0: {}
+
+  mathlive@0.107.0:
+    dependencies:
+      '@cortex-js/compute-engine': 0.29.1
 
   memoize-one@6.0.0: {}
 

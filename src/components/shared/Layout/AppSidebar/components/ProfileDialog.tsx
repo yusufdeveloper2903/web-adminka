@@ -62,7 +62,7 @@ const ProfileForm = ({
 }
 
 export const ProfileDialog = ({ isOpen, onClose }: ProfileDialogProps) => {
-  const { data: user, isLoading } = useMeQuery()
+  const { data: user, isLoading } = useMeQuery(isOpen)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

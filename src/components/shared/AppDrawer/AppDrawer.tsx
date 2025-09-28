@@ -16,7 +16,7 @@ const AppDrawer = () => {
   return (
     <Sheet open={isOpen} onOpenChange={() => {}}>
       <SheetContent
-        className={`custom-sheet-content overflow-y-auto p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"}`}
+        className={`custom-sheet-content p-4 transition-all duration-500 ease-in-out ${width || "sm:max-w-2xl"} flex h-full flex-col`}
         side="right"
       >
         <SheetHeader className="p-0">
@@ -34,7 +34,7 @@ const AppDrawer = () => {
             </SheetTitle>
           )}
         </SheetHeader>
-        <div>{content}</div>
+        <div className="flex-1 overflow-y-auto">{content}</div>
       </SheetContent>
     </Sheet>
   )

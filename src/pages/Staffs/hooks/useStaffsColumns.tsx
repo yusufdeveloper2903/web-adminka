@@ -5,10 +5,13 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Edit, Trash2 } from "lucide-react"
 import { EditStaffForm } from "../components"
 import { useDeleteStaffMutation } from "@/hooks"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { useState } from "react"
 
 const useStaffsColumns = (): ColumnDef<IStaffResponse>[] => {
   const { setConfig: setDrawerConfig } = useDrawerStore()
   const deleteMutation = useDeleteStaffMutation()
+  const [confirmStaffId, setConfirmStaffId] = useState<number | null>(null)
 
   return [
     {
@@ -51,13 +54,35 @@ const useStaffsColumns = (): ColumnDef<IStaffResponse>[] => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (confirm(`Delete staff #${user.id}?`)) {
-                  deleteMutation.mutate(user.id)
-                }
+                setConfirmStaffId(user.id)
               }}
             >
               <Trash2 className="h-4 w-4 text-red-500" />
             </Button>
+
+            {confirmStaffId === user.id && (
+              <Dialog open onOpenChange={(open) => !open && setConfirmStaffId(null)}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Delete staff #{user.id}?</DialogTitle>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setConfirmStaffId(null)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        deleteMutation.mutate(user.id)
+                        setConfirmStaffId(null)
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         )
       },
