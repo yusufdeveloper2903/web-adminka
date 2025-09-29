@@ -1,4 +1,4 @@
-import type { IApiError } from "@/types"
+import type { IApiError } from "@/types/api"
 
 /**
  * Extract user-friendly error message from API error response

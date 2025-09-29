@@ -23,11 +23,11 @@ const useStaffsColumns = (): ColumnDef<IStaffResponse>[] => {
       cell: ({ row }) => <span>{row.index + 1}</span>,
       enableSorting: false
     },
-    { accessorKey: "id", header: "ID", meta: { className: "min-w-[80px] w-[5%]" } },
-    { accessorKey: "username", header: "Username", meta: { className: "min-w-[160px] w-[20%]" } },
-    { accessorKey: "first_name", header: "First name", meta: { className: "min-w-[160px] w-[20%]" } },
-    { accessorKey: "sur_name", header: "Sur name", meta: { className: "min-w-[160px] w-[20%]" } },
-    { accessorKey: "mid_name", header: "Mid name", meta: { className: "min-w-[160px] w-[20%]" } },
+    { accessorKey: "id", header: "ID", meta: { className: "min-w-[80px] w-[5%]" } ,enableSorting: false},
+    { accessorKey: "username", header: "Username", meta: { className: "min-w-[160px] w-[20%]" } ,enableSorting: false},
+    { accessorKey: "first_name", header: "First name", meta: { className: "min-w-[160px] w-[20%]" } ,enableSorting: false},
+    { accessorKey: "sur_name", header: "Sur name", meta: { className: "min-w-[160px] w-[20%]" } ,enableSorting: false},
+    { accessorKey: "mid_name", header: "Mid name", meta: { className: "min-w-[160px] w-[20%]" } ,enableSorting: false},
     {
       id: "actions",
       header: "Actions",

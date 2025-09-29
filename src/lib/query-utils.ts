@@ -1,4 +1,4 @@
-import type { IBaseFiltersRequest, IPaginatedResponse } from "@/types"
+import type { IBaseFiltersRequest, IPaginatedResponse } from "@/types/api"
 
 // Default pagination size - global setting
 export const DEFAULT_PAGE_SIZE = 50

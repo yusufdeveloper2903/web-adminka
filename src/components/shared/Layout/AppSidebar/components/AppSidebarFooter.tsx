@@ -4,7 +4,6 @@ import { useTheme } from "next-themes"
 import { User, Moon, Sun, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ProfileDialog } from "./ProfileDialog"
 import LogoutDialog from "./LogoutDialog"
 
 type FooterProps = {
@@ -33,7 +32,6 @@ const FooterButton = ({ isOpen, tooltipText, children, ...props }: any) => {
 const AppSidebarFooter = ({ isOpen }: FooterProps) => {
   const { setTheme, theme } = useTheme()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  const [showProfileDialog, setShowProfileDialog] = useState(false)
   const [displayName, setDisplayName] = useState<string>("")
 
   useEffect(() => {
@@ -62,7 +60,6 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
           <FooterButton
             isOpen={isOpen}
             tooltipText={displayName}
-            onClick={() => setShowProfileDialog(true)}
             className={cn("h-10 cursor-pointer !bg-white !text-black hover:!bg-gray-100", !isOpen && "justify-center")}
           >
             <User className="h-5 w-5" />
@@ -102,7 +99,6 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
 
       {/* Logout Confirmation Dialog */}
       <LogoutDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
-      <ProfileDialog isOpen={showProfileDialog} onClose={() => setShowProfileDialog(false)} />
     </>
   )
 }

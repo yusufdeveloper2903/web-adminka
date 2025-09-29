@@ -11,22 +11,23 @@ interface QuestionData {
   dop_point: number | null
 }
 
-export interface CreateQuestionRequest {
-  task: number
+export interface UpdateQuestionRequest {
+  task_id: number | string
   question_data: QuestionData[]
 }
 
-const createQuestion = async (data: CreateQuestionRequest): Promise<any> => {
-  const response = await api.post("api/v1/tasks/create_question/", data)
+const updateQuestions = async ({ task_id, question_data }: UpdateQuestionRequest): Promise<any> => {
+  const response = await api.patch(`api/v1/tasks/update_questions/${task_id}/`, { question_data })
   return (response as any).data ?? (response as any)
 }
 
-export const useCreateQuestionMutation = () => {
+export const useUpdateQuestionsMutation = () => {
   const queryClient = useQueryClient()
   return useMutation(
-    createMutationConfig(createQuestion, "task" as any, "create", () => {
+    createMutationConfig(updateQuestions, "task" as any, "update", () => {
       queryClient.invalidateQueries({ queryKey: ["task-questions"] })
     })
   )
 }
+
 
