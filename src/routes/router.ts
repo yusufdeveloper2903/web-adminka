@@ -1,59 +1,46 @@
-import { LoginPage, StaffsPage, TasksPage, TasksTestPage } from "@/pages"
+import { QuestionsPage } from "@/pages"
 import { createRoute, createRouter, redirect } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
-import { AuthenticatedRoute } from "./_authenticated"
 import { Layout } from "@/components/shared"
 
 // Layout route that wraps authenticated pages
 const AppLayoutRoute = createRoute({
   id: "layout",
-  getParentRoute: () => AuthenticatedRoute,
+  getParentRoute: () => RootRoute,
   component: Layout
 })
 
-// Login route (public)
-const loginRoute = createRoute({
-  path: "/login",
-  getParentRoute: () => RootRoute,
-  component: LoginPage
-})
-
-// Index route - redirect to staffs if authenticated, otherwise to login
+// Index route - always redirect to questions
 const indexRoute = createRoute({
   path: "/",
   getParentRoute: () => RootRoute,
   beforeLoad: () => {
-    const token = localStorage.getItem("access_token")
-    if (token) {
-      throw redirect({ to: "/staffs" })
-    } else {
-      throw redirect({ to: "/login" })
-    }
+    throw redirect({ to: "/questions" })
   }
 })
 
-const staffsRoute = createRoute({
-  path: "/staffs",
+// removed staffs route
+
+const questionsRoute = createRoute({
+  path: "/questions",
   getParentRoute: () => AppLayoutRoute,
-  component: StaffsPage
+  component: QuestionsPage
 })
 
-const tasksRoute = createRoute({
-  path: "/tasks",
-  getParentRoute: () => AppLayoutRoute,
-  component: TasksPage
-})
-
-const tasksTestRoute = createRoute({
-  path: "/tasks/$id",
-  getParentRoute: () => AppLayoutRoute,
-  component: TasksTestPage
+// Catch-all: redirect all other routes to /questions
+const notFoundRedirectRoute = createRoute({
+  path: "*",
+  getParentRoute: () => RootRoute,
+  beforeLoad: () => {
+    throw redirect({ to: "/questions" })
+  },
+  component: () => null
 })
 
 const routeTree = RootRoute.addChildren([
   indexRoute,
-  loginRoute,
-  AuthenticatedRoute.addChildren([AppLayoutRoute.addChildren([staffsRoute, tasksRoute, tasksTestRoute])])
+  AppLayoutRoute.addChildren([questionsRoute]),
+  notFoundRedirectRoute
 ])
 
 export const router = createRouter({ routeTree })

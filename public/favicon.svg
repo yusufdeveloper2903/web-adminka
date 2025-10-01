@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="g" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#g)"/>
+
+  <!-- Top bar -->
+  <rect x="112" y="136" width="288" height="48" rx="12" fill="#ffffff" fill-opacity="0.95"/>
+  <circle cx="136" cy="160" r="8" fill="#ef4444"/>
+  <circle cx="160" cy="160" r="8" fill="#f59e0b"/>
+  <circle cx="184" cy="160" r="8" fill="#10b981"/>
+
+  <!-- Dashboard tiles -->
+  <rect x="112" y="216" width="160" height="160" rx="18" fill="#ffffff" fill-opacity="0.95"/>
+  <rect x="288" y="216" width="112" height="96" rx="18" fill="#ffffff" fill-opacity="0.95"/>
+  <rect x="288" y="328" width="112" height="48" rx="14" fill="#ffffff" fill-opacity="0.95"/>
+
+  <!-- Small shield to hint admin/security -->
+  <path d="M208 252c20 10 40 10 60 0 0 30-6 56-30 76-24-20-30-46-30-76z" fill="#0ea5e9" fill-opacity="0.95"/>
+  <path d="M230 296l12 12 22-22" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+

@@ -1,3 +1,1 @@
-export { default } from "./TasksPage"
-
-
+export { default as TasksTestPage } from "./TestPage"

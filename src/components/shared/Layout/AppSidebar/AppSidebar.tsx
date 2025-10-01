@@ -1,6 +1,6 @@
 import { useLocation } from "@tanstack/react-router"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar"
-import { Users, ListTodo } from "lucide-react"
+import { ListTodo } from "lucide-react"
 import { useSidebarStore } from "@/store/sidebar-store"
 import { cn } from "@/lib/utils"
 import { useEffect } from "react"
@@ -9,13 +9,8 @@ import { AppSidebarFooter, AppSidebarNav } from "./components"
 const menuItems = {
   settings: [
     {
-      title: "Staffs",
-      url: "/staffs",
-      icon: Users
-    },
-    {
-      title: "Tasks",
-      url: "/tasks",
+      title: "Questions",
+      url: "/questions",
       icon: ListTodo
     }
   ]

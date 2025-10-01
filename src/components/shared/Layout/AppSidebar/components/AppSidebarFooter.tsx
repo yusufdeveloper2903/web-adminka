@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
 import { useTheme } from "next-themes"
-import { User, Moon, Sun, LogOut } from "lucide-react"
+import { User, Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import LogoutDialog from "./LogoutDialog"
+// Removed LogoutDialog and logout button
 
 type FooterProps = {
   isOpen: boolean
@@ -31,7 +31,6 @@ const FooterButton = ({ isOpen, tooltipText, children, ...props }: any) => {
 
 const AppSidebarFooter = ({ isOpen }: FooterProps) => {
   const { setTheme, theme } = useTheme()
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [displayName, setDisplayName] = useState<string>("")
 
   useEffect(() => {
@@ -60,45 +59,31 @@ const AppSidebarFooter = ({ isOpen }: FooterProps) => {
           <FooterButton
             isOpen={isOpen}
             tooltipText={displayName}
-            className={cn("h-10 cursor-pointer !bg-white !text-black hover:!bg-gray-100", !isOpen && "justify-center")}
+            className={cn(
+              "relative h-10 cursor-pointer !bg-white !text-black hover:!bg-gray-100 pr-10",
+              !isOpen && "justify-center pr-0"
+            )}
           >
             <User className="h-5 w-5" />
             <span className={cn("font-medium transition-opacity", !isOpen && "hidden")}>{displayName}</span>
+
+            {isOpen && (
+              <button
+                type="button"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                aria-label={theme === "light" ? "Switch to Dark" : "Switch to Light"}
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-600 hover:bg-gray-200"
+              >
+                {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </button>
+            )}
           </FooterButton>
         </SidebarMenuItem>
 
-        {/* Action Buttons Row */}
-        <SidebarMenuItem>
-          <div className={cn("flex w-2/5 gap-2", !isOpen && "flex-col")}>
-            <FooterButton
-              isOpen={isOpen}
-              tooltipText={theme === "light" ? "Switch to Dark" : "Switch to Light"}
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className={cn(
-                "flex cursor-pointer items-center justify-center !bg-transparent text-white hover:!bg-slate-600",
-                !isOpen && "justify-center"
-              )}
-            >
-              {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </FooterButton>
-
-            <FooterButton
-              isOpen={isOpen}
-              tooltipText="Log Out"
-              onClick={() => setShowLogoutDialog(true)}
-              className={cn(
-                "flex cursor-pointer items-center justify-center !bg-transparent text-white hover:!bg-slate-600",
-                !isOpen && "justify-center"
-              )}
-            >
-              <LogOut className="h-4 w-4" />
-            </FooterButton>
-          </div>
-        </SidebarMenuItem>
+        {/* Theme toggle moved into profile card */}
       </SidebarMenu>
 
-      {/* Logout Confirmation Dialog */}
-      <LogoutDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog} />
+      {/* Logout removed */}
     </>
   )
 }
