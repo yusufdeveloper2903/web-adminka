@@ -64,7 +64,11 @@ const normalizeChoiceQuestion = (q: Question): Question => {
   return { ...q, option: nextOptions }
 }
 
-const CreateTaskQuestionForm = () => {
+interface CreateTaskQuestionFormProps {
+  onSuccess?: (task: number) => void
+}
+
+const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const mutation = useCreateQuestionMutation()
 
@@ -151,7 +155,13 @@ const CreateTaskQuestionForm = () => {
     if (validQuestions.length === 0) return
     const payload = createSchema.parse({ question_data: validQuestions })
     const finalPayload = { ...payload, user_id: userId }
-    await mutation.mutateAsync(finalPayload)
+    const response = await mutation.mutateAsync(finalPayload)
+    
+    // Response dan task ID ni olish
+    if (response?.task && onSuccess) {
+      onSuccess(response.task)
+    }
+    
     closeDrawer()
   }
 
