@@ -12,7 +12,7 @@ interface QuestionData {
 }
 
 export interface CreateQuestionRequest {
-  task: number
+  user_id?: number
   question_data: QuestionData[]
 }
 

@@ -68,6 +68,17 @@ const CreateTaskQuestionForm = () => {
   const { closeDrawer } = useDrawerStore()
   const mutation = useCreateQuestionMutation()
 
+  // URL dan user_id ni o'qish
+  const userId = useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const id = params.get("user_id")
+      return id ? Number(id) : undefined
+    } catch {
+      return undefined
+    }
+  }, [])
+
   const [questions, setQuestions] = useState<Question[]>(() => {
     const total = DEFAULT_CHOICE_COUNT + DEFAULT_WRITTEN_COUNT
     const list: Question[] = []
@@ -139,7 +150,8 @@ const CreateTaskQuestionForm = () => {
     const validQuestions = questions.filter((q) => isQuestionComplete(q)).map((q) => normalizeChoiceQuestion(q))
     if (validQuestions.length === 0) return
     const payload = createSchema.parse({ question_data: validQuestions })
-    await mutation.mutateAsync(payload as any)
+    const finalPayload = { ...payload, user_id: userId }
+    await mutation.mutateAsync(finalPayload)
     closeDrawer()
   }
 
