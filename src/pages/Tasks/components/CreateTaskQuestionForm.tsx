@@ -95,7 +95,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
   const mathRefs = useRef<Record<number, any>>({})
 
   useEffect(() => {
-    import("@gotitinc/mathlive").catch(() => undefined)
+    import("mathlive").catch(() => undefined)
   }, [])
 
   const isQuestionComplete = (q: Question): boolean => {
@@ -106,9 +106,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
     if (q.dop_point === null || q.dop_point === undefined || Number.isNaN(q.dop_point as number)) return false
     // Choice specific
     if (q.type === "CHOICE") {
-      const cleanedOptions = (q.option || [])
-        .map((o) => (o ?? "").trim())
-        .filter((o) => o.length > 0)
+      const cleanedOptions = (q.option || []).map((o) => (o ?? "").trim()).filter((o) => o.length > 0)
       if (cleanedOptions.length < 3) return false
       const optionsLower = cleanedOptions.map((o) => o.toLowerCase())
       if (!optionsLower.includes(answer.toLowerCase())) return false
@@ -151,17 +149,23 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
   }
 
   const handleSubmit = async () => {
-    const validQuestions = questions.filter((q) => isQuestionComplete(q)).map((q) => normalizeChoiceQuestion(q))
+    // Barcha to'liq to'ldirilgan questionlarni index tartibida olish
+    const validQuestions = questions
+      .map((q, idx) => ({ question: q, originalIndex: idx }))
+      .filter(({ question }) => isQuestionComplete(question))
+      .sort((a, b) => a.originalIndex - b.originalIndex) // Index tartibida saralash
+      .map(({ question }) => normalizeChoiceQuestion(question))
+    
     if (validQuestions.length === 0) return
     const payload = createSchema.parse({ question_data: validQuestions })
     const finalPayload = { ...payload, user_id: userId }
     const response = await mutation.mutateAsync(finalPayload)
-    
+
     // Response dan task ID ni olish
     if (response?.task && onSuccess) {
       onSuccess(response.task)
     }
-    
+
     // Muvaffaqiyatli yaratilgandan keyin savollarni default holatiga qaytarish
     const total = DEFAULT_CHOICE_COUNT + DEFAULT_WRITTEN_COUNT
     const resetQuestions: Question[] = []
@@ -170,8 +174,6 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
       resetQuestions.push(createEmptyQuestionOfType(i, type))
     }
     setQuestions(resetQuestions)
-    
-    closeDrawer()
   }
 
   const grouped = useMemo(() => {
@@ -190,7 +192,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {grouped.choice.length > 0 && (
             <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-5">
-              <Label className="text-sm font-semibold uppercase text-muted-foreground">Multiple Choice</Label>
+              <Label className="text-muted-foreground text-sm font-semibold uppercase">Multiple Choice</Label>
             </div>
           )}
           {grouped.choice.map(({ q, idx }, localIdx) => (
@@ -216,8 +218,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                           ...prev,
                           type: e.target.value as Question["type"],
                           answer: "",
-                          option:
-                            e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
+                          option: e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
                         }))
                       }
                     >
@@ -238,19 +239,15 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                               if (typeof el.setOptions === "function") {
                                 el.setOptions({ virtualKeyboardMode: "manual" })
                               }
-                              if (el.value !== q.answer) {
-                                el.value = q.answer || ""
-                              }
                             } catch {
                               /* ignore */
                             }
                           }}
+                          value={q.answer || ""}
                           onInput={(e: any) => {
                             try {
                               const value = (e?.target as any)?.value ?? ""
-                              if (value !== q.answer) {
-                                updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
-                              }
+                              updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
                             } catch {
                               /* ignore */
                             }
@@ -347,7 +344,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                 </Button>
               </div>
               <div className="sm:col-span-2 md:col-span-3 lg:col-span-4 xl:col-span-5">
-                <Label className="text-sm font-semibold uppercase text-muted-foreground">Written</Label>
+                <Label className="text-muted-foreground text-sm font-semibold uppercase">Written</Label>
               </div>
             </>
           )}
@@ -374,8 +371,7 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                           ...prev,
                           type: e.target.value as Question["type"],
                           answer: "",
-                          option:
-                            e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
+                          option: e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
                         }))
                       }
                     >
@@ -396,19 +392,15 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                               if (typeof el.setOptions === "function") {
                                 el.setOptions({ virtualKeyboardMode: "manual" })
                               }
-                              if (el.value !== q.answer) {
-                                el.value = q.answer || ""
-                              }
                             } catch {
                               /* ignore */
                             }
                           }}
+                          value={q.answer || ""}
                           onInput={(e: any) => {
                             try {
                               const value = (e?.target as any)?.value ?? ""
-                              if (value !== q.answer) {
-                                updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
-                              }
+                              updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
                             } catch {
                               /* ignore */
                             }
