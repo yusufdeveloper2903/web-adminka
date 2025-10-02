@@ -89,11 +89,7 @@ const handleLogout = () => {
   localStorage.removeItem("access_token")
   localStorage.removeItem("refresh_token")
 
-  // Update auth store
-  import("@/store/auth-store").then(({ useAuthStore }) => {
-    const { setUser } = useAuthStore.getState()
-    setUser(null)
-  })
+  // Auth store removed - no need to update
 
   // Only redirect if we're not already on the login page
   if (window.location.pathname !== "/login") {

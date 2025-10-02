@@ -2,16 +2,31 @@ import { useEffect, useState } from "react"
 import CreateTaskQuestionForm from "./components/CreateTaskQuestionForm"
 import { useHeaderStore } from "@/store"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
 const TasksTestPage = () => {
   const { setConfig, resetConfig } = useHeaderStore()
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [taskId, setTaskId] = useState<number | null>(null)
+  const { setTheme, theme } = useTheme()
 
   useEffect(() => {
-    setConfig({ title: "Questions", metadata: undefined, actions: [], filters: [] })
-  }, [setConfig])
+    setConfig({ 
+      title: "Questions", 
+      metadata: undefined, 
+      actions: [
+        {
+          id: "theme-toggle",
+          label: "",
+          onClick: () => setTheme(theme === "light" ? "dark" : "light"),
+          variant: "outline",
+          icon: theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />
+        }
+      ], 
+      filters: [] 
+    })
+  }, [setConfig, setTheme, theme])
 
   useEffect(() => {
     return () => resetConfig()
@@ -21,7 +36,6 @@ const TasksTestPage = () => {
     setTaskId(task)
     setShowSuccessModal(true)
   }
-
 
   return (
     <div className="p-4">

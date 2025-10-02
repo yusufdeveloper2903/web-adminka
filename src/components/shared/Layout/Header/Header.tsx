@@ -5,7 +5,7 @@ const Header = () => {
   const { title, metadata, filters, actions, viewSwitcher } = useHeaderStore()
 
   return (
-    <header className="border-border bg-card px4 mb-2 ml-2 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b pr-4">
+    <header className="border-border bg-card px4 mb-2 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b pr-4">
       <div className="flex flex-1 items-center gap-4">
         {/* Left Side */}
         <section className="flex items-center gap-4">

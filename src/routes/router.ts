@@ -19,8 +19,6 @@ const indexRoute = createRoute({
   }
 })
 
-// removed staffs route
-
 const questionsRoute = createRoute({
   path: "/questions",
   getParentRoute: () => AppLayoutRoute,
