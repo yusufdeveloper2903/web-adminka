@@ -162,6 +162,15 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
       onSuccess(response.task)
     }
     
+    // Muvaffaqiyatli yaratilgandan keyin savollarni default holatiga qaytarish
+    const total = DEFAULT_CHOICE_COUNT + DEFAULT_WRITTEN_COUNT
+    const resetQuestions: Question[] = []
+    for (let i = 0; i < total; i++) {
+      const type: Question["type"] = i < DEFAULT_CHOICE_COUNT ? "CHOICE" : "WRITTEN"
+      resetQuestions.push(createEmptyQuestionOfType(i, type))
+    }
+    setQuestions(resetQuestions)
+    
     closeDrawer()
   }
 

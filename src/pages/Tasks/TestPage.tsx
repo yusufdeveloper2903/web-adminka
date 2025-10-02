@@ -38,7 +38,7 @@ const TasksTestPage = () => {
   }
 
   return (
-    <div className="p-4">
+    <div className={`p-4 transition-all duration-300 ${showSuccessModal ? 'blur-sm' : ''}`}>
       <CreateTaskQuestionForm onSuccess={handleSuccess} />
       
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
