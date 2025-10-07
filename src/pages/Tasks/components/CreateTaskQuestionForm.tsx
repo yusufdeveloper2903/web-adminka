@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useDrawerStore } from "@/store"
 import { z } from "zod"
-import { useCreateQuestionMutation } from "@/hooks/tasks/mutations"
+import { useCreateQuestionMutation, useCreateClientMutation } from "@/hooks/tasks/mutations"
 
 const DEFAULT_CHOICE_COUNT = 35
 const DEFAULT_WRITTEN_COUNT = 10
@@ -71,6 +71,7 @@ interface CreateTaskQuestionFormProps {
 const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
   const { closeDrawer } = useDrawerStore()
   const mutation = useCreateQuestionMutation()
+  const createClient = useCreateClientMutation()
 
   // URL dan user_id ni o'qish
   const userId = useMemo(() => {
@@ -93,10 +94,15 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
     return list
   })
   const mathRefs = useRef<Record<number, any>>({})
+  const clientCreatedRef = useRef(false)
 
   useEffect(() => {
+    if (typeof userId === "number" && !Number.isNaN(userId) && !clientCreatedRef.current) {
+      clientCreatedRef.current = true
+      createClient.mutate({ tg_id: userId })
+    }
     import("mathlive").catch(() => undefined)
-  }, [])
+  }, [userId, createClient])
 
   const isQuestionComplete = (q: Question): boolean => {
     const answer = (q.answer || "").trim()

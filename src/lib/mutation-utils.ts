@@ -20,6 +20,14 @@ export const ENTITY_ERROR_MESSAGES = {
     UPDATE_SUCCESS: "Trip updated successfully!",
     STATUS_SUCCESS: (active: boolean) => `Trip ${active ? "activated" : "canceled"} successfully!`,
   },
+  client: {
+    INVALID_DATA: "Invalid client data. Please check your input and try again.",
+    NOT_FOUND: "Client not found.",
+    ALREADY_EXISTS: "Client already exists.",
+    CREATE_SUCCESS: "Client created successfully!",
+    UPDATE_SUCCESS: "Client updated successfully!",
+    STATUS_SUCCESS: (active: boolean) => `Client ${active ? "activated" : "deactivated"} successfully!`
+  },
   truck: {
     INVALID_DATA: "Invalid truck data. Please check your input and try again.",
     NOT_FOUND: "Truck not found.",

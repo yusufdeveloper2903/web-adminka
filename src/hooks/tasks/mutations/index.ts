@@ -3,5 +3,6 @@ export * from "./useUpdateTaskMutation"
 export * from "./useDeleteTaskMutation"
 export * from "./useCreateQuestionMutation"
 export * from "./useUpdateQuestionsMutation"
+export * from "./useCreateClientMutation"
 
 
