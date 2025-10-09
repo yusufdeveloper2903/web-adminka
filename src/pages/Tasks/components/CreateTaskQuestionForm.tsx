@@ -232,9 +232,9 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                       <option value="WRITTEN">WRITTEN</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Answer</Label>
-                    {q.type === "WRITTEN" ? (
+                  {q.type === "WRITTEN" && (
+                    <div className="space-y-2">
+                      <Label>Answer</Label>
                       <div className="relative">
                         {/* @ts-expect-error web component */}
                         <math-field
@@ -262,14 +262,8 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                           style={{ minHeight: 36 }}
                         />
                       </div>
-                    ) : (
-                      <Input
-                        placeholder="Enter answer option"
-                        value={q.answer}
-                        onChange={(e) => updateQuestion(idx, (prev) => ({ ...prev, answer: e.target.value }))}
-                      />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {q.type === "CHOICE" && (
@@ -277,16 +271,50 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                     <Label>Options</Label>
                     <div className="grid grid-cols-2 gap-2">
                       {q.option.map((opt, optIdx) => (
-                        <div key={optIdx} className="relative">
+                        <div
+                          key={optIdx}
+                          className="relative"
+                          onClick={() =>
+                            updateQuestion(idx, (prev) => {
+                              const value = (prev.option[optIdx] || "").trim()
+                              if (!value) return prev
+                              return { ...prev, answer: prev.option[optIdx] }
+                            })
+                          }
+                        >
+                          <input
+                            type="radio"
+                            name={`answer-${idx}`}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3"
+                            checked={(q.answer || "").toLowerCase() === (opt || "").toLowerCase()}
+                            onChange={() =>
+                              updateQuestion(idx, (prev) => {
+                                const value = (prev.option[optIdx] || "").trim()
+                                if (!value) return prev
+                                return { ...prev, answer: prev.option[optIdx] }
+                              })
+                            }
+                          />
                           <Input
                             placeholder={`Option ${optIdx + 1}`}
                             value={opt}
-                            className="pr-8"
+                            className={`pl-8 pr-16 cursor-pointer flex items-center ${
+                              (q.answer || "").toLowerCase() === (opt || "").toLowerCase()
+                                ? "border-primary bg-primary/10"
+                                : ""
+                            }`}
+                            maxLength={1}
                             onChange={(e) =>
                               updateQuestion(idx, (prev) => {
                                 const next = [...prev.option]
-                                next[optIdx] = e.target.value
-                                return { ...prev, option: next }
+                                const prevValue = next[optIdx]
+                                const sanitized = (e.target.value || "").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 1)
+                                if (sanitized && prev.option.some((v, i) => i !== optIdx && v === sanitized)) {
+                                  return prev
+                                }
+                                next[optIdx] = sanitized
+                                const nextAnswer = prev.answer === prevValue ? sanitized : prev.answer
+                                return { ...prev, option: next, answer: nextAnswer }
                               })
                             }
                           />
@@ -294,7 +322,10 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                             <Button
                               variant="ghost"
                               className="absolute top-2 right-1 h-5 w-5 p-0"
-                              onClick={() => removeOption(idx, optIdx)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                removeOption(idx, optIdx)
+                              }}
                               aria-label={`Remove option ${optIdx + 1}`}
                               title="Remove option"
                             >
@@ -435,10 +466,15 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
                             placeholder={`Option ${optIdx + 1}`}
                             value={opt}
                             className="pr-8"
+                            maxLength={1}
                             onChange={(e) =>
                               updateQuestion(idx, (prev) => {
                                 const next = [...prev.option]
-                                next[optIdx] = e.target.value
+                                const sanitized = (e.target.value || "").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 1)
+                                if (sanitized && prev.option.some((v, i) => i !== optIdx && v === sanitized)) {
+                                  return prev
+                                }
+                                next[optIdx] = sanitized
                                 return { ...prev, option: next }
                               })
                             }
