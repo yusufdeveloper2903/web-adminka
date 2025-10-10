@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button"
 import { useHeaderStore } from "@/store/header-store"
+import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react"
 
 const Header = () => {
   const { title, metadata, filters, actions, viewSwitcher } = useHeaderStore()
+
+  const { setTheme, theme } = useTheme()
 
   return (
     <header className="border-border bg-card px4 mb-2 flex h-12 shrink-0 items-center justify-between rounded-[8px] border-b pr-4">
@@ -34,6 +38,14 @@ const Header = () => {
             {icon}
           </Button>
         ))}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          aria-label="Toggle theme"
+        >
+          {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+        </Button>
       </section>
     </header>
   )

@@ -1,4 +1,4 @@
-import { QuestionsPage } from "@/pages"
+import { QuestionsPage, TestsPage, TestSolvePage } from "@/pages"
 import { createRoute, createRouter, redirect } from "@tanstack/react-router"
 import { Route as RootRoute } from "./__root"
 import { Layout } from "@/components/shared"
@@ -25,6 +25,18 @@ const questionsRoute = createRoute({
   component: QuestionsPage
 })
 
+const testsRoute = createRoute({
+  path: "/tests",
+  getParentRoute: () => AppLayoutRoute,
+  component: TestsPage
+})
+
+const testDetailRoute = createRoute({
+  path: "/tests/$testCode",
+  getParentRoute: () => AppLayoutRoute,
+  component: TestSolvePage
+})
+
 // Catch-all: redirect all other routes to /questions
 const notFoundRedirectRoute = createRoute({
   path: "*",
@@ -37,7 +49,7 @@ const notFoundRedirectRoute = createRoute({
 
 const routeTree = RootRoute.addChildren([
   indexRoute,
-  AppLayoutRoute.addChildren([questionsRoute]),
+  AppLayoutRoute.addChildren([questionsRoute, testsRoute, testDetailRoute]),
   notFoundRedirectRoute
 ])
 

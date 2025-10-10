@@ -213,58 +213,6 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
               </div>
 
               <div className="space-y-3">
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="space-y-2">
-                    <Label>Type</Label>
-                    <select
-                      className="h-9 w-full rounded-md border px-3"
-                      value={q.type}
-                      onChange={(e) =>
-                        updateQuestion(idx, (prev) => ({
-                          ...prev,
-                          type: e.target.value as Question["type"],
-                          answer: "",
-                          option: e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
-                        }))
-                      }
-                    >
-                      <option value="CHOICE">CHOICE</option>
-                      <option value="WRITTEN">WRITTEN</option>
-                    </select>
-                  </div>
-                  {q.type === "WRITTEN" && (
-                    <div className="space-y-2">
-                      <Label>Answer</Label>
-                      <div className="relative">
-                        {/* @ts-expect-error web component */}
-                        <math-field
-                          ref={(el: any) => {
-                            if (!el) return
-                            mathRefs.current[idx] = el
-                            try {
-                              if (typeof el.setOptions === "function") {
-                                el.setOptions({ virtualKeyboardMode: "manual" })
-                              }
-                            } catch {
-                              /* ignore */
-                            }
-                          }}
-                          value={q.answer || ""}
-                          onInput={(e: any) => {
-                            try {
-                              const value = (e?.target as any)?.value ?? ""
-                              updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
-                            } catch {
-                              /* ignore */
-                            }
-                          }}
-                          className="w-full rounded-md border px-3 py-2 text-base"
-                          style={{ minHeight: 36 }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
 
                 {q.type === "CHOICE" && (
                   <div className="space-y-2">
@@ -399,105 +347,36 @@ const CreateTaskQuestionForm = ({ onSuccess }: CreateTaskQuestionFormProps) => {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 gap-3">
                   <div className="space-y-2">
-                    <Label>Type</Label>
-                    <select
-                      className="h-9 w-full rounded-md border px-3"
-                      value={q.type}
-                      onChange={(e) =>
-                        updateQuestion(idx, (prev) => ({
-                          ...prev,
-                          type: e.target.value as Question["type"],
-                          answer: "",
-                          option: e.target.value === "WRITTEN" ? [] : ["A", "B", "C", "D"]
-                        }))
-                      }
-                    >
-                      <option value="CHOICE">CHOICE</option>
-                      <option value="WRITTEN">WRITTEN</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
                     <Label>Answer</Label>
-                    {q.type === "WRITTEN" ? (
-                      <div className="relative">
-                        {/* @ts-expect-error web component */}
-                        <math-field
-                          ref={(el: any) => {
-                            if (!el) return
-                            mathRefs.current[idx] = el
-                            try {
-                              if (typeof el.setOptions === "function") {
-                                el.setOptions({ virtualKeyboardMode: "manual" })
-                              }
-                            } catch {
-                              /* ignore */
+                    <div className="relative">
+                      {/* @ts-expect-error web component */}
+                      <math-field
+                        ref={(el: any) => {
+                          if (!el) return
+                          mathRefs.current[idx] = el
+                          try {
+                            if (typeof el.setOptions === "function") {
+                              el.setOptions({ virtualKeyboardMode: "manual" })
                             }
-                          }}
-                          value={q.answer || ""}
-                          onInput={(e: any) => {
-                            try {
-                              const value = (e?.target as any)?.value ?? ""
-                              updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
-                            } catch {
-                              /* ignore */
-                            }
-                          }}
-                          className="w-full rounded-md border px-3 py-2 text-base"
-                          style={{ minHeight: 36 }}
-                        />
-                      </div>
-                    ) : (
-                      <Input
-                        placeholder="Enter answer option"
-                        value={q.answer}
-                        onChange={(e) => updateQuestion(idx, (prev) => ({ ...prev, answer: e.target.value }))}
+                          } catch {
+                            /* ignore */
+                          }
+                        }}
+                        value={q.answer || ""}
+                        onInput={(e: any) => {
+                          try {
+                            const value = (e?.target as any)?.value ?? ""
+                            updateQuestion(idx, (prev) => ({ ...prev, answer: value }))
+                          } catch {
+                            /* ignore */
+                          }
+                        }}
+                        className="w-full rounded-md border px-3 py-2 text-base"
+                        style={{ minHeight: 36 }}
                       />
-                    )}
+                    </div>
                   </div>
                 </div>
-
-                {q.type === "CHOICE" && (
-                  <div className="space-y-2">
-                    <Label>Options</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {q.option.map((opt, optIdx) => (
-                        <div key={optIdx} className="relative">
-                          <Input
-                            placeholder={`Option ${optIdx + 1}`}
-                            value={opt}
-                            className="pr-8"
-                            maxLength={1}
-                            onChange={(e) =>
-                              updateQuestion(idx, (prev) => {
-                                const next = [...prev.option]
-                                const sanitized = (e.target.value || "").replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 1)
-                                if (sanitized && prev.option.some((v, i) => i !== optIdx && v === sanitized)) {
-                                  return prev
-                                }
-                                next[optIdx] = sanitized
-                                return { ...prev, option: next }
-                              })
-                            }
-                          />
-                          {q.option.length > 3 && (
-                            <Button
-                              variant="ghost"
-                              className="absolute top-2 right-1 h-5 w-5 p-0"
-                              onClick={() => removeOption(idx, optIdx)}
-                              aria-label={`Remove option ${optIdx + 1}`}
-                              title="Remove option"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <Button variant="outline" onClick={() => addOption(idx)}>
-                      Add option
-                    </Button>
-                  </div>
-                )}
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
